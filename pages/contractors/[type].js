@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
+import { getStatusInfo } from '../../utils/statusHelper'
 
 export default function ContractorTypePage() {
   const router = useRouter()
@@ -13,9 +14,15 @@ export default function ContractorTypePage() {
 
   const contractorsPerPage = 20
 
-  const states = [
-    'California', 'Texas', 'Florida', 'New York', 'Illinois', 'Pennsylvania',
-    'Ohio', 'Georgia', 'North Carolina', 'Michigan', 'New Jersey', 'Virginia'
+  const allStates = [
+    'Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut', 
+    'Delaware', 'Florida', 'Georgia', 'Hawaii', 'Idaho', 'Illinois', 'Indiana', 
+    'Iowa', 'Kansas', 'Kentucky', 'Louisiana', 'Maine', 'Maryland', 'Massachusetts', 
+    'Michigan', 'Minnesota', 'Mississippi', 'Missouri', 'Montana', 'Nebraska', 
+    'Nevada', 'New Hampshire', 'New Jersey', 'New Mexico', 'New York', 'North Carolina', 
+    'North Dakota', 'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania', 'Rhode Island', 
+    'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont', 
+    'Virginia', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming'
   ]
 
   const contractorTypes = {
@@ -145,7 +152,7 @@ export default function ContractorTypePage() {
                 minWidth: '200px'
               }}
             >
-              {states.map(state => (
+              {allStates.map(state => (
                 <option key={state} value={state}>{state}</option>
               ))}
             </select>
@@ -225,17 +232,27 @@ export default function ContractorTypePage() {
                             </div>
                           )}
                         </div>
-                        <div style={{ 
-                          background: contractor.primary_status === 'CLEAR' ? '#dcfce7' : '#fee2e2',
-                          color: contractor.primary_status === 'CLEAR' ? '#166534' : '#991b1b',
-                          padding: '0.25rem 0.75rem',
-                          borderRadius: '12px',
-                          fontSize: '0.8rem',
-                          fontWeight: 'bold',
-                          textTransform: 'uppercase'
-                        }}>
-                          {contractor.primary_status || 'N/A'}
-                        </div>
+                        {(() => {
+                          const statusInfo = getStatusInfo(contractor.primary_status)
+                          return (
+                            <div style={{
+                              background: statusInfo.bgColor,
+                              color: statusInfo.color,
+                              padding: '0.25rem 0.75rem',
+                              borderRadius: '12px',
+                              fontSize: '0.8rem',
+                              fontWeight: 'bold',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '0.25rem',
+                              cursor: 'help',
+                              title: statusInfo.description
+                            }}>
+                              <span>{statusInfo.icon}</span>
+                              <span>{statusInfo.label}</span>
+                            </div>
+                          )
+                        })()}
                       </div>
                     </div>
                   </Link>

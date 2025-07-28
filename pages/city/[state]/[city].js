@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
+import { getStatusInfo } from '../../../utils/statusHelper'
 
 export default function CityPage() {
   const router = useRouter()
@@ -235,17 +236,27 @@ export default function CityPage() {
                             {contractor.city}, {contractor.state} {contractor.zip_code}
                           </div>
                         </div>
-                        <div style={{ 
-                          background: contractor.primary_status === 'CLEAR' ? '#dcfce7' : '#fee2e2',
-                          color: contractor.primary_status === 'CLEAR' ? '#166534' : '#991b1b',
-                          padding: '0.25rem 0.75rem',
-                          borderRadius: '12px',
-                          fontSize: '0.8rem',
-                          fontWeight: 'bold',
-                          textTransform: 'uppercase'
-                        }}>
-                          {contractor.primary_status || 'N/A'}
-                        </div>
+                        {(() => {
+                          const statusInfo = getStatusInfo(contractor.primary_status)
+                          return (
+                            <div style={{
+                              background: statusInfo.bgColor,
+                              color: statusInfo.color,
+                              padding: '0.25rem 0.75rem',
+                              borderRadius: '12px',
+                              fontSize: '0.8rem',
+                              fontWeight: 'bold',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '0.25rem',
+                              cursor: 'help',
+                              title: statusInfo.description
+                            }}>
+                              <span>{statusInfo.icon}</span>
+                              <span>{statusInfo.label}</span>
+                            </div>
+                          )
+                        })()}
                       </div>
                     </div>
                   </Link>

@@ -8,6 +8,7 @@ export default function StatePage() {
   const [cities, setCities] = useState([])
   const [loading, setLoading] = useState(true)
   const [selectedType, setSelectedType] = useState('')
+  const [showAllCities, setShowAllCities] = useState(false)
 
   const contractorTypes = [
     { code: 'B', name: 'General Building' },
@@ -160,37 +161,106 @@ export default function StatePage() {
               Loading cities...
             </div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
-              {cities.map(city => (
-                <Link key={city.city} href={`/city/${state}/${city.city.toLowerCase().replace(/\s+/g, '-')}`}>
-                  <div style={{ 
-                    padding: '1.5rem', 
-                    border: '2px solid #e5e7eb', 
-                    borderRadius: '8px', 
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                    textDecoration: 'none',
-                    color: '#333',
-                    ':hover': {
-                      borderColor: '#3b82f6',
-                      transform: 'translateY(-2px)'
-                    }
-                  }}>
-                    <div style={{ fontSize: '1.3rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>
-                      {city.city}
-                    </div>
-                    <div style={{ fontSize: '1rem', color: '#666' }}>
-                      {city.count.toLocaleString()} contractors
-                    </div>
-                    {city.county && (
-                      <div style={{ fontSize: '0.9rem', color: '#888', marginTop: '0.25rem' }}>
-                        {city.county} County
+            <>
+              <div style={{ marginBottom: '2rem' }}>
+                <h3 style={{ fontSize: '1.3rem', marginBottom: '1rem', color: '#555', fontWeight: '600' }}>
+                  🏙️ Major Cities
+                </h3>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
+                  {cities.slice(0, 12).map(city => (
+                    <Link key={city.city} href={`/city/${state}/${city.city.toLowerCase().replace(/\s+/g, '-')}`}>
+                      <div style={{ 
+                        padding: '1.5rem', 
+                        border: '2px solid #e5e7eb', 
+                        borderRadius: '8px', 
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        textDecoration: 'none',
+                        color: '#333',
+                        ':hover': {
+                          borderColor: '#3b82f6',
+                          transform: 'translateY(-2px)'
+                        }
+                      }}>
+                        <div style={{ fontSize: '1.3rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>
+                          {city.city}
+                        </div>
+                        <div style={{ fontSize: '1rem', color: '#666' }}>
+                          {city.count.toLocaleString()} contractors
+                        </div>
+                        {city.county && (
+                          <div style={{ fontSize: '0.9rem', color: '#888', marginTop: '0.25rem' }}>
+                            {city.county} County
+                          </div>
+                        )}
                       </div>
-                    )}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+              {cities.length > 12 && (
+                <>
+                  {showAllCities && (
+                    <div style={{ marginBottom: '1rem' }}>
+                      <h3 style={{ fontSize: '1.3rem', marginBottom: '1rem', color: '#555', fontWeight: '600' }}>
+                        📍 All Cities
+                      </h3>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem' }}>
+                        {cities.slice(12).map(city => (
+                          <Link key={city.city} href={`/city/${state}/${city.city.toLowerCase().replace(/\s+/g, '-')}`}>
+                            <div style={{ 
+                              padding: '1rem', 
+                              border: '1px solid #e5e7eb', 
+                              borderRadius: '6px', 
+                              cursor: 'pointer',
+                              transition: 'all 0.2s',
+                              textDecoration: 'none',
+                              color: '#333',
+                              fontSize: '0.95rem',
+                              ':hover': {
+                                borderColor: '#3b82f6',
+                                backgroundColor: '#f8fafc'
+                              }
+                            }}>
+                              <div style={{ fontWeight: 'bold', marginBottom: '0.25rem' }}>
+                                {city.city}
+                              </div>
+                              <div style={{ fontSize: '0.85rem', color: '#666' }}>
+                                {city.count.toLocaleString()} contractors
+                              </div>
+                              {city.county && (
+                                <div style={{ fontSize: '0.8rem', color: '#888', marginTop: '0.25rem' }}>
+                                  {city.county} County
+                                </div>
+                              )}
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+                    <button
+                      onClick={() => setShowAllCities(!showAllCities)}
+                      style={{
+                        background: showAllCities ? '#6b7280' : '#3b82f6',
+                        color: 'white',
+                        padding: '0.75rem 1.5rem',
+                        border: 'none',
+                        borderRadius: '8px',
+                        fontSize: '1rem',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s'
+                      }}
+                    >
+                      {showAllCities ? 'Show Less Cities' : `Show All ${cities.length} Cities`}
+                    </button>
                   </div>
-                </Link>
-              ))}
-            </div>
+                </>
+              )}
+            </>
           )}
         </div>
       </div>

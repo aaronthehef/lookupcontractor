@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
+import { getStatusInfo } from '../../utils/statusHelper'
 
 export default function ContractorProfile() {
   const router = useRouter()
@@ -166,14 +167,37 @@ export default function ContractorProfile() {
                 </div>
                 
                 <div style={{ marginBottom: '0.75rem' }}>
-                  <strong>Status:</strong><br />
-                  <span style={{ 
-                    color: contractor.primary_status === 'CLEAR' ? '#059669' : '#dc2626',
-                    fontWeight: 'bold',
-                    fontSize: '1.1rem'
-                  }}>
-                    {contractor.primary_status || 'N/A'}
-                  </span>
+                  <strong>License Status:</strong><br />
+                  {(() => {
+                    const statusInfo = getStatusInfo(contractor.primary_status)
+                    return (
+                      <div style={{ marginTop: '0.5rem' }}>
+                        <div style={{
+                          background: statusInfo.bgColor,
+                          color: statusInfo.color,
+                          padding: '0.5rem 0.75rem',
+                          borderRadius: '8px',
+                          fontSize: '1rem',
+                          fontWeight: 'bold',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '0.5rem',
+                          marginBottom: '0.5rem'
+                        }}>
+                          <span>{statusInfo.icon}</span>
+                          <span>{statusInfo.label}</span>
+                        </div>
+                        <div style={{ 
+                          fontSize: '0.9rem', 
+                          color: '#666', 
+                          fontStyle: 'italic',
+                          lineHeight: 1.4
+                        }}>
+                          {statusInfo.description}
+                        </div>
+                      </div>
+                    )
+                  })()}
                 </div>
                 
                 <div style={{ marginBottom: '0.75rem' }}>

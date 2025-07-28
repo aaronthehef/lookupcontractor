@@ -23,9 +23,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         AND city IS NOT NULL 
         AND city != ''
       GROUP BY city, county
-      HAVING COUNT(*) >= 10
+      HAVING COUNT(*) >= 5
       ORDER BY count DESC, city ASC
-      LIMIT 100
+      LIMIT 200
     `)
 
     res.status(200).json({
