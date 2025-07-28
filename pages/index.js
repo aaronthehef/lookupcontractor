@@ -1,197 +1,215 @@
+import Link from 'next/link'
 import { useState } from 'react'
 
 export default function Home() {
   const [searchTerm, setSearchTerm] = useState('')
   const [searchType, setSearchType] = useState('license')
-  const [results, setResults] = useState([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+  const [selectedState, setSelectedState] = useState('')
 
-  const handleSearch = async (e) => {
-    e.preventDefault()
-    
-    if (!searchTerm.trim()) {
-      setError('Please enter a search term')
-      return
+  const states = [
+    'California', 'Texas', 'Florida', 'New York', 'Illinois', 'Pennsylvania',
+    'Ohio', 'Georgia', 'North Carolina', 'Michigan', 'New Jersey', 'Virginia',
+    'Washington', 'Arizona', 'Massachusetts', 'Tennessee', 'Indiana', 'Missouri',
+    'Maryland', 'Wisconsin', 'Colorado', 'Minnesota', 'South Carolina', 'Alabama'
+  ]
+
+  const contractorTypes = [
+    { code: 'B', name: 'General Building Contractor', count: '100,583' },
+    { code: 'A', name: 'General Engineering Contractor', count: '15,242' },
+    { code: 'C-10', name: 'Electrical Contractor', count: '20,234' },
+    { code: 'C-36', name: 'Plumbing Contractor', count: '11,540' },
+    { code: 'C-20', name: 'HVAC Contractor', count: '8,865' },
+    { code: 'C-27', name: 'Landscaping Contractor', count: '10,102' },
+    { code: 'C-33', name: 'Painting Contractor', count: '12,792' },
+    { code: 'C-39', name: 'Roofing Contractor', count: '3,817' }
+  ]
+
+  const handleQuickSearch = () => {
+    if (selectedState && searchTerm) {
+      const stateCode = selectedState.toLowerCase().replace(' ', '-')
+      window.location.href = `/search?state=${stateCode}&type=${searchType}&term=${encodeURIComponent(searchTerm)}`
     }
-
-    setLoading(true)
-    setError('')
-    setResults([])
-
-    try {
-      const response = await fetch('/api/search', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          searchTerm: searchTerm.trim(),
-          searchType
-        }),
-      })
-
-      if (!response.ok) {
-        throw new Error('Search failed')
-      }
-
-      const data = await response.json()
-      setResults(data.contractors || [])
-      
-      if (data.contractors?.length === 0) {
-        setError('No contractors found for your search')
-      }
-    } catch (err) {
-      setError('Search failed. Please try again.')
-      console.error('Search error:', err)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const formatDate = (dateString) => {
-    if (!dateString) return 'N/A'
-    return new Date(dateString).toLocaleDateString()
-  }
-
-  const formatPhone = (phone) => {
-    if (!phone) return 'N/A'
-    const cleaned = phone.replace(/\D/g, '')
-    if (cleaned.length === 10) {
-      return `(${cleaned.slice(0,3)}) ${cleaned.slice(3,6)}-${cleaned.slice(6)}`
-    }
-    return phone
   }
 
   return (
-    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem' }}>
-      <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', textAlign: 'center', marginBottom: '0.5rem' }}>
-        Lookup Contractor
-      </h1>
-      <p style={{ fontSize: '1.25rem', textAlign: 'center', color: '#666', marginBottom: '2rem' }}>
-        Search California State License Board (CSLB) Database
-      </p>
+    <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
+      {/* Header */}
+      <header style={{ padding: '2rem 0', textAlign: 'center', color: 'white' }}>
+        <h1 style={{ fontSize: '3.5rem', fontWeight: 'bold', marginBottom: '0.5rem', margin: 0 }}>
+          ContractorHub
+        </h1>
+        <p style={{ fontSize: '1.5rem', opacity: 0.9, margin: 0 }}>
+          Find Licensed Contractors Nationwide
+        </p>
+      </header>
 
-      <form onSubmit={handleSearch} style={{ marginBottom: '1.5rem' }}>
-        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
-          <select 
-            value={searchType} 
-            onChange={(e) => setSearchType(e.target.value)}
-            style={{ padding: '0.5rem', border: '1px solid #ccc', borderRadius: '4px' }}
-          >
-            <option value="license">License Number</option>
-            <option value="business">Business Name</option>
-            <option value="city">City</option>
-            <option value="classification">Classification</option>
-          </select>
-          
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder={`Enter ${searchType === 'license' ? 'license number' : 
-                         searchType === 'business' ? 'business name' :
-                         searchType === 'city' ? 'city name' : 'classification code'}`}
-            style={{ 
-              flex: 1, 
-              padding: '0.75rem', 
-              border: '2px solid #e5e7eb', 
-              borderRadius: '8px', 
-              fontSize: '1rem' 
-            }}
-            disabled={loading}
-          />
-          
-          <button 
-            type="submit" 
-            style={{ 
-              background: '#3b82f6', 
-              color: 'white', 
-              padding: '0.75rem 1.5rem', 
-              border: 'none', 
-              borderRadius: '8px',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              opacity: loading ? 0.6 : 1
-            }}
-            disabled={loading}
-          >
-            {loading ? 'Searching...' : 'Search'}
-          </button>
-        </div>
-      </form>
-
-      {error && (
+      {/* Main Content */}
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 2rem' }}>
+        
+        {/* Quick Search Section */}
         <div style={{ 
-          background: '#fef2f2', 
-          border: '1px solid #fecaca', 
-          color: '#dc2626', 
-          padding: '1rem', 
-          borderRadius: '8px', 
-          marginBottom: '1rem' 
+          background: 'white', 
+          borderRadius: '12px', 
+          padding: '2rem', 
+          marginBottom: '3rem',
+          boxShadow: '0 10px 25px rgba(0,0,0,0.1)'
         }}>
-          {error}
-        </div>
-      )}
-
-      {loading && (
-        <div style={{ textAlign: 'center', padding: '2rem', color: '#666' }}>
-          Searching contractors...
-        </div>
-      )}
-
-      {results.length > 0 && (
-        <div>
-          <p style={{ color: '#666', marginBottom: '1rem' }}>
-            Found {results.length} contractor{results.length !== 1 ? 's' : ''}
-          </p>
+          <h2 style={{ fontSize: '2rem', marginBottom: '1rem', textAlign: 'center', color: '#333' }}>
+            Quick Search
+          </h2>
           
-          <div>
-            {results.map((contractor) => (
-              <div key={contractor.id} style={{ 
-                background: 'white', 
-                border: '1px solid #e5e7eb', 
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+            <select 
+              value={selectedState}
+              onChange={(e) => setSelectedState(e.target.value)}
+              style={{ 
+                padding: '0.75rem', 
+                border: '2px solid #e5e7eb', 
+                borderRadius: '8px',
+                fontSize: '1rem'
+              }}
+            >
+              <option value="">Select State</option>
+              {states.map(state => (
+                <option key={state} value={state}>{state}</option>
+              ))}
+            </select>
+
+            <select 
+              value={searchType}
+              onChange={(e) => setSearchType(e.target.value)}
+              style={{ 
+                padding: '0.75rem', 
+                border: '2px solid #e5e7eb', 
+                borderRadius: '8px',
+                fontSize: '1rem'
+              }}
+            >
+              <option value="business">Business Name</option>
+              <option value="license">License Number</option>
+              <option value="city">City</option>
+              <option value="classification">Contractor Type</option>
+            </select>
+
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder={`Enter ${searchType === 'license' ? 'license number' : 
+                           searchType === 'business' ? 'business name' :
+                           searchType === 'city' ? 'city name' : 'contractor type'}`}
+              style={{ 
+                padding: '0.75rem', 
+                border: '2px solid #e5e7eb', 
                 borderRadius: '8px', 
-                padding: '1.5rem', 
-                marginBottom: '1rem',
-                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
-              }}>
-                <div style={{ fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>
-                  {contractor.business_name}
-                </div>
-                
-                <div style={{ color: '#666', lineHeight: 1.6 }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
-                    <div>
-                      <strong>License #:</strong> {contractor.license_no}<br />
-                      <strong>Classification:</strong> {contractor.primary_classification || 'N/A'}<br />
-                      <strong>Trade:</strong> {contractor.trade || 'N/A'}<br />
-                      <strong>Status:</strong> 
-                      <span style={{ 
-                        color: contractor.primary_status === 'CLEAR' ? '#059669' : '#dc2626',
-                        fontWeight: 600
-                      }}>
-                        {contractor.primary_status || 'N/A'}
-                      </span>
-                    </div>
-                    
-                    <div>
-                      <strong>Address:</strong> {contractor.mailing_address || 'N/A'}<br />
-                      <strong>City:</strong> {contractor.city}, {contractor.county || ''}<br />
-                      <strong>ZIP:</strong> {contractor.zip_code || 'N/A'}<br />
-                      <strong>Phone:</strong> {formatPhone(contractor.business_phone)}
-                    </div>
+                fontSize: '1rem'
+              }}
+            />
+
+            <button 
+              onClick={handleQuickSearch}
+              disabled={!selectedState || !searchTerm}
+              style={{ 
+                background: selectedState && searchTerm ? '#3b82f6' : '#9ca3af',
+                color: 'white', 
+                padding: '0.75rem 1.5rem', 
+                border: 'none', 
+                borderRadius: '8px',
+                fontSize: '1rem',
+                fontWeight: 'bold',
+                cursor: selectedState && searchTerm ? 'pointer' : 'not-allowed'
+              }}
+            >
+              Search Contractors
+            </button>
+          </div>
+        </div>
+
+        {/* Browse by State */}
+        <div style={{ 
+          background: 'white', 
+          borderRadius: '12px', 
+          padding: '2rem', 
+          marginBottom: '3rem',
+          boxShadow: '0 10px 25px rgba(0,0,0,0.1)'
+        }}>
+          <h2 style={{ fontSize: '2rem', marginBottom: '1.5rem', textAlign: 'center', color: '#333' }}>
+            Browse by State
+          </h2>
+          
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+            {states.slice(0, 12).map(state => (
+              <Link key={state} href={`/state/${state.toLowerCase().replace(' ', '-')}`}>
+                <div style={{ 
+                  padding: '1rem', 
+                  border: '2px solid #e5e7eb', 
+                  borderRadius: '8px', 
+                  textAlign: 'center',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  textDecoration: 'none',
+                  color: '#333'
+                }}>
+                  <div style={{ fontSize: '1.1rem', fontWeight: '600' }}>{state}</div>
+                  <div style={{ fontSize: '0.9rem', color: '#666', marginTop: '0.25rem' }}>
+                    {state === 'California' ? '241,671 contractors' : 'Coming soon'}
                   </div>
-                  
-                  <div style={{ marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid #e5e7eb' }}>
-                    <strong>Issue Date:</strong> {formatDate(contractor.issue_date)} | 
-                    <strong> Expiration:</strong> {formatDate(contractor.expiration_date)}
-                  </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
-      )}
+
+        {/* Browse by Contractor Type */}
+        <div style={{ 
+          background: 'white', 
+          borderRadius: '12px', 
+          padding: '2rem', 
+          marginBottom: '3rem',
+          boxShadow: '0 10px 25px rgba(0,0,0,0.1)'
+        }}>
+          <h2 style={{ fontSize: '2rem', marginBottom: '1.5rem', textAlign: 'center', color: '#333' }}>
+            Popular Contractor Types
+          </h2>
+          
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
+            {contractorTypes.map(type => (
+              <Link key={type.code} href={`/contractors/${type.code.toLowerCase()}`}>
+                <div style={{ 
+                  padding: '1.5rem', 
+                  border: '2px solid #e5e7eb', 
+                  borderRadius: '8px', 
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  textDecoration: 'none',
+                  color: '#333'
+                }}>
+                  <div style={{ fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>
+                    {type.name}
+                  </div>
+                  <div style={{ fontSize: '0.9rem', color: '#666' }}>
+                    Code: {type.code} • {type.count} licensed contractors
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+
+      </div>
+
+      {/* Footer */}
+      <footer style={{ 
+        background: 'rgba(255,255,255,0.1)', 
+        color: 'white', 
+        textAlign: 'center', 
+        padding: '2rem',
+        marginTop: '3rem'
+      }}>
+        <p style={{ margin: 0, opacity: 0.8 }}>
+          ContractorHub - Your trusted source for licensed contractor information nationwide
+        </p>
+      </footer>
     </div>
   )
 }
