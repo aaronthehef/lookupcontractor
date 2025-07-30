@@ -8,7 +8,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
-  const { searchTerm, searchType } = req.body
+  const { searchTerm, searchType, city, state } = req.body
 
   if (!searchTerm || !searchType) {
     return res.status(400).json({ error: 'Missing search parameters' })
@@ -19,69 +19,68 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     await client.connect()
 
-    let query: string
-    let queryParams: string[]
+    // Build dynamic WHERE clause
+    let whereConditions = [`state = 'CA'`]
+    let queryParams: string[] = []
+    let paramIndex = 1
 
+    // Add search type specific condition
     switch (searchType) {
       case 'license':
-        query = `
-          SELECT id, license_no, business_name, city, county, zip_code, 
-                 business_phone, primary_status, primary_classification, trade,
-                 issue_date, expiration_date, mailing_address
-          FROM contractors 
-          WHERE state = 'CA' AND license_no ILIKE $1
-          ORDER BY license_no
-          LIMIT 50
-        `
-        queryParams = [`%${searchTerm}%`]
+        whereConditions.push(`license_no ILIKE $${paramIndex}`)
+        queryParams.push(`%${searchTerm}%`)
+        paramIndex++
         break
 
       case 'business':
-        query = `
-          SELECT id, license_no, business_name, city, county, zip_code,
-                 business_phone, primary_status, primary_classification, trade,
-                 issue_date, expiration_date, mailing_address
-          FROM contractors 
-          WHERE state = 'CA' AND business_name ILIKE $1
-          ORDER BY business_name
-          LIMIT 50
-        `
-        queryParams = [`%${searchTerm}%`]
+        whereConditions.push(`business_name ILIKE $${paramIndex}`)
+        queryParams.push(`%${searchTerm}%`)
+        paramIndex++
         break
 
       case 'city':
-        query = `
-          SELECT id, license_no, business_name, city, county, zip_code,
-                 business_phone, primary_status, primary_classification, trade,
-                 issue_date, expiration_date, mailing_address
-          FROM contractors 
-          WHERE state = 'CA' AND city ILIKE $1
-          ORDER BY business_name
-          LIMIT 50
-        `
-        queryParams = [`%${searchTerm}%`]
+        whereConditions.push(`city ILIKE $${paramIndex}`)
+        queryParams.push(`%${searchTerm}%`)
+        paramIndex++
         break
 
       case 'classification':
-        query = `
-          SELECT id, license_no, business_name, city, county, zip_code,
-                 business_phone, primary_status, primary_classification, trade,
-                 issue_date, expiration_date, mailing_address
-          FROM contractors 
-          WHERE state = 'CA' AND (
-            primary_classification ILIKE $1 OR 
-            raw_classifications ILIKE $1 OR
-            trade ILIKE $1
-          )
-          ORDER BY primary_classification, business_name
-          LIMIT 50
-        `
-        queryParams = [`%${searchTerm}%`]
+        whereConditions.push(`(
+          primary_classification ILIKE $${paramIndex} OR 
+          raw_classifications ILIKE $${paramIndex} OR
+          trade ILIKE $${paramIndex}
+        )`)
+        queryParams.push(`%${searchTerm}%`)
+        paramIndex++
         break
 
       default:
         return res.status(400).json({ error: 'Invalid search type' })
     }
+
+    // Add city filter if provided and not already searching by city
+    if (city && searchType !== 'city') {
+      whereConditions.push(`city ILIKE $${paramIndex}`)
+      queryParams.push(`%${city}%`)
+      paramIndex++
+    }
+
+    // Add state filter if provided (currently only CA supported)
+    if (state && state.toLowerCase() !== 'california') {
+      // For now, only California is supported
+      return res.status(400).json({ error: 'Only California contractors are currently available' })
+    }
+
+    const query = `
+      SELECT id, license_no, business_name, city, county, zip_code,
+             business_phone, primary_status, primary_classification, trade,
+             issue_date, expiration_date, mailing_address
+      FROM contractors 
+      WHERE ${whereConditions.join(' AND ')}
+      ORDER BY ${searchType === 'license' ? 'license_no' : 
+                 searchType === 'classification' ? 'primary_classification, business_name' : 
+                 'business_name'}
+    `
 
     const { rows } = await client.query(query, queryParams)
 

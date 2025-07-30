@@ -7,6 +7,7 @@ export default function Home() {
   const [selectedState, setSelectedState] = useState('')
   const [showAllStates, setShowAllStates] = useState(false)
   const [showAllContractorTypes, setShowAllContractorTypes] = useState(false)
+  const [smartSearchTerm, setSmartSearchTerm] = useState('')
 
   const popularStates = [
     'California', 'Texas', 'Florida', 'New York', 'Illinois', 'Pennsylvania',
@@ -91,12 +92,132 @@ export default function Home() {
     }
   }
 
+  const parseSmartSearch = (input) => {
+    const text = input.toLowerCase().trim()
+    
+    // License number check
+    if (/^\d+$/.test(text)) {
+      return { type: 'license', term: text.toUpperCase(), state: 'california', city: null }
+    }
+    
+    // Contractor types mapping
+    const contractorTypes = {
+      'plumber': 'c-36', 'plumbers': 'c-36', 'plumbing': 'c-36',
+      'electrician': 'c-10', 'electricians': 'c-10', 'electrical': 'c-10', 'electric': 'c-10',
+      'roofer': 'c-39', 'roofers': 'c-39', 'roofing': 'c-39',
+      'hvac': 'c-20', 'heating': 'c-20', 'painter': 'c-33', 'painters': 'c-33', 'painting': 'c-33',
+      'landscaper': 'c-27', 'landscapers': 'c-27', 'landscaping': 'c-27',
+      'builder': 'b', 'builders': 'b', 'construction': 'b'
+    }
+    
+    // State names (should not be treated as cities)
+    const stateNames = ['california', 'ca', 'texas', 'tx', 'florida', 'fl', 'new york', 'ny']
+    
+    // City abbreviations
+    const cityAbbreviations = {
+      'la': 'LOS ANGELES', 'sf': 'SAN FRANCISCO', 'sd': 'SAN DIEGO'
+    }
+    
+    // Simple pattern: "contractors in city" or "city contractors"
+    let detectedType = null
+    let detectedCity = null
+    let isStatewide = false
+    
+    // Find contractor type
+    for (const [keyword, code] of Object.entries(contractorTypes)) {
+      if (text.includes(keyword)) {
+        detectedType = code
+        break
+      }
+    }
+    
+    // Find location using simple pattern matching
+    const locationMatch = text.match(/(?:in|near)\s+([a-z\s]+)/) || text.match(/([a-z\s]+)\s+(?:area|contractors?)/)
+    if (locationMatch) {
+      const location = locationMatch[1].trim()
+      
+      // Check if it's a state name
+      if (stateNames.includes(location)) {
+        isStatewide = true
+        detectedCity = null // Don't filter by city for statewide searches
+      } else {
+        detectedCity = cityAbbreviations[location] || location.toUpperCase()
+      }
+    }
+    
+    // Business name fallback
+    if (!detectedType) {
+      return { type: 'business', term: input.trim(), state: 'california', city: detectedCity }
+    }
+    
+    return {
+      type: 'classification',
+      term: detectedType,
+      state: 'california',
+      city: detectedCity
+    }
+  }
+
+  const handleSmartSearch = async () => {
+    if (!smartSearchTerm.trim()) return
+    
+    const parsed = parseSmartSearch(smartSearchTerm)
+    
+    // For license numbers and business names, allow search without location
+    if (parsed.state || parsed.type === 'license' || parsed.type === 'business') {
+      try {
+        const requestBody = {
+          searchTerm: parsed.term,
+          searchType: parsed.type,
+          city: parsed.city,
+          state: parsed.state || 'california' // Default to CA if no state specified
+        }
+        
+        // Debug what we're sending
+        console.log('Sending to API:', requestBody)
+        
+        // Call the search API directly with proper parameters
+        const response = await fetch('/api/search', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestBody)
+        })
+        
+        const data = await response.json()
+        
+        if (response.ok) {
+          // Store results and redirect to results page
+          localStorage.setItem('searchResults', JSON.stringify(data))
+          localStorage.setItem('searchQuery', smartSearchTerm)
+          window.location.href = '/search-results'
+        } else {
+          alert(data.error || 'Search failed')
+        }
+      } catch (error) {
+        console.error('Search error:', error)
+        alert('Search failed. Please try again.')
+      }
+    } else {
+      // If no state detected and not a license/business search, show an alert
+      alert('Please specify a location (e.g., "plumbers in Los Angeles") or search by business name/license number')
+    }
+  }
+
   return (
     <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
       {/* Header */}
       <header style={{ padding: '2rem 0', textAlign: 'center', color: 'white' }}>
         <h1 style={{ fontSize: '3.5rem', fontWeight: 'bold', marginBottom: '0.5rem', margin: 0 }}>
-          Lookup Contractor
+          L<span style={{ 
+            display: 'inline-block',
+            fontSize: '2.6rem',
+            filter: 'hue-rotate(200deg) saturate(1.5)',
+            transform: 'scale(1.05)',
+            marginLeft: '2px',
+            marginRight: '2px'
+          }}>👀</span>kup Contractor
         </h1>
         <p style={{ fontSize: '1.5rem', opacity: 0.9, margin: 0 }}>
           Find Licensed Contractors Nationwide
@@ -106,7 +227,7 @@ export default function Home() {
       {/* Main Content */}
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 2rem' }}>
         
-        {/* Quick Search Section */}
+        {/* Smart Search Section */}
         <div style={{ 
           background: 'white', 
           borderRadius: '12px', 
@@ -114,74 +235,72 @@ export default function Home() {
           marginBottom: '3rem',
           boxShadow: '0 10px 25px rgba(0,0,0,0.1)'
         }}>
-          <h2 style={{ fontSize: '2rem', marginBottom: '1rem', textAlign: 'center', color: '#333' }}>
-            Quick Search
+          <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem', textAlign: 'center', color: '#333' }}>
+            🔍 Smart Search
           </h2>
+          <p style={{ textAlign: 'center', color: '#666', marginBottom: '1.5rem', fontSize: '1rem' }}>
+            Search naturally like Google - try "plumbers in Los Angeles" or enter any license number
+          </p>
           
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
-            <select 
-              value={selectedState}
-              onChange={(e) => setSelectedState(e.target.value)}
-              style={{ 
-                padding: '0.75rem', 
-                border: '2px solid #e5e7eb', 
-                borderRadius: '8px',
-                fontSize: '1rem'
-              }}
-            >
-              <option value="">Select State</option>
-              {allStates.map(state => (
-                <option key={state} value={state}>{state}</option>
-              ))}
-            </select>
-
-            <select 
-              value={searchType}
-              onChange={(e) => setSearchType(e.target.value)}
-              style={{ 
-                padding: '0.75rem', 
-                border: '2px solid #e5e7eb', 
-                borderRadius: '8px',
-                fontSize: '1rem'
-              }}
-            >
-              <option value="business">Business Name</option>
-              <option value="license">License Number</option>
-              <option value="city">City</option>
-              <option value="classification">Contractor Type</option>
-            </select>
-
+          <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', maxWidth: '800px', margin: '0 auto 1.5rem auto' }}>
             <input
               type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder={`Enter ${searchType === 'license' ? 'license number' : 
-                           searchType === 'business' ? 'business name' :
-                           searchType === 'city' ? 'city name' : 'contractor type'}`}
+              value={smartSearchTerm}
+              onChange={(e) => setSmartSearchTerm(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleSmartSearch()}
+              placeholder="Try: 'electricians in California', 'roofers near Miami', or license number '1234567'"
               style={{ 
-                padding: '0.75rem', 
+                flex: 1,
+                padding: '1rem 1.5rem', 
                 border: '2px solid #e5e7eb', 
-                borderRadius: '8px', 
-                fontSize: '1rem'
+                borderRadius: '50px', 
+                fontSize: '1.1rem',
+                outline: 'none',
+                transition: 'border-color 0.2s',
+                ':focus': { borderColor: '#3b82f6' }
               }}
+              onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+              onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
             />
 
             <button 
-              onClick={handleQuickSearch}
-              disabled={!selectedState || !searchTerm}
+              onClick={handleSmartSearch}
+              disabled={!smartSearchTerm.trim()}
               style={{ 
-                background: selectedState && searchTerm ? '#3b82f6' : '#9ca3af',
+                background: smartSearchTerm.trim() ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : '#9ca3af',
                 color: 'white', 
-                padding: '0.75rem 1.5rem', 
+                padding: '1rem 2rem', 
                 border: 'none', 
-                borderRadius: '8px',
-                fontSize: '1rem',
+                borderRadius: '50px',
+                fontSize: '1.1rem',
                 fontWeight: 'bold',
-                cursor: selectedState && searchTerm ? 'pointer' : 'not-allowed'
+                cursor: smartSearchTerm.trim() ? 'pointer' : 'not-allowed',
+                transition: 'all 0.2s',
+                boxShadow: smartSearchTerm.trim() ? '0 4px 15px rgba(102, 126, 234, 0.3)' : 'none'
               }}
             >
-              Search Contractors
+              🔍 Search
             </button>
+          </div>
+
+          <div style={{ textAlign: 'center', fontSize: '0.9rem', color: '#888' }}>
+            <div style={{ marginBottom: '0.5rem' }}>
+              <strong>Examples:</strong>
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '1rem' }}>
+              <span style={{ background: '#f3f4f6', padding: '0.25rem 0.75rem', borderRadius: '20px' }}>
+                "plumbers in Los Angeles"
+              </span>
+              <span style={{ background: '#f3f4f6', padding: '0.25rem 0.75rem', borderRadius: '20px' }}>
+                "electricians near Miami"
+              </span>
+              <span style={{ background: '#f3f4f6', padding: '0.25rem 0.75rem', borderRadius: '20px' }}>
+                "1034567" (license)
+              </span>
+              <span style={{ background: '#f3f4f6', padding: '0.25rem 0.75rem', borderRadius: '20px' }}>
+                "solar contractors in Texas"
+              </span>
+            </div>
           </div>
         </div>
 
