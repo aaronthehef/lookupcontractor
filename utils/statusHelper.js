@@ -1,5 +1,5 @@
 // Helper function to get status information with user-friendly explanations
-export const getStatusInfo = (status) => {
+const getStatusInfo = (status) => {
   const statusMap = {
     'CLEAR': {
       label: 'Active & Clear',
@@ -74,7 +74,7 @@ export const getStatusInfo = (status) => {
 }
 
 // Component for displaying status badge with tooltip
-export const StatusBadge = ({ status, showTooltip = false, size = 'normal' }) => {
+const StatusBadge = ({ status, showTooltip = false, size = 'normal' }) => {
   const statusInfo = getStatusInfo(status)
   
   const badgeStyle = {
@@ -98,4 +98,9 @@ export const StatusBadge = ({ status, showTooltip = false, size = 'normal' }) =>
       <span>{statusInfo.label}</span>
     </span>
   )
+}
+
+export {
+  getStatusInfo,
+  StatusBadge
 }

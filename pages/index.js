@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Head from 'next/head'
 import { useState } from 'react'
 
 export default function Home() {
@@ -167,10 +168,11 @@ export default function Home() {
     if (parsed.state || parsed.type === 'license' || parsed.type === 'business') {
       try {
         const requestBody = {
-          searchTerm: parsed.term,
-          searchType: parsed.type,
+          searchTerm: smartSearchTerm, // Use original search term for smart parsing
+          searchType: 'smart', // Use smart search type to enable proper parsing
           city: parsed.city,
-          state: parsed.state || 'california' // Default to CA if no state specified
+          state: parsed.state || 'california', // Default to CA if no state specified
+          limit: 50 // Show 50 results per page
         }
         
         // Debug what we're sending
@@ -205,8 +207,44 @@ export default function Home() {
     }
   }
 
+  const homePageSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Lookup Contractor",
+    "description": "Find licensed contractors nationwide. Search by business name, license number, or location. Comprehensive database of verified contractor information.",
+    "url": "https://lookupcontractor.com",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://lookupcontractor.com/search-results?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Lookup Contractor",
+      "url": "https://lookupcontractor.com"
+    }
+  }
+
   return (
-    <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
+    <>
+      <Head>
+        <title>Lookup Contractor - Find Licensed Contractors Nationwide | Verify License Numbers</title>
+        <meta name="description" content="Search 240,000+ licensed contractors nationwide. Find contractors by business name, license number, or location. Verify licensing, view contact info, and check license status." />
+        <meta name="keywords" content="licensed contractors, contractor lookup, license verification, contractor search, find contractors, California contractors, contractor license number" />
+        <meta property="og:title" content="Lookup Contractor - Find Licensed Contractors Nationwide" />
+        <meta property="og:description" content="Search 240,000+ licensed contractors. Verify licenses, find local contractors, and check contractor credentials." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://lookupcontractor.com" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Lookup Contractor - Find Licensed Contractors Nationwide" />
+        <meta name="twitter:description" content="Search 240,000+ licensed contractors. Verify licenses and find local contractors." />
+        <link rel="canonical" href="https://lookupcontractor.com" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(homePageSchema) }}
+        />
+      </Head>
+      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
       {/* Header */}
       <header style={{ padding: '2rem 0', textAlign: 'center', color: 'white' }}>
         <h1 style={{ fontSize: '3.5rem', fontWeight: 'bold', marginBottom: '0.5rem', margin: 0 }}>
@@ -510,6 +548,86 @@ export default function Home() {
           </div>
         </div>
 
+        {/* FAQ Section */}
+        <div style={{ 
+          background: 'white', 
+          borderRadius: '12px', 
+          padding: '2rem', 
+          marginBottom: '3rem',
+          boxShadow: '0 10px 25px rgba(0,0,0,0.1)'
+        }}>
+          <h2 style={{ fontSize: '2rem', marginBottom: '1.5rem', textAlign: 'center', color: '#333' }}>
+            ❓ Frequently Asked Questions
+          </h2>
+          
+          <div style={{ display: 'grid', gap: '1.5rem', maxWidth: '900px', margin: '0 auto' }}>
+            
+            <div style={{ padding: '1.5rem', border: '1px solid #e5e7eb', borderRadius: '8px' }}>
+              <h3 style={{ fontSize: '1.3rem', fontWeight: 'bold', color: '#333', marginBottom: '0.75rem' }}>
+                How do I verify a contractor's license?
+              </h3>
+              <p style={{ color: '#666', lineHeight: 1.6, margin: 0 }}>
+                Use our search tool above to enter the contractor's business name or license number. We'll show you their current license status, 
+                expiration date, bond information, and any disciplinary actions. All data is sourced directly from state licensing boards.
+              </p>
+            </div>
+
+            <div style={{ padding: '1.5rem', border: '1px solid #e5e7eb', borderRadius: '8px' }}>
+              <h3 style={{ fontSize: '1.3rem', fontWeight: 'bold', color: '#333', marginBottom: '0.75rem' }}>
+                What does "CLEAR" license status mean?
+              </h3>
+              <p style={{ color: '#666', lineHeight: 1.6, margin: 0 }}>
+                "CLEAR" means the contractor has an active, valid license with no current suspensions or restrictions. 
+                This is the status you want to see when hiring a contractor. Other statuses like "SUSPENDED" or "EXPIRED" 
+                indicate the contractor cannot legally perform work.
+              </p>
+            </div>
+
+            <div style={{ padding: '1.5rem', border: '1px solid #e5e7eb', borderRadius: '8px' }}>
+              <h3 style={{ fontSize: '1.3rem', fontWeight: 'bold', color: '#333', marginBottom: '0.75rem' }}>
+                Do all contractors need to be licensed?
+              </h3>
+              <p style={{ color: '#666', lineHeight: 1.6, margin: 0 }}>
+                In California, any contractor performing work over $500 (including labor and materials) must be licensed. 
+                Licensed contractors are required to carry workers' compensation insurance and surety bonds to protect consumers. 
+                Always verify licensing before hiring.
+              </p>
+            </div>
+
+            <div style={{ padding: '1.5rem', border: '1px solid #e5e7eb', borderRadius: '8px' }}>
+              <h3 style={{ fontSize: '1.3rem', fontWeight: 'bold', color: '#333', marginBottom: '0.75rem' }}>
+                What's the difference between Class A, B, and C licenses?
+              </h3>
+              <p style={{ color: '#666', lineHeight: 1.6, margin: 0 }}>
+                <strong>Class A:</strong> General Engineering (highways, bridges, infrastructure)<br/>
+                <strong>Class B:</strong> General Building (homes, commercial buildings)<br/>
+                <strong>Class C:</strong> Specialty contractors (C-10 electrical, C-36 plumbing, C-39 roofing, etc.)
+              </p>
+            </div>
+
+            <div style={{ padding: '1.5rem', border: '1px solid #e5e7eb', borderRadius: '8px' }}>
+              <h3 style={{ fontSize: '1.3rem', fontWeight: 'bold', color: '#333', marginBottom: '0.75rem' }}>
+                How often is contractor license data updated?
+              </h3>
+              <p style={{ color: '#666', lineHeight: 1.6, margin: 0 }}>
+                Our database is updated regularly from official state licensing boards. License statuses, bond information, 
+                and disciplinary actions are refreshed to ensure you have the most current information when making hiring decisions.
+              </p>
+            </div>
+
+            <div style={{ padding: '1.5rem', border: '1px solid #e5e7eb', borderRadius: '8px' }}>
+              <h3 style={{ fontSize: '1.3rem', fontWeight: 'bold', color: '#333', marginBottom: '0.75rem' }}>
+                Can I search for contractors in other states besides California?
+              </h3>
+              <p style={{ color: '#666', lineHeight: 1.6, margin: 0 }}>
+                Currently, our comprehensive database covers California contractors. We're working to expand to additional states. 
+                California has over 240,000 licensed contractors across all classifications and specialties.
+              </p>
+            </div>
+
+          </div>
+        </div>
+
       </div>
 
       {/* Footer */}
@@ -525,5 +643,6 @@ export default function Home() {
         </p>
       </footer>
     </div>
+    </>
   )
 }

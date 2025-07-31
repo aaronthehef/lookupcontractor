@@ -1,12 +1,19 @@
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/router'
 import Link from 'next/link'
+import Head from 'next/head'
+import Breadcrumbs from '../components/Breadcrumbs'
+import { createContractorUrl } from '../utils/slugify'
 
 export default function SearchResults() {
+  const router = useRouter()
   const [results, setResults] = useState(null)
   const [query, setQuery] = useState('')
   const [loading, setLoading] = useState(true)
-  const [currentPage, setCurrentPage] = useState(1)
   const [contractorsPerPage] = useState(10)
+  
+  // Get current page from URL, default to 1
+  const currentPage = parseInt(router.query.page) || 1
   
   // Filter states
   const [selectedCity, setSelectedCity] = useState('')
@@ -15,17 +22,89 @@ export default function SearchResults() {
   const [sortBy, setSortBy] = useState('business_name')
 
   useEffect(() => {
-    // Get results from localStorage
-    const searchResults = localStorage.getItem('searchResults')
-    const searchQuery = localStorage.getItem('searchQuery')
-    
-    if (searchResults && searchQuery) {
-      setResults(JSON.parse(searchResults))
-      setQuery(searchQuery)
+    console.log('=== SEARCH RESULTS USEEFFECT ===')
+    try {
+      // Get search query from localStorage
+      const searchQuery = localStorage.getItem('searchQuery')
+      console.log('Search query from localStorage:', searchQuery)
+      console.log('Current page:', currentPage)
+      
+      if (searchQuery) {
+        setQuery(searchQuery)
+        setLoading(true)
+        // Make fresh API call with current page
+        fetchFreshResults(searchQuery, currentPage)
+      } else {
+        console.log('No search query found, stopping loading')
+        setLoading(false)
+      }
+    } catch (error) {
+      console.error('Error in useEffect:', error)
+      setLoading(false)
     }
+  }, [currentPage])
+
+  const fetchFreshResults = async (searchQuery, page = 1) => {
+    console.log('=== FRONTEND DEBUG ===')
+    console.log('Making fresh API call for:', searchQuery, 'page:', page)
     
-    setLoading(false)
-  }, [])
+    try {
+      const requestBody = {
+        searchTerm: searchQuery,
+        searchType: 'smart',
+        state: 'california',
+        page: page,
+        limit: 10  // Use 10 per page for proper pagination
+      }
+      
+      console.log('Request body:', requestBody)
+      
+      const response = await fetch('/api/search', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody)
+      })
+      
+      console.log('Response status:', response.status)
+      
+      const data = await response.json()
+      
+      console.log('API response total:', data.pagination?.total)
+      console.log('API response contractors count:', data.contractors?.length)
+      console.log('API response pages:', data.pagination?.totalPages)
+      
+      if (response.ok) {
+        console.log('Setting fresh results from API')
+        setResults(data)
+        // Update localStorage with fresh results
+        localStorage.setItem('searchResults', JSON.stringify(data))
+      } else {
+        console.error('Search API error:', data.error)
+        console.log('Falling back to localStorage')
+        // Fall back to localStorage if API fails
+        const searchResults = localStorage.getItem('searchResults')
+        if (searchResults) {
+          const cached = JSON.parse(searchResults)
+          console.log('Using cached results, total:', cached.pagination?.total)
+          setResults(cached)
+        }
+      }
+    } catch (error) {
+      console.error('Fetch error:', error)
+      console.log('Error occurred, falling back to localStorage')
+      // Fall back to localStorage if fetch fails
+      const searchResults = localStorage.getItem('searchResults')
+      if (searchResults) {
+        const cached = JSON.parse(searchResults)
+        console.log('Using cached results after error, total:', cached.pagination?.total)
+        setResults(cached)
+      }
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const formatStatus = (status) => {
     return status?.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'Unknown'
@@ -38,37 +117,24 @@ export default function SearchResults() {
     return '#6b7280'
   }
 
-  // Filter and sort contractors
-  const getFilteredContractors = () => {
+  // For server-side pagination, we show all contractors from the API response
+  // Filtering should be done on the server side for better performance with large datasets
+  const getDisplayContractors = () => {
     if (!results?.contractors) return []
     
+    // For now, show all contractors from the current page
+    // TODO: Move filtering to server side for better performance
     let filtered = results.contractors.filter(contractor => {
       // City filter
       if (selectedCity && contractor.city !== selectedCity) return false
       
-      // Active licenses only
-      if (activeOnly && contractor.primary_status !== 'CLEAR') return false
+      // Active licenses only (include CLEAR, ACTIVE, and null statuses - null typically means active)
+      if (activeOnly && contractor.primary_status && !['CLEAR', 'ACTIVE'].includes(contractor.primary_status)) return false
       
       // Has phone number
       if (hasPhoneOnly && !contractor.business_phone) return false
       
       return true
-    })
-    
-    // Sorting
-    filtered.sort((a, b) => {
-      switch (sortBy) {
-        case 'business_name':
-          return (a.business_name || '').localeCompare(b.business_name || '')
-        case 'license_no':
-          return (a.license_no || '').localeCompare(b.license_no || '')
-        case 'city':
-          return (a.city || '').localeCompare(b.city || '')
-        case 'expiration_date':
-          return new Date(b.expiration_date || 0) - new Date(a.expiration_date || 0)
-        default:
-          return 0
-      }
     })
     
     return filtered
@@ -81,8 +147,23 @@ export default function SearchResults() {
     return cities.sort()
   }
 
-  const filteredContractors = getFilteredContractors()
+  const displayContractors = getDisplayContractors()
   const uniqueCities = getUniqueCities()
+
+  // Generate SEO content using server pagination data
+  const totalResults = results?.pagination?.total || 0
+  const displayedCount = displayContractors.length
+  const totalPages = results?.pagination?.totalPages || 1
+  
+  const pageTitle = `${query} - ${totalResults} Licensed Contractors Found${currentPage > 1 ? ` - Page ${currentPage}` : ''}`
+  const metaDescription = `Find ${totalResults} licensed contractors for "${query}". Compare licenses, ratings, contact info & more. Page ${currentPage} of ${totalPages}.`
+  
+  // Generate breadcrumbs for search results
+  const breadcrumbItems = [
+    { label: 'Home', href: '/' },
+    { label: 'Search Results' },
+    ...(currentPage > 1 ? [{ label: `Page ${currentPage}` }] : [])
+  ]
 
   if (loading) {
     return (
@@ -106,7 +187,20 @@ export default function SearchResults() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
+    <>
+      <Head>
+        <title>{pageTitle}</title>
+        <meta name="description" content={metaDescription} />
+        <meta name="keywords" content={`${query}, licensed contractors, contractor search, license verification`} />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={metaDescription} />
+        <meta property="og:type" content="website" />
+        <link rel="canonical" href={`https://lookupcontractor.com/search-results${currentPage > 1 ? `?page=${currentPage}` : ''}`} />
+        {currentPage > 1 && <link rel="prev" href={`https://lookupcontractor.com/search-results?page=${currentPage - 1}`} />}
+        {currentPage < totalPages && <link rel="next" href={`https://lookupcontractor.com/search-results?page=${currentPage + 1}`} />}
+        <meta name="robots" content={currentPage > 10 ? "noindex,follow" : "index,follow"} />
+      </Head>
+      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
       {/* Header */}
       <header style={{ padding: '2rem 0', textAlign: 'center', color: 'white' }}>
         <Link href="/" style={{ textDecoration: 'none', color: 'inherit' }}>
@@ -125,6 +219,9 @@ export default function SearchResults() {
 
       {/* Main Content */}
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 2rem' }}>
+        
+        {/* Breadcrumbs */}
+        <Breadcrumbs items={breadcrumbItems} />
         
         {/* Search Results Header */}
         <div style={{ 
@@ -155,7 +252,7 @@ export default function SearchResults() {
             <strong>Query:</strong> "{query}"
           </div>
           <div style={{ color: '#666', fontSize: '1rem' }}>
-            Found <strong>{results.contractors?.length || 0}</strong> contractors • Showing <strong>{filteredContractors.length}</strong> after filters • Page {currentPage} of {Math.ceil(filteredContractors.length / contractorsPerPage)}
+            Found <strong>{totalResults}</strong> contractors • Showing <strong>{displayedCount}</strong> on page {currentPage} of {totalPages}
           </div>
         </div>
 
@@ -181,7 +278,8 @@ export default function SearchResults() {
                 value={selectedCity}
                 onChange={(e) => {
                   setSelectedCity(e.target.value)
-                  setCurrentPage(1) // Reset to first page when filtering
+                  // Navigate to page 1 with new filters
+                  router.push('/search-results?page=1', undefined, { shallow: true })
                 }}
                 style={{
                   width: '100%',
@@ -209,7 +307,7 @@ export default function SearchResults() {
                   checked={activeOnly}
                   onChange={(e) => {
                     setActiveOnly(e.target.checked)
-                    setCurrentPage(1)
+                    router.push('/search-results?page=1', undefined, { shallow: true })
                   }}
                   style={{ marginRight: '0.5rem' }}
                 />
@@ -228,7 +326,7 @@ export default function SearchResults() {
                   checked={hasPhoneOnly}
                   onChange={(e) => {
                     setHasPhoneOnly(e.target.checked)
-                    setCurrentPage(1)
+                    router.push('/search-results?page=1', undefined, { shallow: true })
                   }}
                   style={{ marginRight: '0.5rem' }}
                 />
@@ -269,51 +367,71 @@ export default function SearchResults() {
           marginBottom: '3rem',
           boxShadow: '0 10px 25px rgba(0,0,0,0.1)'
         }}>
-          {filteredContractors && filteredContractors.length > 0 ? (
+          {displayContractors && displayContractors.length > 0 ? (
             <>
               {/* Pagination Navigation - Top */}
-              {filteredContractors.length > contractorsPerPage && (
+              {totalPages > 1 && (
                 <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '2rem', gap: '1rem' }}>
-                  <button
-                    onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                    disabled={currentPage === 1}
-                    style={{
+                  {currentPage > 1 ? (
+                    <Link href={`/search-results?page=${currentPage - 1}`} style={{
                       padding: '0.75rem 1.5rem',
                       border: '1px solid #e5e7eb',
                       borderRadius: '8px',
-                      background: currentPage === 1 ? '#f9fafb' : 'white',
-                      color: currentPage === 1 ? '#9ca3af' : '#374151',
-                      cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                      background: 'white',
+                      color: '#374151',
+                      textDecoration: 'none',
+                      fontWeight: '500',
+                      display: 'inline-block'
+                    }}>
+                      ← Previous
+                    </Link>
+                  ) : (
+                    <span style={{
+                      padding: '0.75rem 1.5rem',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '8px',
+                      background: '#f9fafb',
+                      color: '#9ca3af',
                       fontWeight: '500'
-                    }}
-                  >
-                    ← Previous
-                  </button>
+                    }}>
+                      ← Previous
+                    </span>
+                  )}
                   
                   <span style={{ padding: '0 1rem', color: '#6b7280' }}>
-                    Page {currentPage} of {Math.ceil(filteredContractors.length / contractorsPerPage)}
+                    Page {currentPage} of {totalPages}
                   </span>
                   
-                  <button
-                    onClick={() => setCurrentPage(Math.min(Math.ceil(filteredContractors.length / contractorsPerPage), currentPage + 1))}
-                    disabled={currentPage === Math.ceil(filteredContractors.length / contractorsPerPage)}
-                    style={{
+                  {currentPage < totalPages ? (
+                    <Link href={`/search-results?page=${currentPage + 1}`} style={{
                       padding: '0.75rem 1.5rem',
                       border: '1px solid #e5e7eb',
                       borderRadius: '8px',
-                      background: currentPage === Math.ceil(filteredContractors.length / contractorsPerPage) ? '#f9fafb' : 'white',
-                      color: currentPage === Math.ceil(filteredContractors.length / contractorsPerPage) ? '#9ca3af' : '#374151',
-                      cursor: currentPage === Math.ceil(filteredContractors.length / contractorsPerPage) ? 'not-allowed' : 'pointer',
+                      background: 'white',
+                      color: '#374151',
+                      textDecoration: 'none',
+                      fontWeight: '500',
+                      display: 'inline-block'
+                    }}>
+                      Next →
+                    </Link>
+                  ) : (
+                    <span style={{
+                      padding: '0.75rem 1.5rem',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '8px',
+                      background: '#f9fafb',
+                      color: '#9ca3af',
                       fontWeight: '500'
-                    }}
-                  >
-                    Next →
-                  </button>
+                    }}>
+                      Next →
+                    </span>
+                  )}
                 </div>
               )}
 
               <div style={{ display: 'grid', gap: '1.5rem' }}>
-                {filteredContractors.slice((currentPage - 1) * contractorsPerPage, currentPage * contractorsPerPage).map((contractor, index) => (
+                {displayContractors.map((contractor, index) => (
                 <div key={contractor.id || index} style={{
                   border: '1px solid #e5e7eb',
                   borderRadius: '8px',
@@ -327,7 +445,7 @@ export default function SearchResults() {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
                     <div>
                       <h3 style={{ fontSize: '1.3rem', fontWeight: 'bold', color: '#333', marginBottom: '0.5rem' }}>
-                        <Link href={`/contractor/${contractor.license_no}`} style={{ color: '#3b82f6', textDecoration: 'none' }}>
+                        <Link href={createContractorUrl(contractor.license_no, contractor.business_name)} style={{ color: '#3b82f6', textDecoration: 'none' }}>
                           {contractor.business_name || 'Unnamed Business'}
                         </Link>
                       </h3>
@@ -382,43 +500,63 @@ export default function SearchResults() {
               </div>
               
               {/* Pagination Navigation - Bottom */}
-              {filteredContractors.length > contractorsPerPage && (
+              {totalPages > 1 && (
                 <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '2rem', gap: '1rem' }}>
-                  <button
-                    onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                    disabled={currentPage === 1}
-                    style={{
+                  {currentPage > 1 ? (
+                    <Link href={`/search-results?page=${currentPage - 1}`} style={{
                       padding: '0.75rem 1.5rem',
                       border: '1px solid #e5e7eb',
                       borderRadius: '8px',
-                      background: currentPage === 1 ? '#f9fafb' : 'white',
-                      color: currentPage === 1 ? '#9ca3af' : '#374151',
-                      cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                      background: 'white',
+                      color: '#374151',
+                      textDecoration: 'none',
+                      fontWeight: '500',
+                      display: 'inline-block'
+                    }}>
+                      ← Previous
+                    </Link>
+                  ) : (
+                    <span style={{
+                      padding: '0.75rem 1.5rem',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '8px',
+                      background: '#f9fafb',
+                      color: '#9ca3af',
                       fontWeight: '500'
-                    }}
-                  >
-                    ← Previous
-                  </button>
+                    }}>
+                      ← Previous
+                    </span>
+                  )}
                   
                   <span style={{ padding: '0 1rem', color: '#6b7280' }}>
-                    Page {currentPage} of {Math.ceil(filteredContractors.length / contractorsPerPage)}
+                    Page {currentPage} of {totalPages}
                   </span>
                   
-                  <button
-                    onClick={() => setCurrentPage(Math.min(Math.ceil(filteredContractors.length / contractorsPerPage), currentPage + 1))}
-                    disabled={currentPage === Math.ceil(filteredContractors.length / contractorsPerPage)}
-                    style={{
+                  {currentPage < totalPages ? (
+                    <Link href={`/search-results?page=${currentPage + 1}`} style={{
                       padding: '0.75rem 1.5rem',
                       border: '1px solid #e5e7eb',
                       borderRadius: '8px',
-                      background: currentPage === Math.ceil(filteredContractors.length / contractorsPerPage) ? '#f9fafb' : 'white',
-                      color: currentPage === Math.ceil(filteredContractors.length / contractorsPerPage) ? '#9ca3af' : '#374151',
-                      cursor: currentPage === Math.ceil(filteredContractors.length / contractorsPerPage) ? 'not-allowed' : 'pointer',
+                      background: 'white',
+                      color: '#374151',
+                      textDecoration: 'none',
+                      fontWeight: '500',
+                      display: 'inline-block'
+                    }}>
+                      Next →
+                    </Link>
+                  ) : (
+                    <span style={{
+                      padding: '0.75rem 1.5rem',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '8px',
+                      background: '#f9fafb',
+                      color: '#9ca3af',
                       fontWeight: '500'
-                    }}
-                  >
-                    Next →
-                  </button>
+                    }}>
+                      Next →
+                    </span>
+                  )}
                 </div>
               )}
             </>
@@ -448,5 +586,6 @@ export default function SearchResults() {
         </p>
       </footer>
     </div>
+    </>
   )
 }
