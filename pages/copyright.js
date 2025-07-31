@@ -115,8 +115,7 @@ export default function Copyright() {
                 property of their respective owners.
               </p>
 
-              <h2 style={{ fontSize: '1.5rem', marginTop: '2rem', marginB
-Toottom: '1rem', color: '#333' }}>
+              <h2 style={{ fontSize: '1.5rem', marginTop: '2rem', marginBottom: '1rem', color: '#333' }}>
                 Digital Millennium Copyright Act (DMCA)
               </h2>
               <p style={{ marginBottom: '1rem' }}>

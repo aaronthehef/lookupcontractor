@@ -215,7 +215,7 @@ export default function Contact() {
 
               <div style={{ 
                 background: '#e0f2fe', 
-                border: '1px solid '#b3e5fc', 
+                border: '1px solid #b3e5fc', 
                 borderRadius: '8px', 
                 padding: '1.5rem', 
                 marginTop: '2rem'
