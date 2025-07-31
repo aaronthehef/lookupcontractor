@@ -39,11 +39,12 @@ async function handler(req, res) {
       WHERE city ILIKE $1 AND state = 'CA'
     `, [cityName])
 
-    // Get active contractor count
+    // Get active contractor count (include CLEAR, ACTIVE, and NULL statuses like main search)
     const activeResult = await pool.query(`
       SELECT COUNT(*) as active_contractors
       FROM contractors 
-      WHERE city ILIKE $1 AND state = 'CA' AND primary_status = 'CLEAR'
+      WHERE city ILIKE $1 AND state = 'CA' 
+      AND (primary_status IN ('CLEAR', 'ACTIVE') OR primary_status IS NULL)
     `, [cityName])
 
     // Get contractors by type
@@ -56,11 +57,12 @@ async function handler(req, res) {
       LIMIT 10
     `, [cityName])
 
-    // Get sample contractors
+    // Get sample contractors (include CLEAR, ACTIVE, and NULL statuses like main search)
     const contractorsResult = await pool.query(`
       SELECT license_no, business_name, primary_classification, trade, business_phone, zip_code, primary_status
       FROM contractors 
-      WHERE city ILIKE $1 AND state = 'CA' AND primary_status = 'CLEAR'
+      WHERE city ILIKE $1 AND state = 'CA' 
+      AND (primary_status IN ('CLEAR', 'ACTIVE') OR primary_status IS NULL)
       ORDER BY business_name
       LIMIT 20
     `, [cityName])

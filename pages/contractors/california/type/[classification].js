@@ -38,8 +38,10 @@ export default function ContractorTypeCaliforniaPage() {
       if (response.ok) {
         setContractors(data.contractors || [])
         
-        // Calculate stats
-        const activeContractors = data.contractors?.filter(c => c.primary_status === 'CLEAR') || []
+        // Calculate stats (include CLEAR, ACTIVE, and NULL statuses like main search)
+        const activeContractors = data.contractors?.filter(c => 
+          c.primary_status === 'CLEAR' || c.primary_status === 'ACTIVE' || c.primary_status === null
+        ) || []
         const cities = [...new Set(data.contractors?.map(c => c.city).filter(Boolean))] || []
         
         setStats({
