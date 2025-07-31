@@ -1,11 +1,12 @@
+import { NextApiRequest, NextApiResponse } from 'next'
 import pool from '../../lib/database.js'
 import monitor from '../../lib/performance.js'
 import cache from '../../lib/cache.js'
 
 // Parse natural language search queries
-function parseSmartSearch(searchTerm, startParamIndex) {
-  const conditions = []
-  const params = []
+function parseSmartSearch(searchTerm: string, startParamIndex: number): { conditions: string[], params: string[] } {
+  const conditions: string[] = []
+  const params: string[] = []
   let paramIndex = startParamIndex
   
   const term = searchTerm.toLowerCase().trim()
@@ -107,7 +108,7 @@ function parseSmartSearch(searchTerm, startParamIndex) {
   return { conditions, params }
 }
 
-export default async function handler(req, res) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const startTime = Date.now()
   
   if (req.method !== 'POST') {
@@ -265,7 +266,7 @@ export default async function handler(req, res) {
     console.error('Database error:', error)
     
     // Track failed API call
-    monitor.trackApiCall('/api/search', Date.now() - startTime, false, error)
+    monitor.trackApiCall('/api/search', Date.now() - startTime, false)
     
     res.status(500).json({ error: 'Database search failed' })
   }

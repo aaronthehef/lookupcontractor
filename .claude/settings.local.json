@@ -24,7 +24,16 @@
       "Bash(git config:*)",
       "Bash(git remote add:*)",
       "Bash(git branch:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(pkill:*)",
+      "Bash(taskkill:*)",
+      "Bash(move:*)",
+      "Bash(mv:*)",
+      "Bash(cmd /c:*)",
+      "Bash(tasklist:*)",
+      "Bash(find:*)",
+      "Bash(wmic process where processid=23780 delete:*)",
+      "Bash(rm:*)"
     ],
     "deny": []
   }

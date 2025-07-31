@@ -1,0 +1,29 @@
+# Allow all crawlers
+User-agent: *
+Allow: /
+
+# Optimize crawl budget - Block low-value pages
+Disallow: /api/
+Disallow: /_next/
+Disallow: /404
+Disallow: /500
+Disallow: /test-search.html
+
+# High priority pages for crawlers
+Allow: /contractors/
+Allow: /contractor/
+Allow: /api/sitemap*.xml
+
+# Sitemap locations
+Sitemap: https://lookupcontractor.com/api/sitemap.xml
+Sitemap: https://lookupcontractor.com/api/sitemap-contractors.xml
+
+# Crawl-delay for respectful crawling (1 second)
+Crawl-delay: 1
+
+# Special instructions for major search engines
+User-agent: Googlebot
+Crawl-delay: 0.5
+
+User-agent: Bingbot
+Crawl-delay: 1

@@ -1,7 +1,16 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
+import Head from 'next/head'
+import dynamic from 'next/dynamic'
 import { getStatusInfo } from '../../utils/statusHelper'
+import Breadcrumbs from '../../components/Breadcrumbs'
+
+// Dynamically import map component to avoid SSR issues
+const ContractorMap = dynamic(() => import('../../components/ContractorMap'), {
+  ssr: false,
+  loading: () => <div style={{ height: '300px', background: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Loading map...</div>
+})
 
 export default function ContractorProfile() {
   const router = useRouter()
@@ -90,8 +99,81 @@ export default function ContractorProfile() {
 
   const classifications = parseClassifications(contractor.raw_classifications)
 
+  // Generate SEO-friendly content
+  const pageTitle = `${contractor.business_name} - Licensed Contractor #${contractor.license_no} - ${contractor.city}, CA`
+  const metaDescription = `Licensed ${contractor.trade || 'contractor'} in ${contractor.city}, CA. License #${contractor.license_no}, ${contractor.primary_status === 'CLEAR' ? 'active license' : 'license status: ' + contractor.primary_status}. ${contractor.business_phone ? 'Phone: ' + formatPhone(contractor.business_phone) + '.' : ''} View license details, bond information & get directions.`
+  
+  // Generate breadcrumbs with proper URL formatting
+  const citySlug = contractor.city.toLowerCase().replace(/\s+/g, '-')
+  const breadcrumbItems = [
+    { label: 'Home', href: '/' },
+    { label: 'California Contractors', href: '/contractors/california' },
+    { label: `${contractor.city} Contractors`, href: `/contractors/california/${citySlug}` },
+    { label: `${contractor.primary_classification} Contractors`, href: `/contractors/california/type/${contractor.primary_classification.toLowerCase()}` },
+    { label: contractor.business_name }
+  ]
+  
+  const jsonLdSchema = {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "name": contractor.business_name,
+    "description": `Licensed ${contractor.trade || 'contractor'} serving ${contractor.city}, California`,
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": contractor.mailing_address,
+      "addressLocality": contractor.city,
+      "addressRegion": "CA",
+      "postalCode": contractor.zip_code,
+      "addressCountry": "US"
+    },
+    "telephone": contractor.business_phone,
+    "url": `https://lookupcontractor.com/contractor/${contractor.license_no}`,
+    "priceRange": "$$",
+    "serviceArea": {
+      "@type": "City",
+      "name": contractor.city,
+      "addressRegion": "CA"
+    },
+    "license": {
+      "@type": "GovernmentPermit",
+      "identifier": contractor.license_no,
+      "issuedBy": "California State License Board",
+      "validThrough": contractor.expiration_date
+    },
+    "additionalProperty": [
+      {
+        "@type": "PropertyValue",
+        "name": "License Classification",
+        "value": contractor.primary_classification
+      },
+      {
+        "@type": "PropertyValue", 
+        "name": "Trade Specialty",
+        "value": contractor.trade
+      }
+    ]
+  }
+
   return (
-    <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
+    <>
+      <Head>
+        <title>{pageTitle}</title>
+        <meta name="description" content={metaDescription} />
+        <meta name="keywords" content={`${contractor.trade}, ${contractor.city}, California, licensed contractor, ${contractor.primary_classification}, ${contractor.business_name}`} />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={metaDescription} />
+        <meta property="og:type" content="business.business" />
+        <meta property="og:url" content={`https://lookupcontractor.com/contractor/${contractor.license_no}`} />
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:title" content={pageTitle} />
+        <meta name="twitter:description" content={metaDescription} />
+        <link rel="canonical" href={`https://lookupcontractor.com/contractor/${contractor.license_no}`} />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdSchema) }}
+        />
+      </Head>
+      <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
       {/* Header */}
       <header style={{ 
         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', 
@@ -112,6 +194,9 @@ export default function ContractorProfile() {
       </header>
 
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem' }}>
+        
+        {/* Breadcrumbs */}
+        <Breadcrumbs items={breadcrumbItems} />
         
         {/* Main Info Card */}
         <div style={{ 
@@ -215,7 +300,7 @@ export default function ContractorProfile() {
           </div>
         </div>
 
-        {/* Address Card */}
+        {/* Address & Map Card */}
         <div style={{ 
           background: 'white', 
           borderRadius: '12px', 
@@ -224,22 +309,45 @@ export default function ContractorProfile() {
           boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
         }}>
           <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem', color: '#333', borderBottom: '2px solid #e5e7eb', paddingBottom: '0.5rem' }}>
-            Address & Location
+            📍 Address & Location
           </h2>
           
-          <div style={{ lineHeight: 1.8, color: '#555' }}>
-            {contractor.mailing_address && (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
+            {/* Address Information */}
+            <div style={{ lineHeight: 1.8, color: '#555' }}>
+              {contractor.mailing_address && (
+                <div style={{ marginBottom: '0.75rem' }}>
+                  <strong>Mailing Address:</strong><br />
+                  {contractor.mailing_address}
+                </div>
+              )}
+              
               <div style={{ marginBottom: '0.75rem' }}>
-                <strong>Mailing Address:</strong><br />
-                {contractor.mailing_address}
+                <strong>City:</strong> {contractor.city}<br />
+                <strong>County:</strong> {contractor.county || 'N/A'}<br />
+                <strong>State:</strong> {contractor.state}<br />
+                <strong>ZIP Code:</strong> {contractor.zip_code || 'N/A'}
               </div>
-            )}
-            
-            <div style={{ marginBottom: '0.75rem' }}>
-              <strong>City:</strong> {contractor.city}<br />
-              <strong>County:</strong> {contractor.county || 'N/A'}<br />
-              <strong>State:</strong> {contractor.state}<br />
-              <strong>ZIP Code:</strong> {contractor.zip_code || 'N/A'}
+
+              {contractor.business_phone && (
+                <div style={{ marginBottom: '0.75rem' }}>
+                  <strong>Phone:</strong><br />
+                  <a href={`tel:${contractor.business_phone}`} style={{ color: '#3b82f6', textDecoration: 'none' }}>
+                    📞 {formatPhone(contractor.business_phone)}
+                  </a>
+                </div>
+              )}
+            </div>
+
+            {/* Interactive Map */}
+            <div>
+              <h3 style={{ fontSize: '1.2rem', marginBottom: '1rem', color: '#333' }}>
+                🗺️ Location Map
+              </h3>
+              <ContractorMap contractor={contractor} />
+              <div style={{ fontSize: '0.9rem', color: '#666', marginTop: '0.5rem', textAlign: 'center' }}>
+                Click the marker for directions
+              </div>
             </div>
           </div>
         </div>
@@ -334,7 +442,127 @@ export default function ContractorProfile() {
           </div>
         </div>
 
+        {/* Related Contractors */}
+        <div style={{ 
+          background: 'white', 
+          borderRadius: '12px', 
+          padding: '2rem',
+          marginBottom: '2rem',
+          boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+        }}>
+          <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem', color: '#333', borderBottom: '2px solid #e5e7eb', paddingBottom: '0.5rem' }}>
+            🔗 Related Contractors & Services
+          </h2>
+          
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+            <Link href={`/contractors/california/${contractor.city.toLowerCase().replace(/\s+/g, '-')}`} style={{
+              padding: '1rem',
+              border: '1px solid #e5e7eb',
+              borderRadius: '8px',
+              textDecoration: 'none',
+              color: '#333',
+              textAlign: 'center',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = '#3b82f6'
+              e.currentTarget.style.backgroundColor = '#f8fafc'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = '#e5e7eb'
+              e.currentTarget.style.backgroundColor = 'white'
+            }}
+            >
+              <div style={{ fontSize: '1.1rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>
+                More {contractor.city} Contractors
+              </div>
+              <div style={{ fontSize: '0.9rem', color: '#666' }}>
+                View all licensed contractors in {contractor.city}
+              </div>
+            </Link>
+
+            <Link href={`/contractors/california/type/${contractor.primary_classification.toLowerCase()}`} style={{
+              padding: '1rem',
+              border: '1px solid #e5e7eb',
+              borderRadius: '8px',
+              textDecoration: 'none',
+              color: '#333',
+              textAlign: 'center',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = '#3b82f6'
+              e.currentTarget.style.backgroundColor = '#f8fafc'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = '#e5e7eb'
+              e.currentTarget.style.backgroundColor = 'white'
+            }}
+            >
+              <div style={{ fontSize: '1.1rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>
+                More {contractor.trade} Contractors
+              </div>
+              <div style={{ fontSize: '0.9rem', color: '#666' }}>
+                View all {contractor.primary_classification} contractors
+              </div>
+            </Link>
+
+            <Link href={`/?search=${contractor.trade} in ${contractor.city}`} style={{
+              padding: '1rem',
+              border: '1px solid #e5e7eb',
+              borderRadius: '8px',
+              textDecoration: 'none',
+              color: '#333',
+              textAlign: 'center',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = '#3b82f6'
+              e.currentTarget.style.backgroundColor = '#f8fafc'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = '#e5e7eb'
+              e.currentTarget.style.backgroundColor = 'white'
+            }}
+            >
+              <div style={{ fontSize: '1.1rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>
+                Search {contractor.trade} in {contractor.city}
+              </div>
+              <div style={{ fontSize: '0.9rem', color: '#666' }}>
+                Find similar contractors nearby
+              </div>
+            </Link>
+
+            <Link href="/contractors/california" style={{
+              padding: '1rem',
+              border: '1px solid #e5e7eb',
+              borderRadius: '8px',
+              textDecoration: 'none',
+              color: '#333',
+              textAlign: 'center',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = '#3b82f6'
+              e.currentTarget.style.backgroundColor = '#f8fafc'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = '#e5e7eb'
+              e.currentTarget.style.backgroundColor = 'white'
+            }}
+            >
+              <div style={{ fontSize: '1.1rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>
+                Browse All California Contractors
+              </div>
+              <div style={{ fontSize: '0.9rem', color: '#666' }}>
+                240,000+ licensed professionals
+              </div>
+            </Link>
+          </div>
+        </div>
+
       </div>
     </div>
+    </>
   )
 }

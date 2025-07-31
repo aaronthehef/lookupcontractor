@@ -1,7 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import { Client } from 'pg'
-
-const connectionString = 'postgresql://neondb_owner:npg_s3DtWl7xbHgZ@ep-weathered-night-ae14rq4j-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require'
+import pool from '../../lib/database.js'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -14,12 +12,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(400).json({ error: 'License number is required' })
   }
 
-  const client = new Client({ connectionString })
-
   try {
-    await client.connect()
-
-    const { rows } = await client.query(`
+    const { rows } = await pool.query(`
       SELECT 
         id, license_no, business_name, bus_name_2, full_business_name,
         mailing_address, city, county, state, zip_code, country,
@@ -53,7 +47,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   } catch (error) {
     console.error('Database error:', error)
     res.status(500).json({ error: 'Database query failed' })
-  } finally {
-    await client.end()
   }
 }
