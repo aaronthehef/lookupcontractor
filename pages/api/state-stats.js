@@ -1,7 +1,7 @@
 const pool = require('../../lib/database.js')
 const cache = require('../../lib/cache.js')
 
-async function handler(req, res) {
+export default async function handler(req, res) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' })
   }
@@ -83,6 +83,4 @@ async function handler(req, res) {
     res.status(500).json({ error: 'Failed to fetch state statistics' })
   }
 }
-
-module.exports = handler
 
