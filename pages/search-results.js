@@ -430,71 +430,208 @@ export default function SearchResults() {
                 </div>
               )}
 
-              <div style={{ display: 'grid', gap: '1.5rem' }}>
+              <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', 
+                gap: '1.5rem' 
+              }}>
                 {displayContractors.map((contractor, index) => (
                 <div key={contractor.id || index} style={{
                   border: '1px solid #e5e7eb',
-                  borderRadius: '8px',
-                  padding: '1.5rem',
-                  transition: 'all 0.2s',
-                  ':hover': {
-                    borderColor: '#3b82f6',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-                  }
-                }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
-                    <div>
-                      <h3 style={{ fontSize: '1.3rem', fontWeight: 'bold', color: '#333', marginBottom: '0.5rem' }}>
-                        <Link href={createContractorUrl(contractor.license_no, contractor.business_name)} style={{ color: '#3b82f6', textDecoration: 'none' }}>
-                          {contractor.business_name || 'Unnamed Business'}
-                        </Link>
-                      </h3>
-                      <div style={{ color: '#666', fontSize: '1rem' }}>
-                        License: <strong>{contractor.license_no}</strong>
+                  borderRadius: '12px',
+                  padding: '0',
+                  background: 'white',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                  transition: 'all 0.3s ease',
+                  overflow: 'hidden'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-2px)'
+                  e.currentTarget.style.boxShadow = '0 8px 25px rgba(0,0,0,0.12)'
+                  e.currentTarget.style.borderColor = '#3b82f6'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)'
+                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.06)'
+                  e.currentTarget.style.borderColor = '#e5e7eb'
+                }}
+                >
+                  {/* Card Header */}
+                  <div style={{
+                    background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+                    padding: '1.5rem',
+                    borderBottom: '1px solid #e5e7eb'
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <h3 style={{ 
+                          fontSize: '1.25rem', 
+                          fontWeight: 'bold', 
+                          color: '#1e293b', 
+                          marginBottom: '0.5rem',
+                          lineHeight: '1.3',
+                          wordWrap: 'break-word'
+                        }}>
+                          <Link href={createContractorUrl(contractor.license_no, contractor.business_name)} style={{ 
+                            color: '#3b82f6', 
+                            textDecoration: 'none',
+                            display: 'block'
+                          }}>
+                            {contractor.business_name || 'Unnamed Business'}
+                          </Link>
+                        </h3>
+                        <div style={{ 
+                          color: '#64748b', 
+                          fontSize: '0.95rem',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.5rem'
+                        }}>
+                          🏆 License: <strong style={{ color: '#475569' }}>{contractor.license_no}</strong>
+                        </div>
                       </div>
-                    </div>
-                    <div style={{
-                      padding: '0.5rem 1rem',
-                      borderRadius: '20px',
-                      backgroundColor: getStatusColor(contractor.primary_status) + '20',
-                      color: getStatusColor(contractor.primary_status),
-                      fontSize: '0.9rem',
-                      fontWeight: 'bold'
-                    }}>
-                      {formatStatus(contractor.primary_status)}
+                      <div style={{
+                        padding: '0.5rem 0.75rem',
+                        borderRadius: '20px',
+                        backgroundColor: getStatusColor(contractor.primary_status) + '15',
+                        border: `1px solid ${getStatusColor(contractor.primary_status)}30`,
+                        color: getStatusColor(contractor.primary_status),
+                        fontSize: '0.85rem',
+                        fontWeight: 'bold',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px',
+                        marginLeft: '1rem',
+                        whiteSpace: 'nowrap'
+                      }}>
+                        {formatStatus(contractor.primary_status)}
+                      </div>
                     </div>
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1rem' }}>
-                    <div>
-                      <div style={{ fontSize: '0.9rem', color: '#888', marginBottom: '0.25rem' }}>Location</div>
-                      <div style={{ fontWeight: '600' }}>
-                        {contractor.city}, CA {contractor.zip_code}
+                  {/* Card Body */}
+                  <div style={{ padding: '1.5rem' }}>
+                    <div style={{ 
+                      display: 'grid', 
+                      gridTemplateColumns: '1fr',
+                      gap: '1rem', 
+                      marginBottom: '1.5rem' 
+                    }}>
+                      {/* Location */}
+                      <div style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '0.75rem',
+                        padding: '0.75rem',
+                        background: '#f8fafc',
+                        borderRadius: '8px',
+                        border: '1px solid #e2e8f0'
+                      }}>
+                        <div style={{ fontSize: '1.2rem' }}>📍</div>
+                        <div>
+                          <div style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '0.25rem' }}>Location</div>
+                          <div style={{ fontWeight: '600', color: '#334155', fontSize: '0.95rem' }}>
+                            {contractor.city}, CA {contractor.zip_code}
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                    
-                    <div>
-                      <div style={{ fontSize: '0.9rem', color: '#888', marginBottom: '0.25rem' }}>Classification</div>
-                      <div style={{ fontWeight: '600' }}>
-                        {contractor.primary_classification} - {contractor.trade}
+                      
+                      {/* Classification */}
+                      <div style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '0.75rem',
+                        padding: '0.75rem',
+                        background: '#f0f9ff',
+                        borderRadius: '8px',
+                        border: '1px solid #e0f2fe'
+                      }}>
+                        <div style={{ fontSize: '1.2rem' }}>🔧</div>
+                        <div>
+                          <div style={{ fontSize: '0.85rem', color: '#0369a1', marginBottom: '0.25rem' }}>Specialty</div>
+                          <div style={{ fontWeight: '600', color: '#0c4a6e', fontSize: '0.95rem' }}>
+                            {contractor.primary_classification} - {contractor.trade}
+                          </div>
+                        </div>
                       </div>
                     </div>
 
-                    {contractor.business_phone && (
-                      <div>
-                        <div style={{ fontSize: '0.9rem', color: '#888', marginBottom: '0.25rem' }}>Phone</div>
-                        <div style={{ fontWeight: '600' }}>
-                          {contractor.business_phone}
+                    {/* Contact & Action Section */}
+                    <div style={{ 
+                      display: 'flex', 
+                      justifyContent: 'space-between', 
+                      alignItems: 'center',
+                      flexWrap: 'wrap',
+                      gap: '1rem',
+                      paddingTop: '1rem',
+                      borderTop: '1px solid #e5e7eb'
+                    }}>
+                      {contractor.business_phone ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <div style={{ fontSize: '1.1rem' }}>📞</div>
+                          <a href={`tel:${contractor.business_phone}`} style={{
+                            color: '#059669',
+                            fontWeight: 'bold',
+                            fontSize: '1.05rem',
+                            textDecoration: 'none'
+                          }}>
+                            {contractor.business_phone}
+                          </a>
                         </div>
+                      ) : (
+                        <div style={{ color: '#9ca3af', fontSize: '0.9rem', fontStyle: 'italic' }}>
+                          No phone listed
+                        </div>
+                      )}
+                      
+                      <div style={{ display: 'flex', gap: '0.75rem' }}>
+                        {contractor.business_phone && (
+                          <a href={`tel:${contractor.business_phone}`} style={{
+                            background: '#059669',
+                            color: 'white',
+                            padding: '0.5rem 1rem',
+                            borderRadius: '6px',
+                            textDecoration: 'none',
+                            fontSize: '0.9rem',
+                            fontWeight: '600',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.25rem'
+                          }}>
+                            📞 Call Now
+                          </a>
+                        )}
+                        <Link href={createContractorUrl(contractor.license_no, contractor.business_name)} style={{
+                          background: '#3b82f6',
+                          color: 'white',
+                          padding: '0.5rem 1rem',
+                          borderRadius: '6px',
+                          textDecoration: 'none',
+                          fontSize: '0.9rem',
+                          fontWeight: '600',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.25rem'
+                        }}>
+                          📋 Details
+                        </Link>
+                      </div>
+                    </div>
+
+                    {contractor.expiration_date && (
+                      <div style={{ 
+                        fontSize: '0.85rem', 
+                        color: '#64748b',
+                        marginTop: '1rem',
+                        paddingTop: '0.75rem',
+                        borderTop: '1px solid #f1f5f9',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem'
+                      }}>
+                        ⏰ License expires: {new Date(contractor.expiration_date).toLocaleDateString()}
                       </div>
                     )}
                   </div>
-
-                  {contractor.expiration_date && (
-                    <div style={{ fontSize: '0.9rem', color: '#666' }}>
-                      License expires: {new Date(contractor.expiration_date).toLocaleDateString()}
-                    </div>
-                  )}
                 </div>
               ))}
               </div>

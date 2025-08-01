@@ -264,51 +264,173 @@ export default function CityContractors() {
                 👷 Featured Contractors in {cityDisplayName}
               </h2>
               
-              <div style={{ display: 'grid', gap: '1rem' }}>
-                {stats.sampleContractors.slice(0, 10).map((contractor) => (
+              <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', 
+                gap: '1.5rem' 
+              }}>
+                {stats.sampleContractors.slice(0, 9).map((contractor) => (
                   <div key={contractor.license_no} style={{
                     border: '1px solid #e5e7eb',
-                    borderRadius: '8px',
-                    padding: '1.5rem',
-                    transition: 'all 0.2s'
+                    borderRadius: '12px',
+                    padding: '0',
+                    background: 'white',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                    transition: 'all 0.3s ease',
+                    overflow: 'hidden'
                   }}
                   onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-2px)'
+                    e.currentTarget.style.boxShadow = '0 8px 25px rgba(0,0,0,0.12)'
                     e.currentTarget.style.borderColor = '#3b82f6'
-                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)'
                   }}
                   onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)'
+                    e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.06)'
                     e.currentTarget.style.borderColor = '#e5e7eb'
-                    e.currentTarget.style.boxShadow = 'none'
                   }}
                   >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                      <div>
-                        <h3 style={{ fontSize: '1.3rem', fontWeight: 'bold', color: '#333', marginBottom: '0.5rem' }}>
-                          <Link href={createContractorUrl(contractor.license_no, contractor.business_name)} style={{ color: '#3b82f6', textDecoration: 'none' }}>
-                            {contractor.business_name}
-                          </Link>
-                        </h3>
-                        <div style={{ color: '#666', fontSize: '1rem', marginBottom: '0.5rem' }}>
-                          License: <strong>{contractor.license_no}</strong>
+                    {/* Card Header */}
+                    <div style={{
+                      background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+                      padding: '1.25rem',
+                      borderBottom: '1px solid #e5e7eb'
+                    }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <h3 style={{ 
+                            fontSize: '1.15rem', 
+                            fontWeight: 'bold', 
+                            color: '#1e293b', 
+                            marginBottom: '0.5rem',
+                            lineHeight: '1.3',
+                            wordWrap: 'break-word'
+                          }}>
+                            <Link href={createContractorUrl(contractor.license_no, contractor.business_name)} style={{ 
+                              color: '#3b82f6', 
+                              textDecoration: 'none',
+                              display: 'block'
+                            }}>
+                              {contractor.business_name}
+                            </Link>
+                          </h3>
+                          <div style={{ 
+                            color: '#64748b', 
+                            fontSize: '0.9rem',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.4rem'
+                          }}>
+                            🏆 <strong style={{ color: '#475569' }}>{contractor.license_no}</strong>
+                          </div>
                         </div>
-                        <div style={{ color: '#666', fontSize: '0.95rem' }}>
-                          {contractor.primary_classification} - {contractor.trade}
+                        <div style={{
+                          padding: '0.4rem 0.7rem',
+                          borderRadius: '16px',
+                          backgroundColor: '#059669' + '15',
+                          border: `1px solid ${'#059669' + '30'}`,
+                          color: '#059669',
+                          fontSize: '0.8rem',
+                          fontWeight: 'bold',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.3px',
+                          marginLeft: '0.75rem',
+                          whiteSpace: 'nowrap'
+                        }}>
+                          ACTIVE
                         </div>
-                        {contractor.business_phone && (
-                          <div style={{ color: '#666', fontSize: '0.95rem', marginTop: '0.5rem' }}>
-                            📞 {contractor.business_phone}
+                      </div>
+                    </div>
+
+                    {/* Card Body */}
+                    <div style={{ padding: '1.25rem' }}>
+                      <div style={{ 
+                        display: 'grid', 
+                        gridTemplateColumns: '1fr',
+                        gap: '0.75rem', 
+                        marginBottom: '1rem' 
+                      }}>
+                        {/* Classification */}
+                        <div style={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          gap: '0.6rem',
+                          padding: '0.6rem',
+                          background: '#f0f9ff',
+                          borderRadius: '6px',
+                          border: '1px solid #e0f2fe'
+                        }}>
+                          <div style={{ fontSize: '1rem' }}>🔧</div>
+                          <div>
+                            <div style={{ fontSize: '0.8rem', color: '#0369a1', marginBottom: '0.2rem' }}>Specialty</div>
+                            <div style={{ fontWeight: '600', color: '#0c4a6e', fontSize: '0.9rem' }}>
+                              {contractor.primary_classification} - {contractor.trade}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Contact & Action Section */}
+                      <div style={{ 
+                        display: 'flex', 
+                        justifyContent: 'space-between', 
+                        alignItems: 'center',
+                        flexWrap: 'wrap',
+                        gap: '0.75rem',
+                        paddingTop: '0.75rem',
+                        borderTop: '1px solid #e5e7eb'
+                      }}>
+                        {contractor.business_phone ? (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flex: 1, minWidth: 0 }}>
+                            <div style={{ fontSize: '1rem' }}>📞</div>
+                            <a href={`tel:${contractor.business_phone}`} style={{
+                              color: '#059669',
+                              fontWeight: 'bold',
+                              fontSize: '0.95rem',
+                              textDecoration: 'none',
+                              wordBreak: 'break-all'
+                            }}>
+                              {contractor.business_phone}
+                            </a>
+                          </div>
+                        ) : (
+                          <div style={{ color: '#9ca3af', fontSize: '0.85rem', fontStyle: 'italic', flex: 1 }}>
+                            No phone listed
                           </div>
                         )}
-                      </div>
-                      <div style={{
-                        padding: '0.5rem 1rem',
-                        borderRadius: '20px',
-                        backgroundColor: '#059669' + '20',
-                        color: '#059669',
-                        fontSize: '0.9rem',
-                        fontWeight: 'bold'
-                      }}>
-                        Active
+                        
+                        <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0 }}>
+                          {contractor.business_phone && (
+                            <a href={`tel:${contractor.business_phone}`} style={{
+                              background: '#059669',
+                              color: 'white',
+                              padding: '0.4rem 0.8rem',
+                              borderRadius: '5px',
+                              textDecoration: 'none',
+                              fontSize: '0.8rem',
+                              fontWeight: '600',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '0.2rem'
+                            }}>
+                              📞 Call
+                            </a>
+                          )}
+                          <Link href={createContractorUrl(contractor.license_no, contractor.business_name)} style={{
+                            background: '#3b82f6',
+                            color: 'white',
+                            padding: '0.4rem 0.8rem',
+                            borderRadius: '5px',
+                            textDecoration: 'none',
+                            fontSize: '0.8rem',
+                            fontWeight: '600',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.2rem'
+                          }}>
+                            📋 View
+                          </Link>
+                        </div>
                       </div>
                     </div>
                   </div>
