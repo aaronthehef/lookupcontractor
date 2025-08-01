@@ -149,7 +149,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
 
     // Build dynamic WHERE clause
-    let whereConditions = [`state = 'CA'`]
+    let whereConditions = [
+      `state = 'CA'`,
+      `(primary_status IN ('CLEAR', 'ACTIVE') OR primary_status IS NULL)`
+    ]
     let queryParams: string[] = []
     let paramIndex = 1
 
