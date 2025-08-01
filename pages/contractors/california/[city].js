@@ -4,6 +4,7 @@ import Link from 'next/link'
 import Head from 'next/head'
 import Breadcrumbs from '../../../components/Breadcrumbs'
 import { createContractorUrl } from '../../../utils/slugify'
+import { getStatusInfo } from '../../../utils/statusHelper'
 
 export default function CityContractors() {
   const router = useRouter()
@@ -324,21 +325,29 @@ export default function CityContractors() {
                             🏆 <strong style={{ color: '#475569' }}>{contractor.license_no}</strong>
                           </div>
                         </div>
-                        <div style={{
-                          padding: '0.4rem 0.7rem',
-                          borderRadius: '16px',
-                          backgroundColor: '#059669' + '15',
-                          border: `1px solid ${'#059669' + '30'}`,
-                          color: '#059669',
-                          fontSize: '0.8rem',
-                          fontWeight: 'bold',
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.3px',
-                          marginLeft: '0.75rem',
-                          whiteSpace: 'nowrap'
-                        }}>
-                          ACTIVE
-                        </div>
+                        {(() => {
+                          const statusInfo = getStatusInfo(contractor.primary_status)
+                          return (
+                            <div style={{
+                              padding: '0.4rem 0.7rem',
+                              borderRadius: '16px',
+                              backgroundColor: statusInfo.bgColor,
+                              border: `1px solid ${statusInfo.color}30`,
+                              color: statusInfo.color,
+                              fontSize: '0.8rem',
+                              fontWeight: 'bold',
+                              letterSpacing: '0.3px',
+                              marginLeft: '0.75rem',
+                              whiteSpace: 'nowrap',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '0.25rem'
+                            }}>
+                              <span>{statusInfo.icon}</span>
+                              <span>{statusInfo.label}</span>
+                            </div>
+                          )
+                        })()}
                       </div>
                     </div>
 
