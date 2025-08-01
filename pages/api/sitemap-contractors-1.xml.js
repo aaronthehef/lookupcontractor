@@ -13,8 +13,7 @@ export default async function handler(req, res) {
     const result = await pool.query(`
       SELECT license_no, business_name, city, primary_status, expiration_date
       FROM contractors 
-      WHERE primary_status = 'CLEAR' 
-      AND business_name IS NOT NULL
+      WHERE business_name IS NOT NULL
       ORDER BY license_no
       LIMIT $1 OFFSET $2
     `, [limit, offset])

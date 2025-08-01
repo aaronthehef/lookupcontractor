@@ -11,8 +11,7 @@ export default async function handler(req, res) {
     const countResult = await pool.query(`
       SELECT COUNT(*) as total
       FROM contractors 
-      WHERE primary_status = 'CLEAR' 
-      AND business_name IS NOT NULL
+      WHERE business_name IS NOT NULL
     `)
 
     const totalContractors = parseInt(countResult.rows[0].total)

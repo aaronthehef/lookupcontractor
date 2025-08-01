@@ -10,8 +10,7 @@ export default async function handler(req, res) {
     const result = await pool.query(`
       SELECT license_no, business_name, city, primary_status
       FROM contractors 
-      WHERE primary_status = 'CLEAR' 
-      AND business_name IS NOT NULL
+      WHERE business_name IS NOT NULL
       ORDER BY license_no
       LIMIT 50000
     `)
@@ -20,7 +19,7 @@ export default async function handler(req, res) {
     const citiesResult = await pool.query(`
       SELECT DISTINCT city, COUNT(*) as contractor_count
       FROM contractors 
-      WHERE city IS NOT NULL AND primary_status = 'CLEAR'
+      WHERE city IS NOT NULL
       GROUP BY city
       ORDER BY contractor_count DESC
       LIMIT 1000
