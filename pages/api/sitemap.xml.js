@@ -6,23 +6,31 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Get sample of contractors for main sitemap (limit for performance)
-    const result = await pool.query(`
-      SELECT license_no, business_name, city, primary_status
-      FROM contractors 
-      WHERE business_name IS NOT NULL
-      ORDER BY license_no
-      LIMIT 50000
-    `)
-
-    // Get unique cities
+    // Get all unique cities for city pages
     const citiesResult = await pool.query(`
       SELECT DISTINCT city, COUNT(*) as contractor_count
       FROM contractors 
       WHERE city IS NOT NULL
       GROUP BY city
       ORDER BY contractor_count DESC
-      LIMIT 1000
+    `)
+
+    // Get all contractor classifications/types
+    const classificationsResult = await pool.query(`
+      SELECT DISTINCT primary_classification, COUNT(*) as contractor_count
+      FROM contractors 
+      WHERE primary_classification IS NOT NULL
+      GROUP BY primary_classification
+      ORDER BY contractor_count DESC
+    `)
+
+    // Get all states (assuming you expand beyond California)
+    const statesResult = await pool.query(`
+      SELECT DISTINCT state, COUNT(*) as contractor_count
+      FROM contractors 
+      WHERE state IS NOT NULL
+      GROUP BY state
+      ORDER BY contractor_count DESC
     `)
 
     const baseUrl = 'https://lookupcontractor.com'
@@ -30,45 +38,128 @@ export default async function handler(req, res) {
 
     let sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <!-- Homepage -->
+  <!-- Core Static Pages -->
   <url>
     <loc>${baseUrl}</loc>
     <lastmod>${currentDate}</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
-  
-  <!-- Search Results Page -->
+  <url>
+    <loc>${baseUrl}/search</loc>
+    <lastmod>${currentDate}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
   <url>
     <loc>${baseUrl}/search-results</loc>
     <lastmod>${currentDate}</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
-  </url>`
-
-    // Add contractor pages
-    result.rows.forEach(contractor => {
-      const slug = contractor.business_name
-        .toLowerCase()
-        .replace(/[^a-z0-9\s-]/g, '')
-        .replace(/\s+/g, '-')
-        .substring(0, 50)
-        
-      sitemap += `
+  </url>
   <url>
-    <loc>${baseUrl}/contractor/${contractor.license_no}</loc>
+    <loc>${baseUrl}/blog</loc>
+    <lastmod>${currentDate}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/contact</loc>
     <lastmod>${currentDate}</lastmod>
     <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/contractors/california</loc>
+    <lastmod>${currentDate}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <!-- Legal Pages -->
+  <url>
+    <loc>${baseUrl}/privacy-policy</loc>
+    <lastmod>${currentDate}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/terms-of-service</loc>
+    <lastmod>${currentDate}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/disclaimer</loc>
+    <lastmod>${currentDate}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/data-sources</loc>
+    <lastmod>${currentDate}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/copyright</loc>
+    <lastmod>${currentDate}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.3</priority>
+  </url>`
+
+    // Add all state pages
+    statesResult.rows.forEach(state => {
+      const stateSlug = state.state.toLowerCase().replace(/\s+/g, '-')
+      sitemap += `
+  <url>
+    <loc>${baseUrl}/state/${stateSlug}</loc>
+    <lastmod>${currentDate}</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>`
     })
 
-    // Add city pages (conceptual - would need to create these pages)
-    citiesResult.rows.slice(0, 50).forEach(city => {
-      const citySlug = city.city.toLowerCase().replace(/\s+/g, '-')
+    // Add all city pages (both formats)
+    citiesResult.rows.forEach(city => {
+      const citySlug = city.city.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
+      
+      // California-specific city pages
       sitemap += `
   <url>
     <loc>${baseUrl}/contractors/california/${citySlug}</loc>
+    <lastmod>${currentDate}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>`
+      
+      // General city pages (state/city format)
+      sitemap += `
+  <url>
+    <loc>${baseUrl}/city/california/${citySlug}</loc>
+    <lastmod>${currentDate}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>`
+    })
+
+    // Add all contractor classification pages
+    classificationsResult.rows.forEach(classification => {
+      const classSlug = classification.primary_classification.toLowerCase().replace(/[^a-z0-9]/g, '-')
+      
+      // General contractor type pages
+      sitemap += `
+  <url>
+    <loc>${baseUrl}/contractors/${classSlug}</loc>
+    <lastmod>${currentDate}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>`
+      
+      // California-specific classification pages
+      sitemap += `
+  <url>
+    <loc>${baseUrl}/contractors/california/type/${classSlug}</loc>
     <lastmod>${currentDate}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
@@ -83,8 +174,8 @@ export default async function handler(req, res) {
     res.status(200).send(sitemap)
 
   } catch (error) {
-    console.error('Sitemap generation error:', error)
-    res.status(500).json({ error: 'Failed to generate sitemap' })
+    console.error('Comprehensive sitemap generation error:', error)
+    res.status(500).json({ error: 'Failed to generate comprehensive sitemap' })
   }
 }
 
