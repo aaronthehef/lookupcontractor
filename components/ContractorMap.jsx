@@ -24,35 +24,23 @@ export default function ContractorMap({ contractor }) {
 
   const geocodeAddress = async () => {
     try {
-      // Build address string from available data
-      const addressParts = []
-      if (contractor.mailing_address) addressParts.push(contractor.mailing_address)
-      if (contractor.city) addressParts.push(contractor.city)
-      if (contractor.state) addressParts.push(contractor.state)
-      if (contractor.zip_code) addressParts.push(contractor.zip_code)
+      // Try full address first
+      let coordinates = await tryGeocode('full')
       
-      const address = addressParts.join(', ')
-      
-      if (!address) {
-        setError('No address available')
-        setLoading(false)
-        return
+      // If full address fails, try city + state + zip
+      if (!coordinates) {
+        coordinates = await tryGeocode('city')
       }
-
-      // Use Nominatim (OpenStreetMap) geocoding service (free)
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`
-      )
       
-      const data = await response.json()
+      // If city fails, try just zip code
+      if (!coordinates) {
+        coordinates = await tryGeocode('zip')
+      }
       
-      if (data && data.length > 0) {
-        setCoordinates({
-          lat: parseFloat(data[0].lat),
-          lng: parseFloat(data[0].lon)
-        })
+      if (coordinates) {
+        setCoordinates(coordinates)
       } else {
-        setError('Address not found')
+        setError('Location not found')
       }
     } catch (err) {
       setError('Failed to load map')
@@ -60,6 +48,64 @@ export default function ContractorMap({ contractor }) {
     } finally {
       setLoading(false)
     }
+  }
+
+  const tryGeocode = async (type) => {
+    let searchAddress = ''
+    
+    switch (type) {
+      case 'full':
+        // Build full address string
+        const addressParts = []
+        if (contractor.mailing_address) addressParts.push(contractor.mailing_address)
+        if (contractor.city) addressParts.push(contractor.city)
+        if (contractor.state) addressParts.push(contractor.state)
+        if (contractor.zip_code) addressParts.push(contractor.zip_code)
+        searchAddress = addressParts.join(', ')
+        break
+        
+      case 'city':
+        // Try city + state + zip (without mailing address)
+        const cityParts = []
+        if (contractor.city) cityParts.push(contractor.city)
+        if (contractor.state) cityParts.push(contractor.state)
+        if (contractor.zip_code) cityParts.push(contractor.zip_code)
+        searchAddress = cityParts.join(', ')
+        break
+        
+      case 'zip':
+        // Try just zip code + state as fallback
+        if (contractor.zip_code) {
+          searchAddress = `${contractor.zip_code}, ${contractor.state || 'CA'}`
+        }
+        break
+        
+      default:
+        return null
+    }
+    
+    if (!searchAddress) return null
+    
+    console.log(`Trying geocode (${type}):`, searchAddress)
+    
+    // Use Nominatim (OpenStreetMap) geocoding service (free)
+    const response = await fetch(
+      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchAddress)}&limit=1`
+    )
+    
+    const data = await response.json()
+    
+    if (data && data.length > 0) {
+      console.log(`Geocode success (${type}):`, data[0])
+      return {
+        lat: parseFloat(data[0].lat),
+        lng: parseFloat(data[0].lon),
+        accuracy: type // Track what level of accuracy we got
+      }
+    }
+    
+    console.log(`Geocode failed (${type})`)
+    return null
   }
 
   const getDirectionsUrl = () => {
@@ -107,11 +153,31 @@ export default function ContractorMap({ contractor }) {
     )
   }
 
+  // Determine zoom level based on accuracy
+  const getZoomLevel = () => {
+    switch (coordinates.accuracy) {
+      case 'full': return 16  // Street level
+      case 'city': return 13  // City level  
+      case 'zip': return 12   // Zip code area level
+      default: return 15
+    }
+  }
+
+  // Get accuracy description
+  const getAccuracyDescription = () => {
+    switch (coordinates.accuracy) {
+      case 'full': return 'Exact address'
+      case 'city': return `${contractor.city} area`
+      case 'zip': return `ZIP ${contractor.zip_code} area`
+      default: return 'Approximate location'
+    }
+  }
+
   return (
     <div style={{ position: 'relative' }}>
       <MapContainer
         center={[coordinates.lat, coordinates.lng]}
-        zoom={15}
+        zoom={getZoomLevel()}
         style={{ height: '300px', width: '100%', borderRadius: '8px' }}
       >
         <TileLayer
@@ -126,6 +192,9 @@ export default function ContractorMap({ contractor }) {
               </h3>
               <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.9rem', color: '#666' }}>
                 License #{contractor.license_no}
+              </p>
+              <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.85rem', color: '#888', fontStyle: 'italic' }}>
+                📍 {getAccuracyDescription()}
               </p>
               <p style={{ margin: '0 0 1rem 0', fontSize: '0.9rem' }}>
                 {contractor.mailing_address && `${contractor.mailing_address}, `}
@@ -184,6 +253,24 @@ export default function ContractorMap({ contractor }) {
           🧭 Directions
         </a>
       </div>
+
+      {/* Accuracy indicator */}
+      {coordinates.accuracy !== 'full' && (
+        <div style={{ 
+          position: 'absolute', 
+          bottom: '10px', 
+          left: '10px', 
+          zIndex: 1000,
+          background: 'rgba(0,0,0,0.7)',
+          color: 'white',
+          padding: '0.25rem 0.5rem',
+          borderRadius: '4px',
+          fontSize: '0.75rem',
+          opacity: 0.8
+        }}>
+          📍 {getAccuracyDescription()}
+        </div>
+      )}
     </div>
   )
 }
