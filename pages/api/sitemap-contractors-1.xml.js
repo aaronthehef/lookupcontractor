@@ -6,7 +6,7 @@ export default async function handler(req, res) {
   }
 
   const page = 1
-  const limit = 10000 // 10k URLs per sitemap (reduces file size)
+  const limit = 5000 // 5k URLs per sitemap (ultra small for Google)
   const offset = (page - 1) * limit
   
   try {

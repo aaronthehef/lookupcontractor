@@ -15,7 +15,7 @@ export default async function handler(req, res) {
     `)
 
     const totalContractors = parseInt(countResult.rows[0].total)
-    const contractorsPerSitemap = 10000
+    const contractorsPerSitemap = 5000
     const totalSitemapPages = Math.ceil(totalContractors / contractorsPerSitemap)
 
     const baseUrl = 'https://www.lookupcontractor.com'

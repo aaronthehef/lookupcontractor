@@ -6,7 +6,7 @@ export default async function handler(req, res) {
   }
 
   const page = 25
-  const limit = 10000
+  const limit = 5000
   const offset = (page - 1) * limit
   
   try {

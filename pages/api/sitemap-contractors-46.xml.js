@@ -5,8 +5,8 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
-  const page = 2
-  const limit = 5000 // 10k URLs per sitemap (reduces file size)
+  const page = 46
+  const limit = 5000
   const offset = (page - 1) * limit
   
   try {
@@ -17,6 +17,16 @@ export default async function handler(req, res) {
       ORDER BY license_no
       LIMIT $1 OFFSET $2
     `, [limit, offset])
+
+    // Return empty sitemap if no results
+    if (result.rows.length === 0) {
+      const emptySitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+</urlset>`
+      res.setHeader('Content-Type', 'text/xml')
+      res.setHeader('Cache-Control', 'public, max-age=86400')
+      return res.status(200).send(emptySitemap)
+    }
 
     const baseUrl = 'https://www.lookupcontractor.com'
     const currentDate = new Date().toISOString().split('T')[0]
@@ -46,7 +56,7 @@ export default async function handler(req, res) {
     res.status(200).send(sitemap)
 
   } catch (error) {
-    console.error('Contractor sitemap page 2 error:', error)
-    res.status(500).json({ error: 'Failed to generate contractor sitemap page 2' })
+    console.error('Contractor sitemap page 46 error:', error)
+    res.status(500).json({ error: 'Failed to generate contractor sitemap page 46' })
   }
 }

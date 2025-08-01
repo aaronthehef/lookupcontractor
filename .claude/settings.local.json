@@ -39,7 +39,13 @@
       "WebFetch(domain:www.gravel2gavel.com)",
       "WebFetch(domain:www.cslb.ca.gov)",
       "Bash(npm run dev:*)",
-      "Bash(set PORT=3011)"
+      "Bash(set PORT=3011)",
+      "Bash(for i in {2..25})",
+      "Bash(do sed -i \"s/limit = 10000/limit = 5000/g\" sitemap-contractors-$i.xml.js)",
+      "Bash(done)",
+      "Bash(for i in {26..50})",
+      "Bash(do cp sitemap-contractors-25.xml.js sitemap-contractors-$i.xml.js)",
+      "Bash(ls:*)"
     ],
     "deny": []
   }
