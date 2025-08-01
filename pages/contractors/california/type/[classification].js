@@ -29,7 +29,8 @@ export default function ContractorTypeCaliforniaPage() {
         body: JSON.stringify({
           searchTerm: classification.toUpperCase(),
           searchType: 'classification',
-          state: 'california'
+          state: 'california',
+          limit: 100
         })
       })
       
