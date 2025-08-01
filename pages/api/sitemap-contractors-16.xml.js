@@ -5,7 +5,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
-  const page = 7
+  const page = 16
   const limit = 10000
   const offset = (page - 1) * limit
   
@@ -56,7 +56,7 @@ export default async function handler(req, res) {
     res.status(200).send(sitemap)
 
   } catch (error) {
-    console.error('Contractor sitemap page 7 error:', error)
-    res.status(500).json({ error: 'Failed to generate contractor sitemap page 7' })
+    console.error('Contractor sitemap page 16 error:', error)
+    res.status(500).json({ error: 'Failed to generate contractor sitemap page 16' })
   }
 }
