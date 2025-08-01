@@ -4,6 +4,7 @@ import Link from 'next/link'
 import Head from 'next/head'
 import dynamic from 'next/dynamic'
 import { getStatusInfo } from '../../utils/statusHelper'
+import { getContractorTypeInfo } from '../../utils/contractorTypes'
 import Breadcrumbs from '../../components/Breadcrumbs'
 
 // Dynamically import map component to avoid SSR issues
@@ -382,10 +383,12 @@ export default function ContractorProfile() {
           {classifications.length > 1 && (
             <div>
               <h3 style={{ fontSize: '1.2rem', marginBottom: '1rem', color: '#333' }}>
-                All Classifications & Industries
+                Additional Classifications & Industries
               </h3>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem' }}>
-                {classifications.map((classification, index) => (
+                {classifications
+                  .filter(classification => classification !== contractor.primary_classification)
+                  .map((classification, index) => (
                   <div key={index} style={{ 
                     background: '#f8fafc', 
                     padding: '0.75rem', 
@@ -393,7 +396,10 @@ export default function ContractorProfile() {
                     border: '1px solid #e5e7eb',
                     fontSize: '0.95rem'
                   }}>
-                    {classification}
+                    {(() => {
+                      const typeInfo = getContractorTypeInfo(classification)
+                      return `${classification} - ${typeInfo.name}`
+                    })()}
                   </div>
                 ))}
               </div>
