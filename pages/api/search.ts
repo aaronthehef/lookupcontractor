@@ -13,13 +13,37 @@ function parseSmartSearch(searchTerm: string, startParamIndex: number): { condit
   const term = originalTerm.toLowerCase()
   
   // City extraction patterns
-  const cityMatch = term.match(/(?:in|near|at|from)\s+([a-z\s]+)$/i)
   let extractedCity = null
   let searchTermWithoutCity = originalTerm
   
-  if (cityMatch) {
-    extractedCity = cityMatch[1].trim()
-    searchTermWithoutCity = originalTerm.replace(cityMatch[0], '').trim()
+  // Pattern 1: "plumber in los angeles" format
+  const cityMatchWithPrep = term.match(/(?:in|near|at|from)\s+([a-z\s]+)$/i)
+  if (cityMatchWithPrep) {
+    extractedCity = cityMatchWithPrep[1].trim()
+    searchTermWithoutCity = originalTerm.replace(cityMatchWithPrep[0], '').trim()
+  } else {
+    // Pattern 2: "los angeles plumber" format - check if first words match known cities
+    const knownCities = [
+      'los angeles', 'san francisco', 'san diego', 'sacramento', 'fresno', 'long beach',
+      'oakland', 'bakersfield', 'stockton', 'fremont', 'san jose', 'irvine', 'chula vista',
+      'riverside', 'santa ana', 'anaheim', 'modesto', 'huntington beach', 'glendale',
+      'oxnard', 'fontana', 'moreno valley', 'santa clarita', 'oceanside', 'garden grove',
+      'santa rosa', 'elk grove', 'corona', 'lancaster', 'palmdale', 'salinas', 'hayward',
+      'pomona', 'escondido', 'torrance', 'sunnyvale', 'orange', 'fullerton', 'pasadena',
+      'thousand oaks', 'visalia', 'simi valley', 'concord', 'roseville', 'santa clara',
+      'vallejo', 'victorville', 'el monte', 'berkeley', 'downey', 'costa mesa', 'inglewood'
+    ]
+    
+    // Sort by length (longest first) to match "los angeles" before "los"
+    const sortedCities = knownCities.sort((a, b) => b.length - a.length)
+    
+    for (const city of sortedCities) {
+      if (term.startsWith(city.toLowerCase() + ' ')) {
+        extractedCity = city
+        searchTermWithoutCity = originalTerm.substring(city.length).trim()
+        break
+      }
+    }
   }
   
   // Check if it's a license number (digits only or starts with letter+digits)
