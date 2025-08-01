@@ -15,7 +15,7 @@ Allow: /contractor/
 Allow: /api/sitemap*.xml
 
 # Sitemap locations
-Sitemap: https://lookupcontractor.com/api/sitemap-index.xml
+Sitemap: https://www.lookupcontractor.com/api/sitemap-index.xml
 
 # Crawl-delay for respectful crawling (1 second)
 Crawl-delay: 1

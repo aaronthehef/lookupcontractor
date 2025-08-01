@@ -28,7 +28,7 @@ export default async function handler(req, res) {
       return res.status(200).send(emptySitemap)
     }
 
-    const baseUrl = 'https://lookupcontractor.com'
+    const baseUrl = 'https://www.lookupcontractor.com'
     const currentDate = new Date().toISOString().split('T')[0]
 
     let sitemap = `<?xml version="1.0" encoding="UTF-8"?>

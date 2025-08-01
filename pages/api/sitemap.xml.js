@@ -33,7 +33,7 @@ export default async function handler(req, res) {
       ORDER BY contractor_count DESC
     `)
 
-    const baseUrl = 'https://lookupcontractor.com'
+    const baseUrl = 'https://www.lookupcontractor.com'
     const currentDate = new Date().toISOString().split('T')[0]
 
     let sitemap = `<?xml version="1.0" encoding="UTF-8"?>

@@ -18,7 +18,7 @@ export default async function handler(req, res) {
       LIMIT $1 OFFSET $2
     `, [limit, offset])
 
-    const baseUrl = 'https://lookupcontractor.com'
+    const baseUrl = 'https://www.lookupcontractor.com'
     const currentDate = new Date().toISOString().split('T')[0]
 
     let sitemap = `<?xml version="1.0" encoding="UTF-8"?>

@@ -18,7 +18,7 @@ export default async function handler(req, res) {
     const contractorsPerSitemap = 40000
     const totalSitemapPages = Math.ceil(totalContractors / contractorsPerSitemap)
 
-    const baseUrl = 'https://lookupcontractor.com'
+    const baseUrl = 'https://www.lookupcontractor.com'
     const currentDate = new Date().toISOString().split('T')[0]
 
     let sitemapIndex = `<?xml version="1.0" encoding="UTF-8"?>
