@@ -26,6 +26,10 @@ export default async function handler(req, res) {
   <sitemap>
     <loc>${baseUrl}/api/sitemap.xml</loc>
     <lastmod>${currentDate}</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>${baseUrl}/api/sitemap-pages.xml</loc>
+    <lastmod>${currentDate}</lastmod>
   </sitemap>`
 
     // Add all contractor sitemap pages
