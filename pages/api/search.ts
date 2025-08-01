@@ -9,9 +9,48 @@ function parseSmartSearch(searchTerm: string, startParamIndex: number): { condit
   const params: string[] = []
   let paramIndex = startParamIndex
   
-  const term = searchTerm.toLowerCase().trim()
+  const originalTerm = searchTerm.trim()
+  const term = originalTerm.toLowerCase()
   
-  // Trade/classification patterns
+  // City extraction patterns
+  const cityMatch = term.match(/(?:in|near|at|from)\s+([a-z\s]+)$/i)
+  let extractedCity = null
+  let searchTermWithoutCity = originalTerm
+  
+  if (cityMatch) {
+    extractedCity = cityMatch[1].trim()
+    searchTermWithoutCity = originalTerm.replace(cityMatch[0], '').trim()
+  }
+  
+  // Check if it's a license number (digits only or starts with letter+digits)
+  if (/^\d+$/.test(searchTermWithoutCity) || /^[a-z]\d+$/i.test(searchTermWithoutCity)) {
+    conditions.push(`license_no ILIKE $${paramIndex}`)
+    params.push(`%${searchTermWithoutCity}%`)
+    paramIndex++
+    return { conditions, params }
+  }
+  
+  // Split search term into words
+  const words = searchTermWithoutCity.toLowerCase().split(/\s+/).filter(word => word.length > 0)
+  
+  // If we have multiple words, prioritize exact business name matches
+  if (words.length > 1) {
+    // First priority: Exact business name match
+    conditions.push(`business_name ILIKE $${paramIndex}`)
+    params.push(`%${searchTermWithoutCity}%`)
+    paramIndex++
+    
+    // Add city filter if found
+    if (extractedCity) {
+      conditions.push(`UPPER(TRIM(city)) = UPPER($${paramIndex})`)
+      params.push(extractedCity.trim())
+      paramIndex++
+    }
+    
+    return { conditions, params }
+  }
+  
+  // Single word searches - check for trade patterns
   const tradePatterns = [
     { pattern: /(electrician|electrical|electric)/g, classification: 'C-10', trade: 'Electrical' },
     { pattern: /(plumber|plumbing)/g, classification: 'C-36', trade: 'Plumbing' },
@@ -27,79 +66,35 @@ function parseSmartSearch(searchTerm: string, startParamIndex: number): { condit
     { pattern: /(solar|photovoltaic|pv)/g, classification: 'C-46', trade: 'Solar' }
   ]
   
-  // City extraction patterns
-  const cityMatch = term.match(/(?:in|near|at|from)\s+([a-z\s]+)$/i)
-  let extractedCity = null
-  let searchTermWithoutCity = term
-  
-  if (cityMatch) {
-    extractedCity = cityMatch[1].trim()
-    searchTermWithoutCity = term.replace(cityMatch[0], '').trim()
+  // Look for trade patterns in single word searches
+  let foundTrade = false
+  for (const tradePattern of tradePatterns) {
+    if (tradePattern.pattern.test(searchTermWithoutCity)) {
+      conditions.push(`(
+        primary_classification ILIKE $${paramIndex} OR 
+        trade ILIKE $${paramIndex + 1}
+      )`)
+      params.push(`%${tradePattern.classification}%`)
+      params.push(`%${tradePattern.trade}%`)
+      paramIndex += 2
+      foundTrade = true
+      break
+    }
   }
   
-  // Check if it's a license number (digits only or starts with letter+digits)
-  if (/^\d+$/.test(term) || /^[a-z]\d+$/i.test(term)) {
-    conditions.push(`license_no ILIKE $${paramIndex}`)
-    params.push(`%${term}%`)
-    paramIndex++
-  } else {
-    // Look for trade patterns
-    let foundTrade = false
-    for (const tradePattern of tradePatterns) {
-      if (tradePattern.pattern.test(searchTermWithoutCity)) {
-        // For plumbing, include additional related terms
-        if (tradePattern.classification === 'C-36') {
-          conditions.push(`(
-            primary_classification ILIKE $${paramIndex} OR 
-            trade ILIKE $${paramIndex + 1} OR
-            business_name ILIKE $${paramIndex + 2} OR
-            raw_classifications ILIKE $${paramIndex + 3} OR
-            business_name ILIKE $${paramIndex + 4} OR
-            business_name ILIKE $${paramIndex + 5} OR
-            business_name ILIKE $${paramIndex + 6} OR
-            business_name ILIKE $${paramIndex + 7} OR
-            business_name ILIKE $${paramIndex + 8}
-          )`)
-          params.push(`%${tradePattern.classification}%`)
-          params.push(`%${tradePattern.trade}%`)
-          params.push(`%${tradePattern.trade.toLowerCase()}%`)
-          params.push(`%${tradePattern.classification}%`)
-          params.push('%rooter%')
-          params.push('%drain%')
-          params.push('%sewer%')
-          params.push('%pipe%')
-          params.push('%water%')
-          paramIndex += 9
-        } else {
-          conditions.push(`(
-            primary_classification ILIKE $${paramIndex} OR 
-            trade ILIKE $${paramIndex + 1} OR
-            business_name ILIKE $${paramIndex + 2} OR
-            raw_classifications ILIKE $${paramIndex + 3}
-          )`)
-          params.push(`%${tradePattern.classification}%`)
-          params.push(`%${tradePattern.trade}%`)
-          params.push(`%${tradePattern.trade.toLowerCase()}%`)
-          params.push(`%${tradePattern.classification}%`)
-          paramIndex += 4
-        }
-        foundTrade = true
-        break
-      }
-    }
-    
-    // If no specific trade found, search business names
-    if (!foundTrade) {
-      conditions.push(`business_name ILIKE $${paramIndex}`)
-      params.push(`%${searchTermWithoutCity}%`)
-      paramIndex++
-    }
+  // If no trade found, search business names and license numbers
+  if (!foundTrade) {
+    conditions.push(`(
+      business_name ILIKE $${paramIndex} OR
+      license_no ILIKE $${paramIndex + 1}
+    )`)
+    params.push(`%${searchTermWithoutCity}%`)
+    params.push(`%${searchTermWithoutCity}%`)
+    paramIndex += 2
   }
   
   // Add city filter if found
   if (extractedCity) {
-    // Use exact match for better consistency with city browsing
-    // Also normalize the city name to handle case variations
     conditions.push(`UPPER(TRIM(city)) = UPPER($${paramIndex})`)
     params.push(extractedCity.trim())
     paramIndex++
