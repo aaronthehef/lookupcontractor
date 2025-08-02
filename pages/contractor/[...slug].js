@@ -21,14 +21,21 @@ export default function ContractorUniversalProfile({ contractor: initialContract
   const [contractor, setContractor] = useState(initialContractor)
   const [loading, setLoading] = useState(!initialContractor)
   const [error, setError] = useState(initialError || '')
-  const [urlType, setUrlType] = useState('old') // 'old' or 'seo'
-  const [urlParams, setUrlParams] = useState({})
+  
+  // Determine URL type and params from slug
+  const urlType = slug.length === 3 ? 'seo' : 'old'
+  const urlParams = urlType === 'seo' && slug.length === 3 ? {
+    city: slug[0],
+    trade: slug[1], 
+    licenseAndName: slug[2]
+  } : {}
 
   useEffect(() => {
-    if (slug.length > 0) {
+    // Only run client-side parsing if we don't have initial data
+    if (!initialContractor && slug.length > 0) {
       parseUrl()
     }
-  }, [slug])
+  }, [slug, initialContractor])
 
   const parseUrl = () => {
     console.log('URL slug array:', slug)
