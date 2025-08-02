@@ -1,6 +1,6 @@
 const fs = require('fs')
 const path = require('path')
-const pool = require('../lib/database.js')
+const { pool, executeQuery } = require('../lib/database.js')
 const { createContractorUrl } = require('../utils/urlHelpers')
 
 async function generateSitemaps() {
@@ -68,8 +68,8 @@ async function generateSitemaps() {
 
     // Generate contractor sitemaps
     console.log('👷 Generating contractor sitemaps...')
-    const contractorsPerSitemap = 10000 // Compromise between size and count
-    const totalContractors = await pool.query('SELECT COUNT(*) FROM contractors WHERE business_name IS NOT NULL')
+    const contractorsPerSitemap = 2000 // Match API file limits
+    const totalContractors = await executeQuery('SELECT COUNT(*) FROM contractors WHERE business_name IS NOT NULL')
     const count = parseInt(totalContractors.rows[0].count)
     const totalSitemaps = Math.ceil(count / contractorsPerSitemap)
 
@@ -82,7 +82,7 @@ async function generateSitemaps() {
       
       console.log(`📋 Generating sitemap ${page}/${totalSitemaps}...`)
       
-      const result = await pool.query(`
+      const result = await executeQuery(`
         SELECT license_no, business_name, city, primary_status, expiration_date, trade, primary_classification
         FROM contractors 
         WHERE business_name IS NOT NULL

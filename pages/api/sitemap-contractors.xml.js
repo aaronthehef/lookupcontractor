@@ -1,4 +1,4 @@
-const pool = require('../../lib/database.js')
+const { pool, executeQuery } = require('../../lib/database.js')
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -11,7 +11,7 @@ export default async function handler(req, res) {
   try {
 
     // Get contractors with pagination
-    const result = await pool.query(`
+    const result = await executeQuery(`
       SELECT license_no, business_name, city, primary_status, expiration_date
       FROM contractors 
       WHERE primary_status = 'CLEAR' 

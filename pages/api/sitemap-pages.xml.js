@@ -1,4 +1,4 @@
-const pool = require('../../lib/database.js')
+const { pool, executeQuery } = require('../../lib/database.js')
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -7,7 +7,7 @@ export default async function handler(req, res) {
 
   try {
     // Get all unique cities for city pages
-    const citiesResult = await pool.query(`
+    const citiesResult = await executeQuery(`
       SELECT DISTINCT city, COUNT(*) as contractor_count
       FROM contractors 
       WHERE city IS NOT NULL
@@ -16,7 +16,7 @@ export default async function handler(req, res) {
     `)
 
     // Get all contractor classifications/types
-    const classificationsResult = await pool.query(`
+    const classificationsResult = await executeQuery(`
       SELECT DISTINCT primary_classification, COUNT(*) as contractor_count
       FROM contractors 
       WHERE primary_classification IS NOT NULL
@@ -25,7 +25,7 @@ export default async function handler(req, res) {
     `)
 
     // Get all states
-    const statesResult = await pool.query(`
+    const statesResult = await executeQuery(`
       SELECT DISTINCT state, COUNT(*) as contractor_count
       FROM contractors 
       WHERE state IS NOT NULL

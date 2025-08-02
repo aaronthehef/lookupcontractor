@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import pool from '../../lib/database.js'
+import { pool, executeQuery } from '../../lib/database.js'
 import monitor from '../../lib/performance.js'
 import cache from '../../lib/cache.js'
 
@@ -131,6 +131,14 @@ function parseSmartSearch(searchTerm: string, startParamIndex: number): { condit
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const startTime = Date.now()
   
+  if (req.method === 'GET') {
+    return res.status(200).json({ 
+      message: 'Contractor Search API',
+      description: 'This endpoint accepts POST requests for contractor searches',
+      usage: 'POST /api/search with body: { searchTerm, city, state, page, limit }'
+    })
+  }
+  
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
   }
@@ -242,8 +250,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.log('Generated count query:', countQuery)
     console.log('Query params:', queryParams)
     
-    const countResult = await pool.query(countQuery, queryParams)
-    const totalResults = parseInt(countResult.rows[0].total)
+    const countResult = await executeQuery(countQuery, queryParams)
+    const totalResults = countResult ? parseInt((countResult.rows[0] as any).total) : 0
     
     console.log('Total results from count query:', totalResults)
 
@@ -271,7 +279,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       LIMIT $${queryParams.length + 1} OFFSET $${queryParams.length + 2}
     `
 
-    const { rows } = await pool.query(query, [...queryParams, limitNum, offset])
+    const result = await executeQuery(query, [...queryParams, limitNum, offset])
+    const rows = result?.rows || []
 
     const response = {
       contractors: rows,

@@ -2,8 +2,9 @@
 User-agent: *
 Allow: /
 
-# Optimize crawl budget - Block low-value pages
+# Optimize crawl budget - Block low-value pages  
 Disallow: /api/
+Allow: /api/sitemap*.xml
 Disallow: /_next/
 Disallow: /404
 Disallow: /500

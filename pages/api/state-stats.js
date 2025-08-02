@@ -1,4 +1,4 @@
-const pool = require('../../lib/database.js')
+const { pool, executeQuery } = require('../../lib/database.js')
 const cache = require('../../lib/cache.js')
 
 export default async function handler(req, res) {
@@ -21,7 +21,7 @@ export default async function handler(req, res) {
   try {
 
     // Get total contractor count for state (CA is stored in database)
-    const totalResult = await pool.query(`
+    const totalResult = await executeQuery(`
       SELECT COUNT(*) as total_contractors
       FROM contractors 
       WHERE state = 'CA'

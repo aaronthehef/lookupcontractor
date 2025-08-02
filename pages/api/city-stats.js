@@ -1,4 +1,4 @@
-const pool = require('../../lib/database.js')
+const { pool, executeQuery } = require('../../lib/database.js')
 const cache = require('../../lib/cache.js')
 
 async function handler(req, res) {
@@ -33,14 +33,14 @@ async function handler(req, res) {
     console.log('Searching for city:', cityName, 'in state:', state)
     
     // Get total contractor count for city using ILIKE for case-insensitive matching
-    const totalResult = await pool.query(`
+    const totalResult = await executeQuery(`
       SELECT COUNT(*) as total_contractors
       FROM contractors 
       WHERE city ILIKE $1 AND state = 'CA'
     `, [cityName])
 
     // Get active contractor count (include CLEAR, ACTIVE, and NULL statuses like main search)
-    const activeResult = await pool.query(`
+    const activeResult = await executeQuery(`
       SELECT COUNT(*) as active_contractors
       FROM contractors 
       WHERE city ILIKE $1 AND state = 'CA' 
@@ -48,7 +48,7 @@ async function handler(req, res) {
     `, [cityName])
 
     // Get contractors by type
-    const typesResult = await pool.query(`
+    const typesResult = await executeQuery(`
       SELECT primary_classification, trade, COUNT(*) as contractor_count
       FROM contractors 
       WHERE city ILIKE $1 AND state = 'CA' AND primary_classification IS NOT NULL
@@ -58,7 +58,7 @@ async function handler(req, res) {
     `, [cityName])
 
     // Get sample contractors (include CLEAR, ACTIVE, and NULL statuses like main search)
-    const contractorsResult = await pool.query(`
+    const contractorsResult = await executeQuery(`
       SELECT license_no, business_name, primary_classification, trade, business_phone, zip_code, primary_status
       FROM contractors 
       WHERE city ILIKE $1 AND state = 'CA' 
@@ -68,7 +68,7 @@ async function handler(req, res) {
     `, [cityName])
 
     // Get ZIP codes in the city
-    const zipCodesResult = await pool.query(`
+    const zipCodesResult = await executeQuery(`
       SELECT DISTINCT zip_code, COUNT(*) as contractor_count
       FROM contractors 
       WHERE city ILIKE $1 AND state = 'CA' AND zip_code IS NOT NULL

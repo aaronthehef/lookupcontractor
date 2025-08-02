@@ -1,4 +1,4 @@
-const pool = require('../../lib/database.js')
+const { pool, executeQuery } = require('../../lib/database.js')
 const { createContractorUrl } = require('../../utils/urlHelpers')
 
 export default async function handler(req, res) {
@@ -18,7 +18,7 @@ export default async function handler(req, res) {
   const offset = (page - 1) * limit
   
   try {
-    const result = await pool.query(`
+    const result = await executeQuery(`
       SELECT license_no, business_name, city, primary_status, expiration_date, trade, primary_classification
       FROM contractors 
       WHERE business_name IS NOT NULL

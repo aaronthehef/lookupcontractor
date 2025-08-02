@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import pool from '../../lib/database.js'
+import { pool, executeQuery } from '../../lib/database.js'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -13,7 +13,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const { rows } = await pool.query(`
+    const result = await executeQuery(`
       SELECT 
         id, license_no, business_name, bus_name_2, full_business_name,
         mailing_address, city, county, state, zip_code, country,
@@ -36,12 +36,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       LIMIT 1
     `, [license])
 
-    if (rows.length === 0) {
+    if (!result || result.rows.length === 0) {
       return res.status(404).json({ error: 'Contractor not found' })
     }
 
     res.status(200).json({
-      contractor: rows[0]
+      contractor: result.rows[0]
     })
 
   } catch (error) {

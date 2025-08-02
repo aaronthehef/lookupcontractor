@@ -7,7 +7,6 @@ import { getStatusInfo } from '../../utils/statusHelper'
 import { getContractorTypeInfo } from '../../utils/contractorTypes'
 import { parseContractorUrl } from '../../utils/urlHelpers'
 import Breadcrumbs from '../../components/Breadcrumbs'
-import pool from '../../lib/database'
 
 // Dynamically import map component to avoid SSR issues
 const ContractorMap = dynamic(() => import('../../components/ContractorMap'), {
@@ -156,15 +155,15 @@ export default function ContractorUniversalProfile({ contractor: initialContract
     
   const metaDescription = urlType === 'seo'
     ? `Licensed ${urlParams.trade} in ${urlParams.city}, CA. ${contractor.business_name} - License #${contractor.license_no}, ${contractor.primary_status === 'CLEAR' ? 'active license' : 'license status: ' + contractor.primary_status}. ${contractor.business_phone ? 'Phone: ' + formatPhone(contractor.business_phone) + '.' : ''} View license details, bond information & get directions.`
-    : `Licensed ${contractor.trade || 'contractor'} in ${contractor.city}, CA. License #${contractor.license_no}, ${contractor.primary_status === 'CLEAR' ? 'active license' : 'license status: ' + contractor.primary_status}. ${contractor.business_phone ? 'Phone: ' + formatPhone(contractor.business_phone) + '.' : ''} View license details, bond information & get directions.`
+    : `Licensed ${contractor.trade || 'contractor'} in ${contractor.city || 'California'}, CA. License #${contractor.license_no}, ${contractor.primary_status === 'CLEAR' ? 'active license' : 'license status: ' + contractor.primary_status}. ${contractor.business_phone ? 'Phone: ' + formatPhone(contractor.business_phone) + '.' : ''} View license details, bond information & get directions.`
   
   // Generate breadcrumbs with proper URL formatting
-  const citySlug = contractor.city.toLowerCase().replace(/\s+/g, '-')
+  const citySlug = contractor.city?.toLowerCase().replace(/\s+/g, '-') || 'unknown'
   const breadcrumbItems = [
     { label: 'Home', href: '/' },
     { label: 'California Contractors', href: '/contractors/california' },
-    { label: `${contractor.city} Contractors`, href: `/contractors/california/${citySlug}` },
-    { label: `${contractor.primary_classification} Contractors`, href: `/contractors/california/type/${contractor.primary_classification.toLowerCase()}` },
+    ...(contractor.city ? [{ label: `${contractor.city} Contractors`, href: `/contractors/california/${citySlug}` }] : []),
+    ...(contractor.primary_classification ? [{ label: `${contractor.primary_classification} Contractors`, href: `/contractors/california/type/${contractor.primary_classification.toLowerCase()}` }] : []),
     { label: contractor.business_name }
   ]
   
@@ -524,7 +523,8 @@ export default function ContractorUniversalProfile({ contractor: initialContract
           </h2>
           
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-            <Link href={`/contractors/california/${contractor.city.toLowerCase().replace(/\s+/g, '-')}`} style={{
+            {contractor.city && (
+              <Link href={`/contractors/california/${contractor.city.toLowerCase().replace(/\s+/g, '-')}`} style={{
               padding: '1rem',
               border: '1px solid #e5e7eb',
               borderRadius: '8px',
@@ -549,8 +549,10 @@ export default function ContractorUniversalProfile({ contractor: initialContract
                 View all licensed contractors in {contractor.city}
               </div>
             </Link>
+            )}
 
-            <Link href={`/contractors/california/type/${contractor.primary_classification.toLowerCase()}`} style={{
+            {contractor.primary_classification && (
+              <Link href={`/contractors/california/type/${contractor.primary_classification.toLowerCase()}`} style={{
               padding: '1rem',
               border: '1px solid #e5e7eb',
               borderRadius: '8px',
@@ -575,8 +577,10 @@ export default function ContractorUniversalProfile({ contractor: initialContract
                 View all {contractor.primary_classification} contractors
               </div>
             </Link>
+            )}
 
-            <Link href={`/?search=${contractor.trade} in ${contractor.city}`} style={{
+            {contractor.trade && contractor.city && (
+              <Link href={`/?search=${contractor.trade} in ${contractor.city}`} style={{
               padding: '1rem',
               border: '1px solid #e5e7eb',
               borderRadius: '8px',
@@ -601,6 +605,7 @@ export default function ContractorUniversalProfile({ contractor: initialContract
                 Find similar contractors nearby
               </div>
             </Link>
+            )}
 
             <Link href="/contractors/california" style={{
               padding: '1rem',
@@ -637,6 +642,7 @@ export default function ContractorUniversalProfile({ contractor: initialContract
 }
 
 export async function getServerSideProps({ params }) {
+  const { executeQuery } = await import('../../lib/database')
   const { slug = [] } = params
 
   try {
@@ -668,12 +674,12 @@ export async function getServerSideProps({ params }) {
     }
 
     // Fetch contractor from database
-    const result = await pool.query(
+    const result = await executeQuery(
       'SELECT * FROM contractors WHERE license_no = $1',
       [license]
     )
 
-    if (result.rows.length === 0) {
+    if (!result || result.rows.length === 0) {
       return {
         props: {
           contractor: null,

@@ -1,4 +1,4 @@
-const pool = require('../../lib/database.js')
+const { pool, executeQuery } = require('../../lib/database.js')
 
 // Sitemap index that references all sitemaps
 export default async function handler(req, res) {
