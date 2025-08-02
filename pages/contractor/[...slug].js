@@ -7,6 +7,7 @@ import { getStatusInfo } from '../../utils/statusHelper'
 import { getContractorTypeInfo } from '../../utils/contractorTypes'
 import { parseContractorUrl } from '../../utils/urlHelpers'
 import Breadcrumbs from '../../components/Breadcrumbs'
+import pool from '../../lib/database'
 
 // Dynamically import map component to avoid SSR issues
 const ContractorMap = dynamic(() => import('../../components/ContractorMap'), {
@@ -14,12 +15,12 @@ const ContractorMap = dynamic(() => import('../../components/ContractorMap'), {
   loading: () => <div style={{ height: '300px', background: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Loading map...</div>
 })
 
-export default function ContractorUniversalProfile() {
+export default function ContractorUniversalProfile({ contractor: initialContractor, error: initialError }) {
   const router = useRouter()
   const { slug = [] } = router.query
-  const [contractor, setContractor] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+  const [contractor, setContractor] = useState(initialContractor)
+  const [loading, setLoading] = useState(!initialContractor)
+  const [error, setError] = useState(initialError || '')
   const [urlType, setUrlType] = useState('old') // 'old' or 'seo'
   const [urlParams, setUrlParams] = useState({})
 
@@ -626,4 +627,69 @@ export default function ContractorUniversalProfile() {
     </div>
     </>
   )
+}
+
+export async function getServerSideProps({ params }) {
+  const { slug = [] } = params
+
+  try {
+    let license = null
+
+    // Parse URL to extract license number
+    if (slug.length === 1) {
+      // Old format: /contractor/996518
+      const licenseCandidate = slug[0]
+      if (/^\d+/.test(licenseCandidate)) {
+        license = licenseCandidate
+      }
+    } else if (slug.length === 3) {
+      // New SEO format: /contractor/los-angeles/plumber/996518-johns-plumbing
+      const [city, trade, licenseAndName] = slug
+      const parsedUrl = parseContractorUrl(city, trade, licenseAndName)
+      if (parsedUrl && parsedUrl.license) {
+        license = parsedUrl.license
+      }
+    }
+
+    if (!license) {
+      return {
+        props: {
+          contractor: null,
+          error: 'Invalid URL format'
+        }
+      }
+    }
+
+    // Fetch contractor from database
+    const result = await pool.query(
+      'SELECT * FROM contractors WHERE license_no = $1',
+      [license]
+    )
+
+    if (result.rows.length === 0) {
+      return {
+        props: {
+          contractor: null,
+          error: 'Contractor not found'
+        }
+      }
+    }
+
+    const contractor = result.rows[0]
+
+    return {
+      props: {
+        contractor: JSON.parse(JSON.stringify(contractor)), // Serialize dates
+        error: null
+      }
+    }
+  } catch (error) {
+    console.error('Error fetching contractor:', error)
+    return {
+      props: {
+        contractor: null,
+        error: 'Database error'
+      }
+    }
+  }
 }
