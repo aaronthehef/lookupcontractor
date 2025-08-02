@@ -68,7 +68,7 @@ async function generateSitemaps() {
 
     // Generate contractor sitemaps
     console.log('👷 Generating contractor sitemaps...')
-    const contractorsPerSitemap = 12100 // Target exactly 50 sitemaps (605,000 / 50 = 12,100)
+    const contractorsPerSitemap = 10000 // Compromise between size and count
     const totalContractors = await pool.query('SELECT COUNT(*) FROM contractors WHERE business_name IS NOT NULL')
     const count = parseInt(totalContractors.rows[0].count)
     const totalSitemaps = Math.ceil(count / contractorsPerSitemap)
