@@ -1,5 +1,5 @@
-const { executeQuery } = require('../lib/database.js')
-const { createSlug } = require('../utils/urlHelpers')
+const { executeQuery } = require('../../lib/database.js')
+const { createSlug } = require('../../utils/urlHelpers')
 
 /**
  * Static Pages Sitemap at root: /sitemap-pages.xml

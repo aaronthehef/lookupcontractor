@@ -1,4 +1,4 @@
-const { executeQuery } = require('../lib/database.js')
+const { executeQuery } = require('../../lib/database.js')
 
 /**
  * Main Sitemap Index at root: /sitemap-index.xml

@@ -1,5 +1,5 @@
-const { executeQuery } = require('../lib/database.js')
-const { createContractorUrl } = require('../utils/urlHelpers')
+const { executeQuery } = require('../../lib/database.js')
+const { createContractorUrl } = require('../../utils/urlHelpers')
 
 /**
  * Contractor Sitemap at root: /sitemap-contractors-[page].xml
