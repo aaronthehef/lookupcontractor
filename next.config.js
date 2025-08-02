@@ -7,15 +7,15 @@ const nextConfig = {
       // Sitemap rewrites to serve from root domain
       {
         source: '/sitemap-index.xml',
-        destination: '/api/sitemap-index.xml'
+        destination: '/api/sitemap-index'
       },
       {
         source: '/sitemap-pages.xml',
-        destination: '/api/sitemap-pages.xml'
+        destination: '/api/sitemap-pages'
       },
       {
         source: '/sitemap-contractors-:page.xml',
-        destination: '/api/sitemap-contractors-:page.xml'
+        destination: '/api/sitemap-contractors-:page'
       }
     ]
   }
