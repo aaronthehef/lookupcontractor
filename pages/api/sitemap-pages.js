@@ -51,7 +51,6 @@ export default async function handler(req, res) {
       FROM contractors 
       WHERE city IS NOT NULL 
         AND business_name IS NOT NULL
-        AND (primary_status = 'Active' OR primary_status = 'Current')
       GROUP BY city
       ORDER BY contractor_count DESC
       LIMIT 1000
@@ -75,7 +74,6 @@ export default async function handler(req, res) {
         COUNT(*) as contractor_count
       FROM contractors 
       WHERE business_name IS NOT NULL
-        AND (primary_status = 'Active' OR primary_status = 'Current')
         AND (trade IS NOT NULL OR primary_classification IS NOT NULL)
       GROUP BY COALESCE(trade, primary_classification)
       ORDER BY contractor_count DESC

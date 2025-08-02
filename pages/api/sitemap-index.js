@@ -24,7 +24,6 @@ export default async function handler(req, res) {
       FROM contractors 
       WHERE business_name IS NOT NULL 
         AND city IS NOT NULL
-        AND (primary_status = 'Active' OR primary_status = 'Current')
     `)
     
     const totalUrls = parseInt(result.rows[0].total_count)
