@@ -1,39 +1,6 @@
-# Allow all crawlers
 User-agent: *
 Allow: /
-
-# Optimize crawl budget - Block low-value pages  
 Disallow: /api/
-Allow: /api/sitemap*.xml
 Disallow: /_next/
 Disallow: /404
 Disallow: /500
-Disallow: /test-search.html
-
-# Block old contractor URL format (numbers only - common patterns)  
-Disallow: /contractor/1*
-Disallow: /contractor/2*
-Disallow: /contractor/3*
-Disallow: /contractor/4*
-Disallow: /contractor/5*
-Disallow: /contractor/6*
-Disallow: /contractor/7*
-Disallow: /contractor/8*
-Disallow: /contractor/9*
-
-# High priority pages for crawlers
-Allow: /contractors/
-Allow: /contractor/*/*/
-
-# Sitemap locations
-Sitemap: https://www.lookupcontractor.com/sitemap-index.xml
-
-# Crawl-delay for respectful crawling (1 second)
-Crawl-delay: 1
-
-# Special instructions for major search engines
-User-agent: Googlebot
-Crawl-delay: 0.5
-
-User-agent: Bingbot
-Crawl-delay: 1

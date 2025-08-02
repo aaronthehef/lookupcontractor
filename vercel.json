@@ -1,15 +1,3 @@
 {
-  "framework": "nextjs",
-  "redirects": [
-    {
-      "source": "/sitemap.xml",
-      "destination": "/sitemap-index.xml", 
-      "permanent": true
-    },
-    {
-      "source": "/contractor/:license(\\d+)",
-      "destination": "/api/redirect-contractor/:license",
-      "permanent": false
-    }
-  ]
+  "framework": "nextjs"
 }

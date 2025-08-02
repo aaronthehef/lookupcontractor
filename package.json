@@ -5,9 +5,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "generate-sitemaps": "node scripts/generate-sitemaps.js",
-    "prebuild": "npm run generate-sitemaps"
+    "lint": "next lint"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.0.0",
