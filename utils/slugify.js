@@ -19,9 +19,11 @@ export function slugToCity(slug) {
     .trim()
 }
 
-export function createContractorUrl(licenseNo, businessName) {
-  const slug = createSlug(businessName)
-  return slug ? `/contractor/${licenseNo}/${slug}` : `/contractor/${licenseNo}`
+export function createContractorUrl(contractor) {
+  if (!contractor) return '#'
+  
+  const slug = createSlug(contractor.business_name)
+  return slug ? `/contractor/${contractor.license_no}/${slug}` : `/contractor/${contractor.license_no}`
 }
 
 export function parseContractorUrl(router) {

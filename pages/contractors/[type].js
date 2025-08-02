@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
 import { getStatusInfo } from '../../utils/statusHelper'
+import { createContractorUrl } from '../../utils/urlHelpers'
 
 export default function ContractorTypePage() {
   const router = useRouter()
@@ -200,7 +201,7 @@ export default function ContractorTypePage() {
 
               <div style={{ display: 'grid', gap: '1rem' }}>
                 {contractors.map(contractor => (
-                  <Link key={contractor.id} href={`/contractor/${contractor.license_no}`}>
+                  <Link key={contractor.id} href={createContractorUrl(contractor)}>
                     <div style={{ 
                       padding: '1.5rem', 
                       border: '2px solid #e5e7eb', 

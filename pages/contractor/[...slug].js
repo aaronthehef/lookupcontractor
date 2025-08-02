@@ -5,6 +5,7 @@ import Head from 'next/head'
 import dynamic from 'next/dynamic'
 import { getStatusInfo } from '../../utils/statusHelper'
 import { getContractorTypeInfo } from '../../utils/contractorTypes'
+import { parseContractorUrl } from '../../utils/urlHelpers'
 import Breadcrumbs from '../../components/Breadcrumbs'
 
 // Dynamically import map component to avoid SSR issues
@@ -13,20 +14,60 @@ const ContractorMap = dynamic(() => import('../../components/ContractorMap'), {
   loading: () => <div style={{ height: '300px', background: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Loading map...</div>
 })
 
-export default function ContractorProfile() {
+export default function ContractorUniversalProfile() {
   const router = useRouter()
-  const { license } = router.query
+  const { slug = [] } = router.query
   const [contractor, setContractor] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [urlType, setUrlType] = useState('old') // 'old' or 'seo'
+  const [urlParams, setUrlParams] = useState({})
 
   useEffect(() => {
-    if (license) {
-      fetchContractor()
+    if (slug.length > 0) {
+      parseUrl()
     }
-  }, [license])
+  }, [slug])
 
-  const fetchContractor = async () => {
+  const parseUrl = () => {
+    console.log('URL slug array:', slug)
+    
+    if (slug.length === 1) {
+      // Old format: /contractor/996518 - check if it's a pure license number
+      const licenseCandidate = slug[0]
+      console.log('Single slug, license candidate:', licenseCandidate)
+      // If it's all digits or starts with digits, treat as license
+      if (/^\d+/.test(licenseCandidate)) {
+        setUrlType('old')
+        setUrlParams({ license: licenseCandidate })
+        fetchContractor(licenseCandidate)
+      } else {
+        setError('Invalid URL format')
+        setLoading(false)
+      }
+    } else if (slug.length === 3) {
+      // New SEO format: /contractor/los-angeles/plumber/996518-johns-plumbing
+      console.log('Three slugs detected:', slug)
+      setUrlType('seo')
+      const [city, trade, licenseAndName] = slug
+      console.log('Parsed parts:', { city, trade, licenseAndName })
+      const parsedUrl = parseContractorUrl(city, trade, licenseAndName)
+      console.log('Parsed URL result:', parsedUrl)
+      if (parsedUrl && parsedUrl.license) {
+        setUrlParams({ city, trade, licenseAndName, ...parsedUrl })
+        fetchContractor(parsedUrl.license)
+      } else {
+        console.error('Failed to parse URL')
+        setError('Invalid URL format')
+        setLoading(false)
+      }
+    } else {
+      setError('Invalid URL format')
+      setLoading(false)
+    }
+  }
+
+  const fetchContractor = async (license) => {
     try {
       const response = await fetch('/api/contractor', {
         method: 'POST',
@@ -81,7 +122,7 @@ export default function ContractorProfile() {
     return (
       <div style={{ minHeight: '100vh', padding: '2rem', textAlign: 'center' }}>
         <h1>Contractor Not Found</h1>
-        <p>The contractor license number "{license}" was not found in our database.</p>
+        <p>The contractor information was not found in our database.</p>
         <Link href="/">
           <button style={{ 
             background: '#3b82f6', 
@@ -100,9 +141,14 @@ export default function ContractorProfile() {
 
   const classifications = parseClassifications(contractor.raw_classifications)
 
-  // Generate SEO-friendly content
-  const pageTitle = `${contractor.business_name} - Licensed Contractor #${contractor.license_no} - ${contractor.city}, CA`
-  const metaDescription = `Licensed ${contractor.trade || 'contractor'} in ${contractor.city}, CA. License #${contractor.license_no}, ${contractor.primary_status === 'CLEAR' ? 'active license' : 'license status: ' + contractor.primary_status}. ${contractor.business_phone ? 'Phone: ' + formatPhone(contractor.business_phone) + '.' : ''} View license details, bond information & get directions.`
+  // Generate SEO-friendly content based on URL type
+  const pageTitle = urlType === 'seo' 
+    ? `${contractor.business_name} - ${urlParams.trade} in ${urlParams.city} - Licensed Contractor #${contractor.license_no}`
+    : `${contractor.business_name} - Licensed Contractor #${contractor.license_no} - ${contractor.city}, CA`
+    
+  const metaDescription = urlType === 'seo'
+    ? `Licensed ${urlParams.trade} in ${urlParams.city}, CA. ${contractor.business_name} - License #${contractor.license_no}, ${contractor.primary_status === 'CLEAR' ? 'active license' : 'license status: ' + contractor.primary_status}. ${contractor.business_phone ? 'Phone: ' + formatPhone(contractor.business_phone) + '.' : ''} View license details, bond information & get directions.`
+    : `Licensed ${contractor.trade || 'contractor'} in ${contractor.city}, CA. License #${contractor.license_no}, ${contractor.primary_status === 'CLEAR' ? 'active license' : 'license status: ' + contractor.primary_status}. ${contractor.business_phone ? 'Phone: ' + formatPhone(contractor.business_phone) + '.' : ''} View license details, bond information & get directions.`
   
   // Generate breadcrumbs with proper URL formatting
   const citySlug = contractor.city.toLowerCase().replace(/\s+/g, '-')
@@ -114,11 +160,17 @@ export default function ContractorProfile() {
     { label: contractor.business_name }
   ]
   
+  const canonicalUrl = urlType === 'seo' 
+    ? `https://lookupcontractor.com/contractor/${urlParams.city}/${urlParams.trade}/${urlParams.licenseAndName}`
+    : `https://lookupcontractor.com/contractor/${contractor.license_no}`
+  
   const jsonLdSchema = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
     "name": contractor.business_name,
-    "description": `Licensed ${contractor.trade || 'contractor'} serving ${contractor.city}, California`,
+    "description": urlType === 'seo' 
+      ? `Licensed ${urlParams.trade} serving ${urlParams.city}, California`
+      : `Licensed ${contractor.trade || 'contractor'} serving ${contractor.city}, California`,
     "address": {
       "@type": "PostalAddress",
       "streetAddress": contractor.mailing_address,
@@ -128,7 +180,7 @@ export default function ContractorProfile() {
       "addressCountry": "US"
     },
     "telephone": contractor.business_phone,
-    "url": `https://lookupcontractor.com/contractor/${contractor.license_no}`,
+    "url": canonicalUrl,
     "priceRange": "$$",
     "serviceArea": {
       "@type": "City",
@@ -164,11 +216,11 @@ export default function ContractorProfile() {
         <meta property="og:title" content={pageTitle} />
         <meta property="og:description" content={metaDescription} />
         <meta property="og:type" content="business.business" />
-        <meta property="og:url" content={`https://lookupcontractor.com/contractor/${contractor.license_no}`} />
+        <meta property="og:url" content={canonicalUrl} />
         <meta name="twitter:card" content="summary" />
         <meta name="twitter:title" content={pageTitle} />
         <meta name="twitter:description" content={metaDescription} />
-        <link rel="canonical" href={`https://lookupcontractor.com/contractor/${contractor.license_no}`} />
+        <link rel="canonical" href={canonicalUrl} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdSchema) }}
@@ -189,7 +241,10 @@ export default function ContractorProfile() {
             {contractor.business_name}
           </h1>
           <p style={{ fontSize: '1.2rem', opacity: 0.9, margin: 0 }}>
-            License #{contractor.license_no} • {contractor.city}, {contractor.state}
+            {urlType === 'seo' 
+              ? `${urlParams.trade} in ${urlParams.city} • License #${contractor.license_no}`
+              : `License #${contractor.license_no} • ${contractor.city}, ${contractor.state}`
+            }
           </p>
         </div>
       </header>

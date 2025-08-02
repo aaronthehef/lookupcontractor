@@ -388,13 +388,20 @@ export default function Home() {
             Use official CSLB data to find & verify California contractor licenses before you hire. Search by name, business, or license number.
           </p>
           
-          <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', maxWidth: '800px', margin: '0 auto 1.5rem auto' }}>
+          <div className="search-container" style={{ 
+            display: 'flex', 
+            gap: '1rem', 
+            marginBottom: '1.5rem', 
+            maxWidth: '800px', 
+            margin: '0 auto 1.5rem auto' 
+          }}>
             <input
               type="text"
               value={smartSearchTerm}
               onChange={(e) => setSmartSearchTerm(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSmartSearch()}
               placeholder="Find & verify: 'electricians in Los Angeles', 'ABC Construction', or license '1234567'"
+              className="search-input"
               style={{ 
                 flex: 1,
                 padding: '1rem 1.5rem', 
@@ -403,7 +410,7 @@ export default function Home() {
                 fontSize: '1.1rem',
                 outline: 'none',
                 transition: 'border-color 0.2s',
-                ':focus': { borderColor: '#3b82f6' }
+                minWidth: 0
               }}
               onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
               onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
@@ -412,6 +419,7 @@ export default function Home() {
             <button 
               onClick={handleSmartSearch}
               disabled={!smartSearchTerm.trim()}
+              className="search-button"
               style={{ 
                 background: smartSearchTerm.trim() ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : '#9ca3af',
                 color: 'white', 
@@ -422,12 +430,43 @@ export default function Home() {
                 fontWeight: 'bold',
                 cursor: smartSearchTerm.trim() ? 'pointer' : 'not-allowed',
                 transition: 'all 0.2s',
-                boxShadow: smartSearchTerm.trim() ? '0 4px 15px rgba(102, 126, 234, 0.3)' : 'none'
+                boxShadow: smartSearchTerm.trim() ? '0 4px 15px rgba(102, 126, 234, 0.3)' : 'none',
+                whiteSpace: 'nowrap',
+                flexShrink: 0
               }}
             >
               🔍 Search
             </button>
           </div>
+
+          <style jsx>{`
+            @media (max-width: 768px) {
+              .search-container {
+                flex-direction: column !important;
+              }
+              
+              .search-input {
+                width: 100% !important;
+              }
+              
+              .search-button {
+                width: 100% !important;
+                margin-top: 0.5rem;
+              }
+            }
+            
+            @media (max-width: 480px) {
+              .search-input {
+                font-size: 1rem !important;
+                padding: 0.875rem 1.25rem !important;
+              }
+              
+              .search-button {
+                font-size: 1rem !important;
+                padding: 0.875rem 1.5rem !important;
+              }
+            }
+          `}</style>
 
           <div style={{ textAlign: 'center', fontSize: '0.9rem', color: '#888' }}>
             <div style={{ marginBottom: '0.5rem' }}>

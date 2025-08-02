@@ -3,7 +3,7 @@ import { useRouter } from 'next/router'
 import Link from 'next/link'
 import Head from 'next/head'
 import Breadcrumbs from '../components/Breadcrumbs'
-import { createContractorUrl } from '../utils/slugify'
+import { createContractorUrl } from '../utils/urlHelpers'
 import { getStatusInfo } from '../utils/statusHelper'
 
 export default function SearchResults() {
@@ -473,7 +473,7 @@ export default function SearchResults() {
                           lineHeight: '1.3',
                           wordWrap: 'break-word'
                         }}>
-                          <Link href={createContractorUrl(contractor.license_no, contractor.business_name)} style={{ 
+                          <Link href={createContractorUrl(contractor)} style={{ 
                             color: '#3b82f6', 
                             textDecoration: 'none',
                             display: 'block'
@@ -609,7 +609,7 @@ export default function SearchResults() {
                             📞 Call Now
                           </a>
                         )}
-                        <Link href={createContractorUrl(contractor.license_no, contractor.business_name)} style={{
+                        <Link href={createContractorUrl(contractor)} style={{
                           background: '#3b82f6',
                           color: 'white',
                           padding: '0.5rem 1rem',

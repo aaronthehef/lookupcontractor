@@ -74,7 +74,7 @@ function parseSmartSearch(searchTerm: string, startParamIndex: number): { condit
     return { conditions, params }
   }
   
-  // Single word searches - check for trade patterns
+  // Check for trade patterns (works for both single words and multi-word searches)
   const tradePatterns = [
     { pattern: /(electrician|electrical|electric)/g, classification: 'C-10', trade: 'Electrical' },
     { pattern: /(plumber|plumbing)/g, classification: 'C-36', trade: 'Plumbing' },
@@ -90,10 +90,11 @@ function parseSmartSearch(searchTerm: string, startParamIndex: number): { condit
     { pattern: /(solar|photovoltaic|pv)/g, classification: 'C-46', trade: 'Solar' }
   ]
   
-  // Look for trade patterns in single word searches
+  // Look for trade patterns in the search term (regardless of number of words)
   let foundTrade = false
   for (const tradePattern of tradePatterns) {
     if (tradePattern.pattern.test(searchTermWithoutCity)) {
+      // If we found a trade pattern, search by classification/trade
       conditions.push(`(
         primary_classification ILIKE $${paramIndex} OR 
         trade ILIKE $${paramIndex + 1}
@@ -254,8 +255,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       FROM contractors 
       WHERE ${whereConditions.join(' AND ')}
       ORDER BY ${searchType === 'license' ? 'license_no' : 
-                 searchType === 'classification' ? 'primary_classification, business_name' : 
-                 'business_name'}
+                 searchType === 'classification' ? 
+                 `CASE 
+                    WHEN primary_status = 'CLEAR' THEN 1 
+                    WHEN primary_status = 'ACTIVE' THEN 2 
+                    WHEN primary_status IS NULL THEN 3 
+                    ELSE 4 
+                  END, business_name` : 
+                 `CASE 
+                    WHEN primary_status = 'CLEAR' THEN 1 
+                    WHEN primary_status = 'ACTIVE' THEN 2 
+                    WHEN primary_status IS NULL THEN 3 
+                    ELSE 4 
+                  END, business_name`}
       LIMIT $${queryParams.length + 1} OFFSET $${queryParams.length + 2}
     `
 

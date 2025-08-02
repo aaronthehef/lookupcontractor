@@ -1,4 +1,5 @@
 const pool = require('../../lib/database.js')
+const { createContractorUrl } = require('../../utils/urlHelpers')
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -6,12 +7,12 @@ export default async function handler(req, res) {
   }
 
   const page = 50
-  const limit = 5000
+  const limit = 2000
   const offset = (page - 1) * limit
   
   try {
     const result = await pool.query(`
-      SELECT license_no, business_name, city, primary_status, expiration_date
+      SELECT license_no, business_name, city, primary_status, expiration_date, trade, primary_classification
       FROM contractors 
       WHERE business_name IS NOT NULL
       ORDER BY license_no
@@ -41,7 +42,7 @@ export default async function handler(req, res) {
 
       sitemap += `
   <url>
-    <loc>${baseUrl}/contractor/${contractor.license_no}</loc>
+    <loc>${baseUrl}${createContractorUrl(contractor)}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
