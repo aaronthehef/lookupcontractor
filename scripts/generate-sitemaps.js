@@ -75,7 +75,7 @@ async function generateSitemaps() {
 
     console.log(`📊 Total contractors: ${count}, Generating ${totalSitemaps} sitemaps`)
 
-    const sitemapPaths = ['sitemap.xml'] // Start with main sitemap
+    const sitemapPaths = [] // Don't include main sitemap in index
 
     for (let page = 1; page <= totalSitemaps; page++) {
       const offset = (page - 1) * contractorsPerSitemap
