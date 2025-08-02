@@ -2,6 +2,13 @@ const pool = require('../../lib/database.js')
 const { createContractorUrl } = require('../../utils/urlHelpers')
 
 export default async function handler(req, res) {
+  // Handle HEAD requests (used by search engines to check if sitemap exists)
+  if (req.method === 'HEAD') {
+    res.setHeader('Content-Type', 'text/xml')
+    res.setHeader('Cache-Control', 'public, max-age=86400')
+    return res.status(200).end()
+  }
+
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' })
   }

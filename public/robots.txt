@@ -9,7 +9,7 @@ Disallow: /404
 Disallow: /500
 Disallow: /test-search.html
 
-# Block old contractor URL format (numbers only - common patterns)
+# Block old contractor URL format (numbers only - common patterns)  
 Disallow: /contractor/1*
 Disallow: /contractor/2*
 Disallow: /contractor/3*
@@ -20,13 +20,12 @@ Disallow: /contractor/7*
 Disallow: /contractor/8*
 Disallow: /contractor/9*
 
-# High priority pages for crawlers  
+# High priority pages for crawlers
 Allow: /contractors/
 Allow: /contractor/*/*/
-Allow: /api/sitemap*.xml
 
 # Sitemap locations
-Sitemap: https://www.lookupcontractor.com/api/sitemap-index-1.xml
+Sitemap: https://www.lookupcontractor.com/sitemap-index.xml
 
 # Crawl-delay for respectful crawling (1 second)
 Crawl-delay: 1
