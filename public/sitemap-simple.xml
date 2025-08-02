@@ -1,19 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <sitemap>
-    <loc>https://www.lookupcontractor.com/api/sitemap.xml</loc>
-    <lastmod>2025-08-01</lastmod>
-  </sitemap>
-  <sitemap>
-    <loc>https://www.lookupcontractor.com/api/sitemap-pages.xml</loc>
-    <lastmod>2025-08-01</lastmod>
-  </sitemap>
-  <sitemap>
-    <loc>https://www.lookupcontractor.com/api/sitemap-contractors-1.xml</loc>
-    <lastmod>2025-08-01</lastmod>
-  </sitemap>
-  <sitemap>
-    <loc>https://www.lookupcontractor.com/api/sitemap-contractors-2.xml</loc>
-    <lastmod>2025-08-01</lastmod>
-  </sitemap>
-</sitemapindex>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://www.lookupcontractor.com/</loc>
+    <lastmod>2025-08-02</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://www.lookupcontractor.com/contractor-types</loc>
+    <lastmod>2025-08-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+</urlset>
