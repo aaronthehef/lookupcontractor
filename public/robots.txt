@@ -1,6 +1,41 @@
+# Robots.txt for LookupContractor.com
+# Optimized for 240,000+ contractor pages with SEO-friendly URLs
+
 User-agent: *
 Allow: /
+
+# Block sensitive and low-value areas
 Disallow: /api/
 Disallow: /_next/
 Disallow: /404
 Disallow: /500
+Disallow: /admin/
+Disallow: /test/
+Disallow: /*?*
+
+# Allow sitemap endpoints specifically
+Allow: /api/sitemap*.xml
+
+# Allow high-value contractor pages with SEO structure
+Allow: /contractor/*/*/
+
+# Crawl optimization directives
+Crawl-delay: 1
+
+# Search engine specific optimizations
+User-agent: Googlebot
+Crawl-delay: 0.5
+
+User-agent: Bingbot  
+Crawl-delay: 1
+
+User-agent: Slurp
+Crawl-delay: 2
+
+# Sitemap location (primary entry point)
+Sitemap: https://www.lookupcontractor.com/sitemap-index.xml
+
+# Additional metadata
+# Site contains 240,000+ contractor pages
+# URL structure: /contractor/{city}/{category}/{id}-{company-name}
+# Last updated: 2025-08-02

@@ -5,7 +5,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "sitemap:health": "node scripts/sitemap-utils.js",
+    "sitemap:validate": "node scripts/validate-sitemaps.js",
+    "sitemap:test": "npm run sitemap:health && npm run sitemap:validate"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.0.0",
