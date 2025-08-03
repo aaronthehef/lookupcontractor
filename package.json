@@ -6,9 +6,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "sitemap:generate": "node scripts/generate-static-sitemaps.js",
     "sitemap:health": "node scripts/sitemap-utils.js",
     "sitemap:validate": "node scripts/validate-sitemaps.js",
-    "sitemap:test": "npm run sitemap:health && npm run sitemap:validate"
+    "sitemap:test": "npm run sitemap:health && npm run sitemap:validate",
+    "prebuild": "npm run sitemap:generate"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.0.0",

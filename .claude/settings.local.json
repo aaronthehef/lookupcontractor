@@ -77,7 +77,9 @@
       "Bash(then echo \"Updating $file\")",
       "Bash(fi)",
       "Bash(dir:*)",
-      "Bash(npm run generate-sitemaps:*)"
+      "Bash(npm run generate-sitemaps:*)",
+      "Bash(time curl:*)",
+      "Bash(npm run sitemap:generate:*)"
     ],
     "deny": []
   }
