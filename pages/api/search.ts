@@ -156,7 +156,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   // Validate pagination parameters
   const pageNum = Math.max(1, parseInt(page))
-  const limitNum = Math.min(100, Math.max(10, parseInt(limit))) // Max 100, min 10
+  const limitNum = Math.min(10000, Math.max(10, parseInt(limit))) // Max 10000, min 10
   const offset = (pageNum - 1) * limitNum
 
   // Generate cache key for search results
