@@ -27,7 +27,7 @@ export default async function handler(req, res) {
     `)
     
     const totalUrls = parseInt(result.rows[0].total_count)
-    const totalSitemaps = Math.ceil(totalUrls / URLS_PER_SITEMAP)
+    const totalSitemaps = 2 // Only include existing sitemaps for now
     
     console.log(`Sitemap Index: ${totalUrls} total URLs across ${totalSitemaps} sitemaps`)
 
