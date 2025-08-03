@@ -20,11 +20,57 @@ export default function CityContractors() {
 
   const fetchCityStats = async () => {
     try {
-      const response = await fetch(`/api/city-stats?state=california&city=${city}`)
+      // Convert city slug to proper format for search
+      const cityName = decodeURIComponent(city).replace(/-/g, ' ')
+      
+      // Use search API to find contractors in this city
+      const response = await fetch('/api/search', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          searchTerm: cityName,
+          searchType: 'city',
+          state: 'california',
+          limit: 100
+        })
+      })
+      
       const data = await response.json()
-      setStats(data)
+      
+      if (response.ok && data.contractors) {
+        // Calculate stats from the contractors returned
+        const contractors = data.contractors
+        const activeContractors = contractors.filter(c => 
+          c.primary_status === 'CLEAR' || c.primary_status === 'ACTIVE' || c.primary_status === null
+        )
+        
+        // Get unique contractor types
+        const types = [...new Set(contractors.map(c => c.primary_classification).filter(Boolean))]
+        
+        setStats({
+          city: cityName.toUpperCase(),
+          state: 'California',
+          totalContractors: contractors.length,
+          activeContractors: activeContractors.length,
+          contractorTypes: types.map(type => ({ classification: type, count: contractors.filter(c => c.primary_classification === type).length })),
+          sampleContractors: contractors.slice(0, 12)
+        })
+      } else {
+        // No contractors found
+        setStats({
+          city: cityName.toUpperCase(),
+          state: 'California', 
+          totalContractors: 0,
+          activeContractors: 0,
+          contractorTypes: [],
+          sampleContractors: []
+        })
+      }
     } catch (error) {
       console.error('Error fetching city stats:', error)
+      setStats(null)
     } finally {
       setLoading(false)
     }
