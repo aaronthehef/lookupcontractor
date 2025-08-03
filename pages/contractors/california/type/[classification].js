@@ -31,7 +31,7 @@ export default function ContractorTypeCaliforniaPage() {
           searchTerm: classification.toUpperCase(),
           searchType: 'classification',
           state: 'california',
-          limit: 100
+          limit: 10000
         })
       })
       
@@ -284,9 +284,9 @@ export default function ContractorTypeCaliforniaPage() {
               👷 Featured {typeInfo.name}s in California
             </h2>
             
-            <div style={{ 
+            <div className="contractor-grid" style={{ 
               display: 'grid', 
-              gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', 
+              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
               gap: '1.5rem' 
             }}>
               {contractors.slice(0, 12).map((contractor) => (
@@ -496,6 +496,22 @@ export default function ContractorTypeCaliforniaPage() {
           </p>
         </footer>
       </div>
+      
+      <style jsx>{`
+        @media (max-width: 375px) {
+          :global(.contractor-grid) {
+            grid-template-columns: 1fr !important;
+            gap: 1rem !important;
+          }
+        }
+        
+        @media (max-width: 480px) {
+          :global(.contractor-grid) {
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+            gap: 1rem !important;
+          }
+        }
+      `}</style>
     </>
   )
 }
