@@ -371,7 +371,7 @@ export default function Home() {
       </header>
 
       {/* Main Content */}
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 2rem' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 1rem' }}>
         
         {/* Smart Search Section */}
         <div style={{ 
@@ -466,6 +466,18 @@ export default function Home() {
                 padding: 0.875rem 1.5rem !important;
               }
             }
+            
+            @media (max-width: 375px) {
+              .mobile-grid {
+                grid-template-columns: 1fr !important;
+                gap: 0.75rem !important;
+              }
+              
+              .mobile-card {
+                padding: 1rem !important;
+                margin: 0 !important;
+              }
+            }
           `}</style>
 
           <div style={{ textAlign: 'center', fontSize: '0.9rem', color: '#888' }}>
@@ -506,7 +518,7 @@ export default function Home() {
             </p>
           </div>
           
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
+          <div className="mobile-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem', justifyItems: 'center' }}>
             <div style={{ textAlign: 'center', padding: '1rem' }}>
               <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>🔍</div>
               <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#333', marginBottom: '0.5rem' }}>
@@ -619,7 +631,7 @@ export default function Home() {
           </p>
           
           <div style={{ marginBottom: '2rem' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
+            <div className="mobile-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
               <Link href="/state/california">
                 <div style={{ 
                   padding: '2rem', 
@@ -691,7 +703,7 @@ export default function Home() {
             <h3 style={{ fontSize: '1.3rem', marginBottom: '1rem', color: '#555', fontWeight: '600' }}>
               ⭐ Popular Types
             </h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
+            <div className="mobile-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1rem' }}>
               {popularContractorTypes.map(type => (
                 <Link key={type.code} href={`/contractors/${type.code.toLowerCase()}`}>
                   <div style={{ 

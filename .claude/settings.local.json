@@ -79,7 +79,10 @@
       "Bash(dir:*)",
       "Bash(npm run generate-sitemaps:*)",
       "Bash(time curl:*)",
-      "Bash(npm run sitemap:generate:*)"
+      "Bash(npm run sitemap:generate:*)",
+      "Bash(for i in {1..25})",
+      "Bash(do echo -n \"sitemap-contractors-$i.xml: \")",
+      "Bash(echo:*)"
     ],
     "deny": []
   }

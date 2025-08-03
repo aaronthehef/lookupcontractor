@@ -267,7 +267,7 @@ export default function CityContractors() {
               
               <div style={{ 
                 display: 'grid', 
-                gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', 
+                gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
                 gap: '1.5rem' 
               }}>
                 {stats.sampleContractors.slice(0, 9).map((contractor) => (

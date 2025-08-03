@@ -178,7 +178,7 @@ export default function ContractorMap({ contractor }) {
       <MapContainer
         center={[coordinates.lat, coordinates.lng]}
         zoom={getZoomLevel()}
-        style={{ height: '300px', width: '100%', borderRadius: '8px' }}
+        style={{ height: '250px', width: '100%', borderRadius: '8px' }}
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -186,7 +186,7 @@ export default function ContractorMap({ contractor }) {
         />
         <Marker position={[coordinates.lat, coordinates.lng]}>
           <Popup>
-            <div style={{ minWidth: '200px' }}>
+            <div style={{ minWidth: '150px', maxWidth: '250px' }}>
               <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.1rem' }}>
                 {contractor.business_name}
               </h3>

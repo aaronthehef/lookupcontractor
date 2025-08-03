@@ -269,7 +269,7 @@ export default function ContractorUniversalProfile({ contractor: initialContract
           marginBottom: '2rem',
           boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
         }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
             
             {/* Business Information */}
             <div>
@@ -375,7 +375,7 @@ export default function ContractorUniversalProfile({ contractor: initialContract
             📍 Address & Location
           </h2>
           
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
             {/* Address Information */}
             <div style={{ lineHeight: 1.8, color: '#555' }}>
               {contractor.mailing_address && (
@@ -447,7 +447,7 @@ export default function ContractorUniversalProfile({ contractor: initialContract
               <h3 style={{ fontSize: '1.2rem', marginBottom: '1rem', color: '#333' }}>
                 Additional Classifications & Industries
               </h3>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem' }}>
                 {classifications
                   .filter(classification => classification !== contractor.primary_classification)
                   .map((classification, index) => (
@@ -480,7 +480,7 @@ export default function ContractorUniversalProfile({ contractor: initialContract
             Insurance & Bonding
           </h2>
           
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
             
             <div>
               <h3 style={{ fontSize: '1.2rem', marginBottom: '0.75rem', color: '#333' }}>Workers' Compensation</h3>
@@ -522,7 +522,7 @@ export default function ContractorUniversalProfile({ contractor: initialContract
             🔗 Related Contractors & Services
           </h2>
           
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem' }}>
             {contractor.city && (
               <Link href={`/contractors/california/${contractor.city.toLowerCase().replace(/\s+/g, '-')}`} style={{
               padding: '1rem',

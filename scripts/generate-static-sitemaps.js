@@ -8,7 +8,7 @@ const { createContractorUrl, createSlug } = require('../utils/urlHelpers')
  * Creates XML files in /public directory for instant loading
  */
 
-const URLS_PER_SITEMAP = 10000
+const URLS_PER_SITEMAP = 5000
 const BASE_URL = 'https://www.lookupcontractor.com'
 
 async function generateStaticSitemaps() {

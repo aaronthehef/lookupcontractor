@@ -13,8 +13,7 @@ Disallow: /admin/
 Disallow: /test/
 Disallow: /*?*
 
-# Allow sitemap endpoints specifically
-Allow: /api/sitemap*.xml
+# Static sitemaps are served from root - no API endpoints needed
 
 # Allow high-value contractor pages with SEO structure
 Allow: /contractor/*/*/
@@ -38,4 +37,4 @@ Sitemap: https://www.lookupcontractor.com/sitemap-index.xml
 # Additional metadata
 # Site contains 240,000+ contractor pages
 # URL structure: /contractor/{city}/{category}/{id}-{company-name}
-# Last updated: 2025-08-02
+# Last updated: 2025-08-03
