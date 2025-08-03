@@ -24,7 +24,7 @@ async function handler(req, res) {
 
   try {
     
-    // Convert URL slug back to city name with proper handling
+    // Convert URL slug back to city name - database likely stores in ALL CAPS
     const cityName = decodeURIComponent(city)
       .replace(/-/g, ' ')
       .toUpperCase()
@@ -33,42 +33,29 @@ async function handler(req, res) {
     console.log('Searching for city:', cityName, 'in state:', state)
     console.log('Original city param:', city)
     
-    // Also try case-insensitive exact match and partial match
-    const cityVariations = [
-      cityName,
-      cityName.toLowerCase(),
-      cityName.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ')
-    ]
-    
-    console.log('City variations to try:', cityVariations)
-    
-    // Debug: Check what cities exist similar to what we're looking for
-    const firstWord = cityName.split(' ')[0]
-    const similarCitiesResult = await executeQuery(`
-      SELECT DISTINCT city, COUNT(*) as count
-      FROM contractors 
-      WHERE city ILIKE $1 AND state = 'CA'
-      GROUP BY city
-      ORDER BY count DESC
-      LIMIT 5
-    `, [`%${firstWord}%`])
-    
-    console.log('Similar cities found:', similarCitiesResult.rows)
-    
-    // Get total contractor count for city using ILIKE for case-insensitive matching
-    // Try multiple variations to handle different city name formats
+    // Get total contractor count for city using simple ILIKE match
     const totalResult = await executeQuery(`
       SELECT COUNT(*) as total_contractors
       FROM contractors 
-      WHERE (city ILIKE $1 OR city ILIKE $2 OR city ILIKE $3) 
-      AND state = 'CA'
-    `, cityVariations)
+      WHERE city ILIKE $1 AND state = 'CA'
+    `, [cityName])
     
     console.log('Total contractors found:', totalResult.rows[0])
     
     // If no contractors found, return early with debug info
     if (parseInt(totalResult.rows[0].total_contractors) === 0) {
-      console.log('No contractors found for city variations:', cityVariations)
+      console.log('No contractors found for city:', cityName)
+      
+      // Try to find similar cities for debugging
+      const debugResult = await executeQuery(`
+        SELECT DISTINCT city, COUNT(*) as count
+        FROM contractors 
+        WHERE city ILIKE $1 AND state = 'CA'
+        GROUP BY city
+        ORDER BY count DESC
+        LIMIT 10
+      `, [`%${cityName.split(' ')[0]}%`])
+      
       return res.status(200).json({
         city: cityName,
         state: state.charAt(0).toUpperCase() + state.slice(1),
@@ -78,8 +65,9 @@ async function handler(req, res) {
         sampleContractors: [],
         zipCodes: [],
         debug: {
-          searchedVariations: cityVariations,
-          similarCities: similarCitiesResult.rows
+          searchedCity: cityName,
+          originalParam: city,
+          similarCities: debugResult.rows
         }
       })
     }
@@ -88,10 +76,9 @@ async function handler(req, res) {
     const activeResult = await executeQuery(`
       SELECT COUNT(*) as active_contractors
       FROM contractors 
-      WHERE (city ILIKE $1 OR city ILIKE $2 OR city ILIKE $3) 
-      AND state = 'CA' 
+      WHERE city ILIKE $1 AND state = 'CA' 
       AND (primary_status IN ('CLEAR', 'ACTIVE') OR primary_status IS NULL)
-    `, cityVariations)
+    `, [cityName])
 
     // Get contractors by type
     const typesResult = await executeQuery(`
