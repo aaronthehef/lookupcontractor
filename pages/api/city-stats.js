@@ -23,7 +23,6 @@ async function handler(req, res) {
   }
 
   try {
-    
     // Convert URL slug back to city name - database likely stores in ALL CAPS
     const cityName = decodeURIComponent(city)
       .replace(/-/g, ' ')
@@ -33,50 +32,67 @@ async function handler(req, res) {
     console.log('Searching for city:', cityName, 'in state:', state)
     console.log('Original city param:', city)
     
-    // Get total contractor count for city using simple ILIKE match
+    // Simple test query first
     const totalResult = await executeQuery(`
       SELECT COUNT(*) as total_contractors
       FROM contractors 
-      WHERE city ILIKE $1 AND state = 'CA'
+      WHERE city = $1 AND state = 'CA'
     `, [cityName])
     
     console.log('Total contractors found:', totalResult.rows[0])
     
-    // If no contractors found, return early with debug info
-    if (parseInt(totalResult.rows[0].total_contractors) === 0) {
-      console.log('No contractors found for city:', cityName)
+    const totalCount = parseInt(totalResult.rows[0]?.total_contractors || 0)
+    
+    // If no exact match, try ILIKE
+    let debugInfo = null
+    if (totalCount === 0) {
+      console.log('No exact match, trying ILIKE for city:', cityName)
       
-      // Try to find similar cities for debugging
-      const debugResult = await executeQuery(`
-        SELECT DISTINCT city, COUNT(*) as count
+      const likeResult = await executeQuery(`
+        SELECT COUNT(*) as total_contractors
         FROM contractors 
         WHERE city ILIKE $1 AND state = 'CA'
-        GROUP BY city
-        ORDER BY count DESC
-        LIMIT 10
-      `, [`%${cityName.split(' ')[0]}%`])
+      `, [cityName])
       
-      return res.status(200).json({
-        city: cityName,
-        state: state.charAt(0).toUpperCase() + state.slice(1),
-        totalContractors: 0,
-        activeContractors: 0,
-        contractorTypes: [],
-        sampleContractors: [],
-        zipCodes: [],
-        debug: {
+      const likeCount = parseInt(likeResult.rows[0]?.total_contractors || 0)
+      
+      if (likeCount === 0) {
+        // Try to find similar cities
+        const similarResult = await executeQuery(`
+          SELECT DISTINCT city, COUNT(*) as count
+          FROM contractors 
+          WHERE city LIKE $1 AND state = 'CA'
+          GROUP BY city
+          ORDER BY count DESC
+          LIMIT 5
+        `, [`%${cityName.split(' ')[0]}%`])
+        
+        debugInfo = {
           searchedCity: cityName,
           originalParam: city,
-          similarCities: debugResult.rows
+          exactMatch: totalCount,
+          likeMatch: likeCount,
+          similarCities: similarResult.rows
         }
-      })
+        
+        return res.status(200).json({
+          city: cityName,
+          state: state.charAt(0).toUpperCase() + state.slice(1),
+          totalContractors: 0,
+          activeContractors: 0,
+          contractorTypes: [],
+          sampleContractors: [],
+          zipCodes: [],
+          debug: debugInfo
+        })
+      }
     }
 
-    // Get active contractor count (include CLEAR, ACTIVE, and NULL statuses like main search)
+    // If we have contractors, get the full stats
     const activeResult = await executeQuery(`
       SELECT COUNT(*) as active_contractors
       FROM contractors 
-      WHERE city ILIKE $1 AND state = 'CA' 
+      WHERE city = $1 AND state = 'CA' 
       AND (primary_status IN ('CLEAR', 'ACTIVE') OR primary_status IS NULL)
     `, [cityName])
 
