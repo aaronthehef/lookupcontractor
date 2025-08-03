@@ -43,6 +43,7 @@ async function handler(req, res) {
     console.log('City variations to try:', cityVariations)
     
     // Debug: Check what cities exist similar to what we're looking for
+    const firstWord = cityName.split(' ')[0]
     const similarCitiesResult = await executeQuery(`
       SELECT DISTINCT city, COUNT(*) as count
       FROM contractors 
@@ -50,7 +51,7 @@ async function handler(req, res) {
       GROUP BY city
       ORDER BY count DESC
       LIMIT 5
-    `, ['%' + cityName.split(' ')[0] + '%'])
+    `, [`%${firstWord}%`])
     
     console.log('Similar cities found:', similarCitiesResult.rows)
     
@@ -64,6 +65,24 @@ async function handler(req, res) {
     `, cityVariations)
     
     console.log('Total contractors found:', totalResult.rows[0])
+    
+    // If no contractors found, return early with debug info
+    if (parseInt(totalResult.rows[0].total_contractors) === 0) {
+      console.log('No contractors found for city variations:', cityVariations)
+      return res.status(200).json({
+        city: cityName,
+        state: state.charAt(0).toUpperCase() + state.slice(1),
+        totalContractors: 0,
+        activeContractors: 0,
+        contractorTypes: [],
+        sampleContractors: [],
+        zipCodes: [],
+        debug: {
+          searchedVariations: cityVariations,
+          similarCities: similarCitiesResult.rows
+        }
+      })
+    }
 
     // Get active contractor count (include CLEAR, ACTIVE, and NULL statuses like main search)
     const activeResult = await executeQuery(`
