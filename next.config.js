@@ -14,8 +14,12 @@ const nextConfig = {
         destination: '/api/sitemap-pages'
       },
       {
-        source: '/sitemap-contractors-:page(\\d+).xml',
-        destination: '/api/sitemap-contractors-:page'
+        source: '/sitemap-contractors-1.xml',
+        destination: '/api/sitemap-contractors-1'
+      },
+      {
+        source: '/sitemap-contractors-2.xml',
+        destination: '/api/sitemap-contractors-2'
       }
     ]
   }

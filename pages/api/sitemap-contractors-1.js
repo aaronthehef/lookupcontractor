@@ -2,16 +2,10 @@ const { executeQuery } = require('../../lib/database.js')
 const { createContractorUrl } = require('../../utils/urlHelpers')
 
 /**
- * Contractor Sitemap at root: /sitemap-contractors-[page].xml
+ * Contractor Sitemap Page 1: /sitemap-contractors-1.xml
  */
 export default async function handler(req, res) {
-  const { page } = req.query
-  const pageNum = parseInt(page)
-
-  // Validate page number
-  if (!pageNum || pageNum < 1) {
-    return res.status(404).json({ error: 'Invalid page number' })
-  }
+  const pageNum = 1
 
   // Handle HEAD requests
   if (req.method === 'HEAD') {
@@ -37,8 +31,7 @@ export default async function handler(req, res) {
         primary_status,
         expiration_date,
         trade,
-        primary_classification,
-        last_updated
+        primary_classification
       FROM contractors 
       WHERE business_name IS NOT NULL 
         AND city IS NOT NULL
@@ -46,7 +39,7 @@ export default async function handler(req, res) {
       LIMIT $1 OFFSET $2
     `, [URLS_PER_SITEMAP, offset])
 
-    // Return 404 if no contractors found for this page
+    // Return 404 if no contractors found
     if (result.rows.length === 0) {
       return res.status(404).json({ 
         error: 'No contractors found for this page',
@@ -66,8 +59,6 @@ export default async function handler(req, res) {
       let lastmod = currentDate
       if (contractor.expiration_date) {
         lastmod = new Date(contractor.expiration_date).toISOString().split('T')[0]
-      } else if (contractor.last_updated) {
-        lastmod = new Date(contractor.last_updated).toISOString().split('T')[0]
       }
 
       // Generate SEO-friendly URL
