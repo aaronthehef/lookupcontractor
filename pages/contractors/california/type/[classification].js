@@ -22,7 +22,8 @@ export default function ContractorTypeCaliforniaPage() {
 
   const fetchContractorsByType = async () => {
     try {
-      const response = await fetch('/api/search', {
+      // Fetch contractors for display (limited to first 100 for performance)
+      const contractorsResponse = await fetch('/api/search', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -31,23 +32,37 @@ export default function ContractorTypeCaliforniaPage() {
           searchTerm: classification.toUpperCase(),
           searchType: 'classification',
           state: 'california',
-          limit: 10000
+          limit: 100
         })
       })
       
-      const data = await response.json()
+      // Fetch accurate stats (total counts)
+      const statsResponse = await fetch(`/api/classification-stats?classification=${classification.toUpperCase()}`)
       
-      if (response.ok) {
-        setContractors(data.contractors || [])
-        
-        // Calculate stats (include CLEAR, ACTIVE, and NULL statuses like main search)
-        const activeContractors = data.contractors?.filter(c => 
+      const contractorsData = await contractorsResponse.json()
+      const statsData = await statsResponse.json()
+      
+      if (contractorsResponse.ok) {
+        setContractors(contractorsData.contractors || [])
+      }
+      
+      if (statsResponse.ok) {
+        // Use accurate stats from database
+        setStats({
+          total: statsData.total || 0,
+          active: statsData.active || 0,
+          cities: statsData.cities || 0,
+          topCities: [] // Not needed for display
+        })
+      } else {
+        // Fallback to calculated stats if stats API fails
+        const activeContractors = contractorsData.contractors?.filter(c => 
           c.primary_status === 'CLEAR' || c.primary_status === 'ACTIVE' || c.primary_status === null
         ) || []
-        const cities = [...new Set(data.contractors?.map(c => c.city).filter(Boolean))] || []
+        const cities = [...new Set(contractorsData.contractors?.map(c => c.city).filter(Boolean))] || []
         
         setStats({
-          total: data.contractors?.length || 0,
+          total: contractorsData.contractors?.length || 0,
           active: activeContractors.length,
           cities: cities.length,
           topCities: cities.slice(0, 10)
