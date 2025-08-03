@@ -174,11 +174,11 @@ export default function ContractorMap({ contractor }) {
   }
 
   return (
-    <div style={{ position: 'relative' }}>
+    <div style={{ position: 'relative', maxWidth: '100%', overflow: 'hidden' }}>
       <MapContainer
         center={[coordinates.lat, coordinates.lng]}
         zoom={getZoomLevel()}
-        style={{ height: '250px', width: '100%', borderRadius: '8px' }}
+        style={{ height: '250px', width: '100%', maxWidth: '100%', borderRadius: '8px' }}
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

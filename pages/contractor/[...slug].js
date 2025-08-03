@@ -375,7 +375,7 @@ export default function ContractorUniversalProfile({ contractor: initialContract
             📍 Address & Location
           </h2>
           
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem' }}>
             {/* Address Information */}
             <div style={{ lineHeight: 1.8, color: '#555' }}>
               {contractor.mailing_address && (
@@ -637,6 +637,15 @@ export default function ContractorUniversalProfile({ contractor: initialContract
 
       </div>
     </div>
+    
+    <style jsx>{`
+      @media (max-width: 375px) {
+        :global(.leaflet-container) {
+          max-width: 100% !important;
+          overflow: hidden !important;
+        }
+      }
+    `}</style>
     </>
   )
 }
