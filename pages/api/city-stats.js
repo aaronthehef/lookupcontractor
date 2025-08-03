@@ -31,21 +31,48 @@ async function handler(req, res) {
       .trim()
     
     console.log('Searching for city:', cityName, 'in state:', state)
+    console.log('Original city param:', city)
+    
+    // Also try case-insensitive exact match and partial match
+    const cityVariations = [
+      cityName,
+      cityName.toLowerCase(),
+      cityName.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ')
+    ]
+    
+    console.log('City variations to try:', cityVariations)
+    
+    // Debug: Check what cities exist similar to what we're looking for
+    const similarCitiesResult = await executeQuery(`
+      SELECT DISTINCT city, COUNT(*) as count
+      FROM contractors 
+      WHERE city ILIKE $1 AND state = 'CA'
+      GROUP BY city
+      ORDER BY count DESC
+      LIMIT 5
+    `, ['%' + cityName.split(' ')[0] + '%'])
+    
+    console.log('Similar cities found:', similarCitiesResult.rows)
     
     // Get total contractor count for city using ILIKE for case-insensitive matching
+    // Try multiple variations to handle different city name formats
     const totalResult = await executeQuery(`
       SELECT COUNT(*) as total_contractors
       FROM contractors 
-      WHERE city ILIKE $1 AND state = 'CA'
-    `, [cityName])
+      WHERE (city ILIKE $1 OR city ILIKE $2 OR city ILIKE $3) 
+      AND state = 'CA'
+    `, cityVariations)
+    
+    console.log('Total contractors found:', totalResult.rows[0])
 
     // Get active contractor count (include CLEAR, ACTIVE, and NULL statuses like main search)
     const activeResult = await executeQuery(`
       SELECT COUNT(*) as active_contractors
       FROM contractors 
-      WHERE city ILIKE $1 AND state = 'CA' 
+      WHERE (city ILIKE $1 OR city ILIKE $2 OR city ILIKE $3) 
+      AND state = 'CA' 
       AND (primary_status IN ('CLEAR', 'ACTIVE') OR primary_status IS NULL)
-    `, [cityName])
+    `, cityVariations)
 
     // Get contractors by type
     const typesResult = await executeQuery(`
