@@ -68,23 +68,6 @@ function parseSmartSearch(searchTerm: string, startParamIndex: number): { condit
   // Split search term into words
   const words = searchTermWithoutCity.toLowerCase().split(/\s+/).filter(word => word.length > 0)
   
-  // If we have multiple words, prioritize exact business name matches
-  if (words.length > 1) {
-    // First priority: Exact business name match
-    conditions.push(`business_name ILIKE $${paramIndex}`)
-    params.push(`%${searchTermWithoutCity}%`)
-    paramIndex++
-    
-    // Add city filter if found
-    if (extractedCity) {
-      conditions.push(`UPPER(TRIM(city)) = UPPER($${paramIndex})`)
-      params.push(extractedCity.trim())
-      paramIndex++
-    }
-    
-    return { conditions, params }
-  }
-  
   // Check for trade patterns (works for both single words and multi-word searches)
   const tradePatterns = [
     { pattern: /(electrician|electrical|electric)/g, classification: 'C-10', trade: 'Electrical' },

@@ -1,0 +1,1127 @@
+{
+  "testDate": "2025-08-04T03:29:25.308Z",
+  "summary": {
+    "smartSearch": {
+      "total": 10,
+      "passed": 3,
+      "failed": 7,
+      "totalIssues": 7,
+      "avgResults": 82.4
+    },
+    "classificationSearch": {
+      "total": 6,
+      "passed": 6,
+      "failed": 0,
+      "totalIssues": 0,
+      "avgResults": 26032.833333333332
+    },
+    "citySearch": {
+      "total": 5,
+      "passed": 5,
+      "failed": 0,
+      "totalIssues": 0,
+      "avgResults": 4123.2
+    },
+    "tradeSearch": {
+      "total": 5,
+      "passed": 0,
+      "failed": 5,
+      "totalIssues": 5,
+      "avgResults": 9056.4
+    },
+    "businessNameSearch": {
+      "total": 3,
+      "passed": 3,
+      "failed": 0,
+      "totalIssues": 0,
+      "avgResults": 1
+    },
+    "licenseNumberSearch": {
+      "total": 3,
+      "passed": 3,
+      "failed": 0,
+      "totalIssues": 0,
+      "avgResults": 1
+    }
+  },
+  "detailedResults": {
+    "smartSearch": [
+      {
+        "success": true,
+        "searchTerm": "plumber irvine",
+        "searchType": "smart",
+        "resultCount": 0,
+        "sampleResults": [],
+        "pagination": {
+          "currentPage": 1,
+          "limit": 10,
+          "total": 0,
+          "totalPages": 0,
+          "hasNext": false,
+          "hasPrev": false
+        },
+        "error": null,
+        "issues": [
+          "No results found - may indicate search problem"
+        ],
+        "passesValidation": false
+      },
+      {
+        "success": true,
+        "searchTerm": "plumbers in bakersfield",
+        "searchType": "smart",
+        "resultCount": 107,
+        "sampleResults": [
+          {
+            "name": "4 LESS PLUMBING",
+            "license": "981064",
+            "city": "BAKERSFIELD",
+            "classification": "C-36",
+            "trade": "Plumbing"
+          },
+          {
+            "name": "A A M MAINTENANCE AND PLUMBING",
+            "license": "886113",
+            "city": "BAKERSFIELD",
+            "classification": "C-36",
+            "trade": "Plumbing"
+          },
+          {
+            "name": "ACTION PLUMBING",
+            "license": "992247",
+            "city": "BAKERSFIELD",
+            "classification": "C-36",
+            "trade": "Plumbing"
+          }
+        ],
+        "pagination": {
+          "currentPage": 1,
+          "limit": 10,
+          "total": 107,
+          "totalPages": 11,
+          "hasNext": true,
+          "hasPrev": false
+        },
+        "error": null,
+        "issues": [],
+        "passesValidation": true
+      },
+      {
+        "success": true,
+        "searchTerm": "electrician san diego",
+        "searchType": "smart",
+        "resultCount": 0,
+        "sampleResults": [],
+        "pagination": {
+          "currentPage": 1,
+          "limit": 10,
+          "total": 0,
+          "totalPages": 0,
+          "hasNext": false,
+          "hasPrev": false
+        },
+        "error": null,
+        "issues": [
+          "No results found - may indicate search problem"
+        ],
+        "passesValidation": false
+      },
+      {
+        "success": true,
+        "searchTerm": "electricians in los angeles",
+        "searchType": "smart",
+        "resultCount": 644,
+        "sampleResults": [
+          {
+            "name": "'GO' ELECTRIC",
+            "license": "350899",
+            "city": "LOS ANGELES",
+            "classification": "C-10",
+            "trade": "Electrical"
+          },
+          {
+            "name": "2 - K ELECTRIC INC",
+            "license": "1109815",
+            "city": "LOS ANGELES",
+            "classification": "C-10",
+            "trade": "Electrical"
+          },
+          {
+            "name": "21ST CENTURY STERLING INC",
+            "license": "816050",
+            "city": "LOS ANGELES",
+            "classification": "C-10",
+            "trade": "Electrical"
+          }
+        ],
+        "pagination": {
+          "currentPage": 1,
+          "limit": 10,
+          "total": 644,
+          "totalPages": 65,
+          "hasNext": true,
+          "hasPrev": false
+        },
+        "error": null,
+        "issues": [],
+        "passesValidation": true
+      },
+      {
+        "success": true,
+        "searchTerm": "roofers in sacramento",
+        "searchType": "smart",
+        "resultCount": 73,
+        "sampleResults": [
+          {
+            "name": "ADVANCED ROOF DESIGN INC",
+            "license": "672328",
+            "city": "SACRAMENTO",
+            "classification": "C-39",
+            "trade": "Roofing"
+          },
+          {
+            "name": "ALL WEATHER ROOFING",
+            "license": "500294",
+            "city": "SACRAMENTO",
+            "classification": "C-39",
+            "trade": "Roofing"
+          },
+          {
+            "name": "AVI'S DISCOUNT ROOFING",
+            "license": "881961",
+            "city": "SACRAMENTO",
+            "classification": "C-39",
+            "trade": "Roofing"
+          }
+        ],
+        "pagination": {
+          "currentPage": 1,
+          "limit": 10,
+          "total": 73,
+          "totalPages": 8,
+          "hasNext": true,
+          "hasPrev": false
+        },
+        "error": null,
+        "issues": [],
+        "passesValidation": true
+      },
+      {
+        "success": true,
+        "searchTerm": "hvac fresno",
+        "searchType": "smart",
+        "resultCount": 0,
+        "sampleResults": [],
+        "pagination": {
+          "currentPage": 1,
+          "limit": 10,
+          "total": 0,
+          "totalPages": 0,
+          "hasNext": false,
+          "hasPrev": false
+        },
+        "error": null,
+        "issues": [
+          "No results found - may indicate search problem"
+        ],
+        "passesValidation": false
+      },
+      {
+        "success": true,
+        "searchTerm": "hvac contractors in san jose",
+        "searchType": "smart",
+        "resultCount": 0,
+        "sampleResults": [],
+        "pagination": {
+          "currentPage": 1,
+          "limit": 10,
+          "total": 0,
+          "totalPages": 0,
+          "hasNext": false,
+          "hasPrev": false
+        },
+        "error": null,
+        "issues": [
+          "No results found - may indicate search problem"
+        ],
+        "passesValidation": false
+      },
+      {
+        "success": true,
+        "searchTerm": "general contractors irvine",
+        "searchType": "smart",
+        "resultCount": 0,
+        "sampleResults": [],
+        "pagination": {
+          "currentPage": 1,
+          "limit": 10,
+          "total": 0,
+          "totalPages": 0,
+          "hasNext": false,
+          "hasPrev": false
+        },
+        "error": null,
+        "issues": [
+          "No results found - may indicate search problem"
+        ],
+        "passesValidation": false
+      },
+      {
+        "success": true,
+        "searchTerm": "painting contractors bakersfield",
+        "searchType": "smart",
+        "resultCount": 0,
+        "sampleResults": [],
+        "pagination": {
+          "currentPage": 1,
+          "limit": 10,
+          "total": 0,
+          "totalPages": 0,
+          "hasNext": false,
+          "hasPrev": false
+        },
+        "error": null,
+        "issues": [
+          "No results found - may indicate search problem"
+        ],
+        "passesValidation": false
+      },
+      {
+        "success": true,
+        "searchTerm": "landscaping san diego",
+        "searchType": "smart",
+        "resultCount": 0,
+        "sampleResults": [],
+        "pagination": {
+          "currentPage": 1,
+          "limit": 10,
+          "total": 0,
+          "totalPages": 0,
+          "hasNext": false,
+          "hasPrev": false
+        },
+        "error": null,
+        "issues": [
+          "No results found - may indicate search problem"
+        ],
+        "passesValidation": false
+      }
+    ],
+    "classificationSearch": [
+      {
+        "success": true,
+        "searchTerm": "B",
+        "searchType": "classification",
+        "resultCount": 97881,
+        "sampleResults": [
+          {
+            "name": "#1 INSURANCE REPAIR SPECIALISTS",
+            "license": "966919",
+            "city": "CAPISTRANO BEACH",
+            "classification": "B",
+            "trade": "General Building Contractor"
+          },
+          {
+            "name": "02 TREEHOUSE CONSTRUCTION",
+            "license": "1099369",
+            "city": "PETALUMA",
+            "classification": "B",
+            "trade": "General Building Contractor"
+          },
+          {
+            "name": "1 - 888 - 4 - ABATEMENT INC",
+            "license": "897164",
+            "city": "RANCHO CORDOVA",
+            "classification": "B",
+            "trade": "General Building Contractor"
+          }
+        ],
+        "pagination": {
+          "currentPage": 1,
+          "limit": 10,
+          "total": 97881,
+          "totalPages": 9789,
+          "hasNext": true,
+          "hasPrev": false
+        },
+        "error": null,
+        "issues": [],
+        "passesValidation": true
+      },
+      {
+        "success": true,
+        "searchTerm": "C-10",
+        "searchType": "classification",
+        "resultCount": 19823,
+        "sampleResults": [
+          {
+            "name": "'GO' ELECTRIC",
+            "license": "350899",
+            "city": "LOS ANGELES",
+            "classification": "C-10",
+            "trade": "Electrical"
+          },
+          {
+            "name": "1 - STEP UP ELECTRIC",
+            "license": "895895",
+            "city": "REDLANDS",
+            "classification": "C-10",
+            "trade": "Electrical"
+          },
+          {
+            "name": "1 ELECTRICAL SERVICES",
+            "license": "987704",
+            "city": "SAN DIEGO",
+            "classification": "C-10",
+            "trade": "Electrical"
+          }
+        ],
+        "pagination": {
+          "currentPage": 1,
+          "limit": 10,
+          "total": 19823,
+          "totalPages": 1983,
+          "hasNext": true,
+          "hasPrev": false
+        },
+        "error": null,
+        "issues": [],
+        "passesValidation": true
+      },
+      {
+        "success": true,
+        "searchTerm": "C-36",
+        "searchType": "classification",
+        "resultCount": 11304,
+        "sampleResults": [
+          {
+            "name": "$15 SEWER AND DRAIN SERVICE",
+            "license": "501065",
+            "city": "SAN JOSE",
+            "classification": "C-36",
+            "trade": "Plumbing"
+          },
+          {
+            "name": "1 - 2 - 3 PLUMBING & ROOTER",
+            "license": "892440",
+            "city": "SHERMAN OAKS",
+            "classification": "C-36",
+            "trade": "Plumbing"
+          },
+          {
+            "name": "1 DAY ROOTER & PLUMBING INC",
+            "license": "1100437",
+            "city": "HACIENDA HEIGHTS",
+            "classification": "C-36",
+            "trade": "Plumbing"
+          }
+        ],
+        "pagination": {
+          "currentPage": 1,
+          "limit": 10,
+          "total": 11304,
+          "totalPages": 1131,
+          "hasNext": true,
+          "hasPrev": false
+        },
+        "error": null,
+        "issues": [],
+        "passesValidation": true
+      },
+      {
+        "success": true,
+        "searchTerm": "C-20",
+        "searchType": "classification",
+        "resultCount": 8590,
+        "sampleResults": [
+          {
+            "name": "1 AC GUYS",
+            "license": "1138177",
+            "city": "PANORAMA CITY",
+            "classification": "C-20",
+            "trade": "Warm-Air Heating, Ventilation, and A/C"
+          },
+          {
+            "name": "1 HARO 1 LLC",
+            "license": "1109668",
+            "city": "SAN JOSE",
+            "classification": "C-20",
+            "trade": "Warm-Air Heating, Ventilation, and A/C"
+          },
+          {
+            "name": "1-800 PLUMBER + AIR OF MONTEREY",
+            "license": "1106294",
+            "city": "SEASIDE",
+            "classification": "C-20",
+            "trade": "Warm-Air Heating, Ventilation, and A/C"
+          }
+        ],
+        "pagination": {
+          "currentPage": 1,
+          "limit": 10,
+          "total": 8590,
+          "totalPages": 859,
+          "hasNext": true,
+          "hasPrev": false
+        },
+        "error": null,
+        "issues": [],
+        "passesValidation": true
+      },
+      {
+        "success": true,
+        "searchTerm": "C-39",
+        "searchType": "classification",
+        "resultCount": 3705,
+        "sampleResults": [
+          {
+            "name": "#1 PACIFIC COAST ROOFING",
+            "license": "1119130",
+            "city": "OXNARD",
+            "classification": "C-39",
+            "trade": "Roofing"
+          },
+          {
+            "name": "1 N DONE ROOFING SERVICES INC",
+            "license": "978088",
+            "city": "MARYSVILLE",
+            "classification": "C-39",
+            "trade": "Roofing"
+          },
+          {
+            "name": "1776 ROOFING SOLUTIONS LLC",
+            "license": "1130718",
+            "city": "ATASCADERO",
+            "classification": "C-39",
+            "trade": "Roofing"
+          }
+        ],
+        "pagination": {
+          "currentPage": 1,
+          "limit": 10,
+          "total": 3705,
+          "totalPages": 371,
+          "hasNext": true,
+          "hasPrev": false
+        },
+        "error": null,
+        "issues": [],
+        "passesValidation": true
+      },
+      {
+        "success": true,
+        "searchTerm": "A",
+        "searchType": "classification",
+        "resultCount": 14894,
+        "sampleResults": [
+          {
+            "name": "1 ST CALIFORNIA CONSTRUCTION INC",
+            "license": "845184",
+            "city": "PASADENA",
+            "classification": "A",
+            "trade": "General Engineering Contractor"
+          },
+          {
+            "name": "1 US ASPHALT LLC",
+            "license": "1131367",
+            "city": "BARSTOW",
+            "classification": "A",
+            "trade": "General Engineering Contractor"
+          },
+          {
+            "name": "101 EXCAVATING LLC",
+            "license": "1120766",
+            "city": "PASO ROBLES",
+            "classification": "A",
+            "trade": "General Engineering Contractor"
+          }
+        ],
+        "pagination": {
+          "currentPage": 1,
+          "limit": 10,
+          "total": 14894,
+          "totalPages": 1490,
+          "hasNext": true,
+          "hasPrev": false
+        },
+        "error": null,
+        "issues": [],
+        "passesValidation": true
+      }
+    ],
+    "citySearch": [
+      {
+        "success": true,
+        "searchTerm": "irvine",
+        "searchType": "city",
+        "resultCount": 1275,
+        "sampleResults": [
+          {
+            "name": "100X CONSTRUCTION",
+            "license": "1104587",
+            "city": "IRVINE",
+            "classification": "B",
+            "trade": "General Building Contractor"
+          },
+          {
+            "name": "2 GROUND ELECTRIC",
+            "license": "982426",
+            "city": "IRVINE",
+            "classification": "B",
+            "trade": "General Building Contractor"
+          },
+          {
+            "name": "24 SECURITY FIRE ALARM & ELECTRIC",
+            "license": "698674",
+            "city": "IRVINE",
+            "classification": "C-10",
+            "trade": "Electrical"
+          }
+        ],
+        "pagination": {
+          "currentPage": 1,
+          "limit": 10,
+          "total": 1275,
+          "totalPages": 128,
+          "hasNext": true,
+          "hasPrev": false
+        },
+        "error": null,
+        "issues": [],
+        "passesValidation": true
+      },
+      {
+        "success": true,
+        "searchTerm": "bakersfield",
+        "searchType": "city",
+        "resultCount": 2723,
+        "sampleResults": [
+          {
+            "name": "1 R3ASON TREE SERVICE INC",
+            "license": "1133890",
+            "city": "BAKERSFIELD",
+            "classification": "C-49",
+            "trade": "Tree and Palm"
+          },
+          {
+            "name": "1271 CONSTRUCTION INC",
+            "license": "896048",
+            "city": "BAKERSFIELD",
+            "classification": "B",
+            "trade": "General Building Contractor"
+          },
+          {
+            "name": "3G REBAR INC",
+            "license": "964789",
+            "city": "BAKERSFIELD",
+            "classification": "C-50",
+            "trade": "Reinforcing Steel"
+          }
+        ],
+        "pagination": {
+          "currentPage": 1,
+          "limit": 10,
+          "total": 2723,
+          "totalPages": 273,
+          "hasNext": true,
+          "hasPrev": false
+        },
+        "error": null,
+        "issues": [],
+        "passesValidation": true
+      },
+      {
+        "success": true,
+        "searchTerm": "san diego",
+        "searchType": "city",
+        "resultCount": 5852,
+        "sampleResults": [
+          {
+            "name": "1 800 RESTORATION",
+            "license": "1135210",
+            "city": "SAN DIEGO",
+            "classification": "B",
+            "trade": "General Building Contractor"
+          },
+          {
+            "name": "1 ELECTRICAL SERVICES",
+            "license": "987704",
+            "city": "SAN DIEGO",
+            "classification": "C-10",
+            "trade": "Electrical"
+          },
+          {
+            "name": "1-888-WOW-1 DAY! PAINTING",
+            "license": "975809",
+            "city": "SAN DIEGO",
+            "classification": "C-33",
+            "trade": "Painting and Decorating"
+          }
+        ],
+        "pagination": {
+          "currentPage": 1,
+          "limit": 10,
+          "total": 5852,
+          "totalPages": 586,
+          "hasNext": true,
+          "hasPrev": false
+        },
+        "error": null,
+        "issues": [],
+        "passesValidation": true
+      },
+      {
+        "success": true,
+        "searchTerm": "los angeles",
+        "searchType": "city",
+        "resultCount": 6431,
+        "sampleResults": [
+          {
+            "name": "'GO' ELECTRIC",
+            "license": "350899",
+            "city": "LOS ANGELES",
+            "classification": "C-10",
+            "trade": "Electrical"
+          },
+          {
+            "name": "1 DESIGN CONSTRUCTION CORP",
+            "license": "929941",
+            "city": "LOS ANGELES",
+            "classification": "B",
+            "trade": "General Building Contractor"
+          },
+          {
+            "name": "101 PLUMBING & ROOTER",
+            "license": "1109518",
+            "city": "LOS ANGELES",
+            "classification": "C-36",
+            "trade": "Plumbing"
+          }
+        ],
+        "pagination": {
+          "currentPage": 1,
+          "limit": 10,
+          "total": 6431,
+          "totalPages": 644,
+          "hasNext": true,
+          "hasPrev": false
+        },
+        "error": null,
+        "issues": [],
+        "passesValidation": true
+      },
+      {
+        "success": true,
+        "searchTerm": "sacramento",
+        "searchType": "city",
+        "resultCount": 4335,
+        "sampleResults": [
+          {
+            "name": "1 SOURCE ELECTRIC",
+            "license": "919489",
+            "city": "SACRAMENTO",
+            "classification": "C-10",
+            "trade": "Electrical"
+          },
+          {
+            "name": "101 REMODELING",
+            "license": "969237",
+            "city": "SACRAMENTO",
+            "classification": "B",
+            "trade": "General Building Contractor"
+          },
+          {
+            "name": "24 KVA ELECTRIC INC",
+            "license": "1123075",
+            "city": "SACRAMENTO",
+            "classification": "C-10",
+            "trade": "Electrical"
+          }
+        ],
+        "pagination": {
+          "currentPage": 1,
+          "limit": 10,
+          "total": 4335,
+          "totalPages": 434,
+          "hasNext": true,
+          "hasPrev": false
+        },
+        "error": null,
+        "issues": [],
+        "passesValidation": true
+      }
+    ],
+    "tradeSearch": [
+      {
+        "success": true,
+        "searchTerm": "plumbers",
+        "searchType": "smart",
+        "resultCount": 11304,
+        "sampleResults": [
+          {
+            "name": "$15 SEWER AND DRAIN SERVICE",
+            "license": "501065",
+            "city": "SAN JOSE",
+            "classification": "C-36",
+            "trade": "Plumbing"
+          },
+          {
+            "name": "1 - 2 - 3 PLUMBING & ROOTER",
+            "license": "892440",
+            "city": "SHERMAN OAKS",
+            "classification": "C-36",
+            "trade": "Plumbing"
+          },
+          {
+            "name": "1 DAY ROOTER & PLUMBING INC",
+            "license": "1100437",
+            "city": "HACIENDA HEIGHTS",
+            "classification": "C-36",
+            "trade": "Plumbing"
+          }
+        ],
+        "pagination": {
+          "currentPage": 1,
+          "limit": 10,
+          "total": 11304,
+          "totalPages": 1131,
+          "hasNext": true,
+          "hasPrev": false
+        },
+        "error": null,
+        "issues": [
+          "Expected plumber contractors but found different trades"
+        ],
+        "passesValidation": false
+      },
+      {
+        "success": true,
+        "searchTerm": "electricians",
+        "searchType": "smart",
+        "resultCount": 20044,
+        "sampleResults": [
+          {
+            "name": "'GO' ELECTRIC",
+            "license": "350899",
+            "city": "LOS ANGELES",
+            "classification": "C-10",
+            "trade": "Electrical"
+          },
+          {
+            "name": "1 - STEP UP ELECTRIC",
+            "license": "895895",
+            "city": "REDLANDS",
+            "classification": "C-10",
+            "trade": "Electrical"
+          },
+          {
+            "name": "1 ELECTRICAL SERVICES",
+            "license": "987704",
+            "city": "SAN DIEGO",
+            "classification": "C-10",
+            "trade": "Electrical"
+          }
+        ],
+        "pagination": {
+          "currentPage": 1,
+          "limit": 10,
+          "total": 20044,
+          "totalPages": 2005,
+          "hasNext": true,
+          "hasPrev": false
+        },
+        "error": null,
+        "issues": [
+          "Expected electrician contractors but found different trades"
+        ],
+        "passesValidation": false
+      },
+      {
+        "success": true,
+        "searchTerm": "roofers",
+        "searchType": "smart",
+        "resultCount": 3722,
+        "sampleResults": [
+          {
+            "name": "#1 PACIFIC COAST ROOFING",
+            "license": "1119130",
+            "city": "OXNARD",
+            "classification": "C-39",
+            "trade": "Roofing"
+          },
+          {
+            "name": "1 N DONE ROOFING SERVICES INC",
+            "license": "978088",
+            "city": "MARYSVILLE",
+            "classification": "C-39",
+            "trade": "Roofing"
+          },
+          {
+            "name": "1776 ROOFING SOLUTIONS LLC",
+            "license": "1130718",
+            "city": "ATASCADERO",
+            "classification": "C-39",
+            "trade": "Roofing"
+          }
+        ],
+        "pagination": {
+          "currentPage": 1,
+          "limit": 10,
+          "total": 3722,
+          "totalPages": 373,
+          "hasNext": true,
+          "hasPrev": false
+        },
+        "error": null,
+        "issues": [
+          "Expected roofer contractors but found different trades"
+        ],
+        "passesValidation": false
+      },
+      {
+        "success": true,
+        "searchTerm": "general contractors",
+        "searchType": "smart",
+        "resultCount": 342,
+        "sampleResults": [
+          {
+            "name": "2020-GENERAL CONTRACTORS INC",
+            "license": "1116648",
+            "city": "WHITTIER",
+            "classification": "B",
+            "trade": "General Building Contractor"
+          },
+          {
+            "name": "A & B MAINTENANCE AND GENERAL CONTRACTORS",
+            "license": "697212",
+            "city": "WEST HILLS",
+            "classification": "B",
+            "trade": "General Building Contractor"
+          },
+          {
+            "name": "A K GENERAL CONTRACTORS INC",
+            "license": "837952",
+            "city": "WOODLAND HILLS",
+            "classification": "B",
+            "trade": "General Building Contractor"
+          }
+        ],
+        "pagination": {
+          "currentPage": 1,
+          "limit": 10,
+          "total": 342,
+          "totalPages": 35,
+          "hasNext": true,
+          "hasPrev": false
+        },
+        "error": null,
+        "issues": [
+          "Expected general contractor contractors but found different trades"
+        ],
+        "passesValidation": false
+      },
+      {
+        "success": true,
+        "searchTerm": "landscapers",
+        "searchType": "smart",
+        "resultCount": 9870,
+        "sampleResults": [
+          {
+            "name": "08 LANDSCAPING INC",
+            "license": "1134902",
+            "city": "HESPERIA",
+            "classification": "C-27",
+            "trade": "Landscaping"
+          },
+          {
+            "name": "1 EARTH LANDSCAPE & CONSTRUCTION",
+            "license": "953386",
+            "city": "SAN JOSE",
+            "classification": "C-27",
+            "trade": "Landscaping"
+          },
+          {
+            "name": "2020 UNIVERSAL",
+            "license": "923396",
+            "city": "VISTA",
+            "classification": "C-27",
+            "trade": "Landscaping"
+          }
+        ],
+        "pagination": {
+          "currentPage": 1,
+          "limit": 10,
+          "total": 9870,
+          "totalPages": 987,
+          "hasNext": true,
+          "hasPrev": false
+        },
+        "error": null,
+        "issues": [
+          "Expected landcapers contractors but found different trades"
+        ],
+        "passesValidation": false
+      }
+    ],
+    "businessNameSearch": [
+      {
+        "success": true,
+        "searchTerm": "4 LESS PLUMBING",
+        "searchType": "business",
+        "resultCount": 1,
+        "sampleResults": [
+          {
+            "name": "4 LESS PLUMBING",
+            "license": "981064",
+            "city": "BAKERSFIELD",
+            "classification": "C-36",
+            "trade": "Plumbing"
+          }
+        ],
+        "pagination": {
+          "currentPage": 1,
+          "limit": 10,
+          "total": 1,
+          "totalPages": 1,
+          "hasNext": false,
+          "hasPrev": false
+        },
+        "error": null,
+        "issues": [],
+        "passesValidation": true
+      },
+      {
+        "success": true,
+        "searchTerm": "'GO' ELECTRIC",
+        "searchType": "business",
+        "resultCount": 1,
+        "sampleResults": [
+          {
+            "name": "'GO' ELECTRIC",
+            "license": "350899",
+            "city": "LOS ANGELES",
+            "classification": "C-10",
+            "trade": "Electrical"
+          }
+        ],
+        "pagination": {
+          "currentPage": 1,
+          "limit": 10,
+          "total": 1,
+          "totalPages": 1,
+          "hasNext": false,
+          "hasPrev": false
+        },
+        "error": null,
+        "issues": [],
+        "passesValidation": true
+      },
+      {
+        "success": true,
+        "searchTerm": "ADVANCED ROOF DESIGN INC",
+        "searchType": "business",
+        "resultCount": 1,
+        "sampleResults": [
+          {
+            "name": "ADVANCED ROOF DESIGN INC",
+            "license": "672328",
+            "city": "SACRAMENTO",
+            "classification": "C-39",
+            "trade": "Roofing"
+          }
+        ],
+        "pagination": {
+          "currentPage": 1,
+          "limit": 10,
+          "total": 1,
+          "totalPages": 1,
+          "hasNext": false,
+          "hasPrev": false
+        },
+        "error": null,
+        "issues": [],
+        "passesValidation": true
+      }
+    ],
+    "licenseNumberSearch": [
+      {
+        "success": true,
+        "searchTerm": "981064",
+        "searchType": "license",
+        "resultCount": 1,
+        "sampleResults": [
+          {
+            "name": "4 LESS PLUMBING",
+            "license": "981064",
+            "city": "BAKERSFIELD",
+            "classification": "C-36",
+            "trade": "Plumbing"
+          }
+        ],
+        "pagination": {
+          "currentPage": 1,
+          "limit": 10,
+          "total": 1,
+          "totalPages": 1,
+          "hasNext": false,
+          "hasPrev": false
+        },
+        "error": null,
+        "issues": [],
+        "passesValidation": true
+      },
+      {
+        "success": true,
+        "searchTerm": "350899",
+        "searchType": "license",
+        "resultCount": 1,
+        "sampleResults": [
+          {
+            "name": "'GO' ELECTRIC",
+            "license": "350899",
+            "city": "LOS ANGELES",
+            "classification": "C-10",
+            "trade": "Electrical"
+          }
+        ],
+        "pagination": {
+          "currentPage": 1,
+          "limit": 10,
+          "total": 1,
+          "totalPages": 1,
+          "hasNext": false,
+          "hasPrev": false
+        },
+        "error": null,
+        "issues": [],
+        "passesValidation": true
+      },
+      {
+        "success": true,
+        "searchTerm": "672328",
+        "searchType": "license",
+        "resultCount": 1,
+        "sampleResults": [
+          {
+            "name": "ADVANCED ROOF DESIGN INC",
+            "license": "672328",
+            "city": "SACRAMENTO",
+            "classification": "C-39",
+            "trade": "Roofing"
+          }
+        ],
+        "pagination": {
+          "currentPage": 1,
+          "limit": 10,
+          "total": 1,
+          "totalPages": 1,
+          "hasNext": false,
+          "hasPrev": false
+        },
+        "error": null,
+        "issues": [],
+        "passesValidation": true
+      }
+    ]
+  }
+}
