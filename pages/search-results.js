@@ -12,6 +12,7 @@ export default function SearchResults() {
   const [query, setQuery] = useState('')
   const [loading, setLoading] = useState(true)
   const [contractorsPerPage] = useState(10)
+  const [allCities, setAllCities] = useState([]) // Store all cities for filter
   
   // Get current page from URL, default to 1
   const currentPage = parseInt(router.query.page) || 1
@@ -81,6 +82,11 @@ export default function SearchResults() {
         setResults(data)
         // Update localStorage with fresh results
         localStorage.setItem('searchResults', JSON.stringify(data))
+        
+        // Fetch additional contractors for city filter (only on first page load)
+        if (page === 1) {
+          fetchCitiesForFilter(searchQuery)
+        }
       } else {
         console.error('Search API error:', data.error)
         console.log('Falling back to localStorage')
@@ -107,6 +113,36 @@ export default function SearchResults() {
     }
   }
 
+  const fetchCitiesForFilter = async (searchQuery) => {
+    try {
+      // Fetch more contractors to get a better city list (up to 100)
+      const response = await fetch('/api/search', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          searchTerm: searchQuery,
+          searchType: 'smart',
+          state: 'california',
+          page: 1,
+          limit: 100  // Get more contractors for city filtering
+        })
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        if (data.contractors) {
+          const cities = [...new Set(data.contractors.map(c => c.city).filter(Boolean))]
+          setAllCities(cities.sort())
+          console.log('Fetched cities for filter:', cities.length)
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching cities for filter:', error)
+    }
+  }
+
   const formatStatus = (status) => {
     return status?.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'Unknown'
   }
@@ -119,12 +155,11 @@ export default function SearchResults() {
   }
 
   // For server-side pagination, we show all contractors from the API response
-  // Filtering should be done on the server side for better performance with large datasets
+  // Filtering and sorting are done client-side for the current page
   const getDisplayContractors = () => {
     if (!results?.contractors) return []
     
-    // For now, show all contractors from the current page
-    // TODO: Move filtering to server side for better performance
+    // Filter contractors based on current filters
     let filtered = results.contractors.filter(contractor => {
       // City filter
       if (selectedCity && contractor.city !== selectedCity) return false
@@ -138,11 +173,33 @@ export default function SearchResults() {
       return true
     })
     
+    // Apply sorting
+    filtered.sort((a, b) => {
+      switch (sortBy) {
+        case 'business_name':
+          return (a.business_name || '').localeCompare(b.business_name || '')
+        case 'city':
+          return (a.city || '').localeCompare(b.city || '')
+        case 'license_no':
+          return (a.license_no || '').localeCompare(b.license_no || '')
+        case 'expiration_date':
+          const dateA = a.expiration_date ? new Date(a.expiration_date) : new Date(0)
+          const dateB = b.expiration_date ? new Date(b.expiration_date) : new Date(0)
+          return dateB - dateA // Most recent expiration first
+        default:
+          return 0
+      }
+    })
+    
     return filtered
   }
 
-  // Get unique cities from results
+  // Get unique cities from all results (not just current page)
   const getUniqueCities = () => {
+    // Use allCities if available (from the additional API call), otherwise fall back to current page
+    if (allCities.length > 0) return allCities
+    
+    // Fallback to current page cities if allCities not loaded yet
     if (!results?.contractors) return []
     const cities = [...new Set(results.contractors.map(c => c.city).filter(Boolean))]
     return cities.sort()
