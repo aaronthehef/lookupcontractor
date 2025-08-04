@@ -25,15 +25,15 @@ export default function CityContractorTypePage() {
       // Convert city slug to proper format for search
       const cityName = decodeURIComponent(city).replace(/-/g, ' ')
       
-      // Search for contractors in this city with this classification
+      // First search by classification to get all contractors of this type
       const response = await fetch('/api/search', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          searchTerm: `${cityName} ${classification.toUpperCase()}`,
-          searchType: 'combined',
+          searchTerm: classification.toUpperCase(),
+          searchType: 'classification',
           state: 'california',
           limit: 10000
         })
@@ -42,11 +42,28 @@ export default function CityContractorTypePage() {
       const data = await response.json()
       
       if (response.ok && data.contractors) {
-        // Filter contractors to match both city and classification
-        const filteredContractors = data.contractors.filter(c => 
-          c.city?.toLowerCase() === cityName.toLowerCase() &&
-          c.primary_classification?.toLowerCase() === classification.toLowerCase()
-        )
+        // Filter contractors to match the specific city (case insensitive and flexible)
+        const filteredContractors = data.contractors.filter(c => {
+          const contractorCity = c.city?.toLowerCase().trim()
+          const targetCity = cityName.toLowerCase().trim()
+          
+          // Try exact match first
+          if (contractorCity === targetCity) return true
+          
+          // Try with different formats (san diego vs san-diego)
+          const targetCityNoSpaces = targetCity.replace(/\s+/g, '')
+          const contractorCityNoSpaces = contractorCity?.replace(/\s+/g, '')
+          if (contractorCityNoSpaces === targetCityNoSpaces) return true
+          
+          // Try with different formats (SAN DIEGO in DB vs san diego from URL)
+          if (contractorCity === targetCity.toUpperCase()) return true
+          
+          return false
+        })
+        
+        console.log(`Found ${data.contractors.length} total ${classification} contractors`)
+        console.log(`Filtered to ${filteredContractors.length} contractors in ${cityName}`)
+        console.log(`Sample cities from results:`, data.contractors.slice(0, 10).map(c => c.city))
         
         setContractors(filteredContractors)
         
