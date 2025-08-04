@@ -33,7 +33,7 @@ export default function CityContractors() {
           searchTerm: cityName,
           searchType: 'city',
           state: 'california',
-          limit: 100
+          limit: 10000
         })
       })
       
@@ -46,7 +46,7 @@ export default function CityContractors() {
           c.primary_status === 'CLEAR' || c.primary_status === 'ACTIVE' || c.primary_status === null
         )
         
-        // Get unique contractor types
+        // Get unique contractor types with proper data structure
         const types = [...new Set(contractors.map(c => c.primary_classification).filter(Boolean))]
         
         setStats({
@@ -54,7 +54,11 @@ export default function CityContractors() {
           state: 'California',
           totalContractors: contractors.length,
           activeContractors: activeContractors.length,
-          contractorTypes: types.map(type => ({ classification: type, count: contractors.filter(c => c.primary_classification === type).length })),
+          contractorTypes: types.map(type => ({
+            primary_classification: type,
+            trade: contractors.find(c => c.primary_classification === type)?.trade || type,
+            contractor_count: contractors.filter(c => c.primary_classification === type).length
+          })),
           sampleContractors: contractors.slice(0, 12)
         })
       } else {
