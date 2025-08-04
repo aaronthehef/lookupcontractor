@@ -22,6 +22,8 @@ export default function ContractorTypeCaliforniaPage() {
 
   const fetchContractorsByType = async () => {
     try {
+      console.log('Fetching contractors for classification:', classification)
+      
       // Fetch contractors for display (limited to first 100 for performance)
       const contractorsResponse = await fetch('/api/search', {
         method: 'POST',
@@ -36,14 +38,25 @@ export default function ContractorTypeCaliforniaPage() {
         })
       })
       
+      console.log('Search API response status:', contractorsResponse.status)
+      
       // Fetch accurate stats (total counts)
       const statsResponse = await fetch(`/api/classification-stats?classification=${classification.toUpperCase()}`)
+      
+      console.log('Stats API response status:', statsResponse.status)
       
       const contractorsData = await contractorsResponse.json()
       const statsData = await statsResponse.json()
       
+      console.log('Contractors data:', contractorsData)
+      console.log('Stats data:', statsData)
+      
       if (contractorsResponse.ok) {
         setContractors(contractorsData.contractors || [])
+        console.log('Set contractors:', contractorsData.contractors?.length || 0)
+      } else {
+        console.error('Search API failed:', contractorsData)
+        setContractors([])
       }
       
       if (statsResponse.ok) {
@@ -55,6 +68,7 @@ export default function ContractorTypeCaliforniaPage() {
           topCities: [] // Not needed for display
         })
       } else {
+        console.error('Stats API failed:', statsData)
         // Fallback to calculated stats if stats API fails
         const activeContractors = contractorsData.contractors?.filter(c => 
           c.primary_status === 'CLEAR' || c.primary_status === 'ACTIVE' || c.primary_status === null
@@ -70,6 +84,8 @@ export default function ContractorTypeCaliforniaPage() {
       }
     } catch (error) {
       console.error('Error fetching contractors:', error)
+      setContractors([])
+      setStats({ total: 0, active: 0, cities: 0 })
     } finally {
       setLoading(false)
     }
