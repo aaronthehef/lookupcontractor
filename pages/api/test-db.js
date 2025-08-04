@@ -17,7 +17,23 @@ export default async function handler(req, res) {
     
     console.log('Count result:', countResult)
     
-    // Test 2: Get a few contractors from Los Angeles
+    // Test 2: Count Los Angeles contractors
+    const laCountResult = await executeQuery(`
+      SELECT COUNT(*) as la_total
+      FROM contractors 
+      WHERE state = 'CA' AND city = 'LOS ANGELES'
+    `)
+    
+    // Test 3: Count C-36 plumbers in LA
+    const plumbersCountResult = await executeQuery(`
+      SELECT COUNT(*) as plumbers_total
+      FROM contractors 
+      WHERE state = 'CA' 
+      AND primary_classification = 'C-36'
+      AND city = 'LOS ANGELES'
+    `)
+    
+    // Test 4: Get sample contractors from Los Angeles
     const laResult = await executeQuery(`
       SELECT license_no, business_name, city, primary_classification, trade
       FROM contractors 
@@ -25,25 +41,25 @@ export default async function handler(req, res) {
       LIMIT 5
     `)
     
-    console.log('LA result:', laResult)
-    
-    // Test 3: Get plumbers specifically
-    const plumbersResult = await executeQuery(`
-      SELECT license_no, business_name, city, primary_classification, trade
+    // Test 5: Check what cities exist that contain "angeles"
+    const angelesResult = await executeQuery(`
+      SELECT DISTINCT city, COUNT(*) as count
       FROM contractors 
-      WHERE state = 'CA' 
-      AND primary_classification = 'C-36'
-      AND city = 'LOS ANGELES'
-      LIMIT 5
+      WHERE state = 'CA' AND city ILIKE '%angeles%'
+      GROUP BY city
+      ORDER BY count DESC
     `)
     
-    console.log('Plumbers result:', plumbersResult)
+    console.log('LA result:', laResult)
+    console.log('Angeles variations:', angelesResult)
 
     return res.status(200).json({
       success: true,
       totalContractors: parseInt(countResult.rows[0]?.total_contractors || 0),
-      losAngelesContractors: laResult.rows || [],
-      losAngelesPlumbers: plumbersResult.rows || [],
+      losAngelesCount: parseInt(laCountResult.rows[0]?.la_total || 0),
+      losAngelesPlumbersCount: parseInt(plumbersCountResult.rows[0]?.plumbers_total || 0),
+      losAngelesSample: laResult.rows || [],
+      angelesVariations: angelesResult.rows || [],
       timestamp: new Date().toISOString()
     })
 
