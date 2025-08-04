@@ -260,7 +260,7 @@ export default function CityContractors() {
               
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
                 {stats.contractorTypes.map((type) => (
-                  <Link key={type.primary_classification} href={`/contractors/california/type/${type.primary_classification.toLowerCase()}`}>
+                  <Link key={type.primary_classification} href={`/contractors/california/${city}/type/${type.primary_classification.toLowerCase()}`}>
                     <div style={{ 
                       padding: '1.5rem', 
                       border: '1px solid #e5e7eb', 
