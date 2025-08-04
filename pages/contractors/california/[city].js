@@ -260,22 +260,25 @@ export default function CityContractors() {
               
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
                 {stats.contractorTypes.map((type) => (
-                  <div key={type.primary_classification} style={{ 
-                    padding: '1.5rem', 
-                    border: '1px solid #e5e7eb', 
-                    borderRadius: '8px', 
-                    transition: 'all 0.2s',
-                    cursor: 'pointer'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = '#3b82f6'
-                    e.currentTarget.style.backgroundColor = '#f8fafc'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = '#e5e7eb'
-                    e.currentTarget.style.backgroundColor = 'white'
-                  }}
-                  >
+                  <Link key={type.primary_classification} href={`/contractors/california/type/${type.primary_classification.toLowerCase()}`}>
+                    <div style={{ 
+                      padding: '1.5rem', 
+                      border: '1px solid #e5e7eb', 
+                      borderRadius: '8px', 
+                      transition: 'all 0.2s',
+                      cursor: 'pointer',
+                      textDecoration: 'none',
+                      color: 'inherit'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = '#3b82f6'
+                      e.currentTarget.style.backgroundColor = '#f8fafc'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = '#e5e7eb'
+                      e.currentTarget.style.backgroundColor = 'white'
+                    }}
+                    >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <div>
                         <div style={{ fontSize: '1.1rem', fontWeight: 'bold', marginBottom: '0.25rem' }}>
@@ -296,7 +299,8 @@ export default function CityContractors() {
                         {parseInt(type.contractor_count).toLocaleString()}
                       </div>
                     </div>
-                  </div>
+                    </div>
+                  </Link>
                 ))}
               </div>
             </div>
