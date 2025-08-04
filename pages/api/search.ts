@@ -44,6 +44,17 @@ function parseSmartSearch(searchTerm: string, startParamIndex: number): { condit
         break
       }
     }
+    
+    // If no city found at start, check if city appears at the end (e.g., "plumber irvine")
+    if (!extractedCity) {
+      for (const city of sortedCities) {
+        if (term.endsWith(' ' + city.toLowerCase())) {
+          extractedCity = city
+          searchTermWithoutCity = originalTerm.substring(0, originalTerm.length - city.length).trim()
+          break
+        }
+      }
+    }
   }
   
   // Check if it's a license number (digits only or starts with letter+digits)

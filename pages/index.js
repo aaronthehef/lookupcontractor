@@ -132,8 +132,34 @@ export default function Home() {
       }
     }
     
-    // Find location using simple pattern matching
-    const locationMatch = text.match(/(?:in|near)\s+([a-z\s]+)/) || text.match(/([a-z\s]+)\s+(?:area|contractors?)/)
+    // Find location using multiple patterns
+    let locationMatch = text.match(/(?:in|near)\s+([a-z\s]+)/) || text.match(/([a-z\s]+)\s+(?:area|contractors?)/)
+    
+    // If no location found with prepositions, try simple "trade city" pattern
+    if (!locationMatch && detectedType) {
+      // Look for city names at the end after removing the trade keyword
+      const tradeKeyword = Object.keys(contractorTypes).find(keyword => text.includes(keyword))
+      if (tradeKeyword) {
+        const withoutTrade = text.replace(tradeKeyword, '').trim()
+        if (withoutTrade) {
+          // Simple city names (should be enhanced with known city list)
+          const knownCities = [
+            'los angeles', 'san francisco', 'san diego', 'sacramento', 'fresno', 'long beach',
+            'oakland', 'bakersfield', 'stockton', 'fremont', 'san jose', 'irvine', 'chula vista',
+            'riverside', 'santa ana', 'anaheim', 'modesto', 'huntington beach', 'glendale',
+            'oxnard', 'fontana', 'moreno valley', 'santa clarita', 'oceanside', 'garden grove'
+          ]
+          
+          for (const city of knownCities) {
+            if (withoutTrade.includes(city)) {
+              locationMatch = [null, city] // Match format: [fullMatch, cityGroup]
+              break
+            }
+          }
+        }
+      }
+    }
+    
     if (locationMatch) {
       const location = locationMatch[1].trim()
       
