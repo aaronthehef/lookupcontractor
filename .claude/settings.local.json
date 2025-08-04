@@ -83,7 +83,8 @@
       "Bash(for i in {1..25})",
       "Bash(do echo -n \"sitemap-contractors-$i.xml: \")",
       "Bash(echo:*)",
-      "WebFetch(domain:lookupcontractor.com)"
+      "WebFetch(domain:lookupcontractor.com)",
+      "WebFetch(domain:localhost)"
     ],
     "deny": []
   }

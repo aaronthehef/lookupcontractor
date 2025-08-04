@@ -98,49 +98,12 @@ export default function CSLBLookup() {
     }
   }
 
-  const handleSearch = async (e) => {
+  const handleSearch = (e) => {
     e.preventDefault()
-    if (!searchTerm.trim()) return
-    
-    const parsed = parseSmartSearch(searchTerm)
-    
-    // For license numbers and business names, allow search without location
-    if (parsed.state || parsed.type === 'license' || parsed.type === 'business') {
-      try {
-        const requestBody = {
-          searchTerm: searchTerm, // Use original search term for smart parsing
-          searchType: 'smart', // Use smart search type to enable proper parsing
-          city: parsed.city,
-          state: parsed.state || 'california', // Default to CA if no state specified
-          limit: 50 // Show 50 results per page
-        }
-        
-        // Call the search API directly with proper parameters
-        const response = await fetch('/api/search', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(requestBody)
-        })
-        
-        const data = await response.json()
-        
-        if (response.ok) {
-          // Store results and redirect to results page
-          localStorage.setItem('searchResults', JSON.stringify(data))
-          localStorage.setItem('searchQuery', searchTerm)
-          window.location.href = '/search-results'
-        } else {
-          alert(data.error || 'Search failed')
-        }
-      } catch (error) {
-        console.error('Search error:', error)
-        alert('Search failed. Please try again.')
-      }
-    } else {
-      // If no state detected and not a license/business search, show an alert
-      alert('Please specify a location (e.g., "plumbers in Los Angeles") or search by business name/license number')
+    const searchValue = e.target.searchInput.value.trim()
+    if (searchValue) {
+      // Simple redirect to homepage with search parameter
+      window.location.href = `/?search=${encodeURIComponent(searchValue)}`
     }
   }
 
@@ -213,10 +176,9 @@ export default function CSLBLookup() {
               }}>
                 <input
                   type="text"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleSearch(e)}
+                  name="searchInput"
                   placeholder="Enter license number, business name, or contractor type..."
+                  required
                   style={{ 
                     flex: 1,
                     minWidth: '300px',
@@ -231,16 +193,15 @@ export default function CSLBLookup() {
                 />
                 <button 
                   type="submit"
-                  disabled={!searchTerm.trim()}
                   style={{ 
-                    background: searchTerm.trim() ? '#059669' : '#9ca3af',
+                    background: '#059669',
                     color: 'white', 
                     padding: '1rem 2rem', 
                     border: 'none', 
                     borderRadius: '12px',
                     fontSize: '1.1rem',
                     fontWeight: 'bold',
-                    cursor: searchTerm.trim() ? 'pointer' : 'not-allowed',
+                    cursor: 'pointer',
                     minWidth: '140px'
                   }}
                 >
