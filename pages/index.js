@@ -731,7 +731,7 @@ export default function Home() {
             </h3>
             <div className="mobile-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1rem' }}>
               {popularContractorTypes.map(type => (
-                <Link key={type.code} href={`/contractors/${type.code.toLowerCase()}`}>
+                <Link key={type.code} href={`/contractors/california/type/${type.code.toLowerCase()}`}>
                   <div style={{ 
                     padding: '1.5rem', 
                     border: '2px solid #e5e7eb', 
@@ -767,7 +767,7 @@ export default function Home() {
               </h3>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '0.75rem' }}>
                 {allContractorTypes.map(type => (
-                  <Link key={type.code} href={`/contractors/${type.code.toLowerCase()}`}>
+                  <Link key={type.code} href={`/contractors/california/type/${type.code.toLowerCase()}`}>
                     <div style={{ 
                       padding: '1rem', 
                       border: '1px solid #e5e7eb', 
