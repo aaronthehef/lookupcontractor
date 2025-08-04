@@ -347,16 +347,16 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>California Contractor License Verification - Find & Verify Before You Hire</title>
-        <meta name="description" content="Verify California contractor licenses before you hire! Search 240,000+ CSLB licensed contractors using official state data. Check credentials, license status, and confirm legitimacy instantly." />
-        <meta name="keywords" content="contractor license verification, check contractor license, verify contractor credentials, contractor background check, licensed contractors lookup, CSLB license search, contractor legitimacy check, license status verification" />
-        <meta property="og:title" content="California Contractor License Verification - Find & Verify Before You Hire" />
-        <meta property="og:description" content="Verify California contractor licenses before you hire! Search 240,000+ CSLB licensed contractors using official state data." />
+        <title>CSLB License Lookup - California Contractor License Search & Verification</title>
+        <meta name="description" content="Official CSLB contractor license lookup tool. Instantly search 240,000+ California contractor licenses, verify credentials, and check license status. Free & accurate." />
+        <meta name="keywords" content="CSLB lookup, california contractor license lookup, contractor license verification, ca contractor lookup, CSLB license search, contractor lookup california, verify contractor license ca, california contractor database" />
+        <meta property="og:title" content="CSLB License Lookup - California Contractor License Search & Verification" />
+        <meta property="og:description" content="Official CSLB contractor license lookup tool. Instantly search 240,000+ California contractor licenses, verify credentials, and check license status. Free & accurate." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://lookupcontractor.com" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="California Contractor License Verification - Find & Verify Before You Hire" />
-        <meta name="twitter:description" content="Verify California contractor licenses before you hire! Search 240,000+ CSLB licensed contractors." />
+        <meta name="twitter:title" content="CSLB License Lookup - California Contractor License Search & Verification" />
+        <meta name="twitter:description" content="Official CSLB contractor license lookup tool. Instantly search 240,000+ California contractor licenses, verify credentials, and check license status. Free & accurate." />
         <link rel="canonical" href="https://lookupcontractor.com" />
         
         {/* Performance Optimizations */}
