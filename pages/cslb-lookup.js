@@ -1,15 +1,146 @@
 import Link from 'next/link'
 import Head from 'next/head'
-import { useRouter } from 'next/router'
+import { useState } from 'react'
 
 export default function CSLBLookup() {
-  const router = useRouter()
+  const [searchTerm, setSearchTerm] = useState('')
 
-  const handleSearch = (e) => {
+  // Parse search terms to determine type and location
+  const parseSmartSearch = (input) => {
+    const text = input.toLowerCase().trim()
+    
+    // License number detection (digits only)
+    if (/^\d+$/.test(text)) {
+      return { type: 'license', term: text.toUpperCase(), state: 'california', city: null }
+    }
+    
+    // Contractor types mapping
+    const contractorTypes = {
+      'plumber': 'c-36', 'plumbers': 'c-36', 'plumbing': 'c-36',
+      'electrician': 'c-10', 'electricians': 'c-10', 'electrical': 'c-10', 'electric': 'c-10',
+      'roofer': 'c-39', 'roofers': 'c-39', 'roofing': 'c-39',
+      'hvac': 'c-20', 'heating': 'c-20', 'painter': 'c-33', 'painters': 'c-33', 'painting': 'c-33',
+      'landscaper': 'c-27', 'landscapers': 'c-27', 'landscaping': 'c-27',
+      'builder': 'b', 'builders': 'b', 'construction': 'b'
+    }
+    
+    // State names (should not be treated as cities)
+    const stateNames = ['california', 'ca', 'texas', 'tx', 'florida', 'fl', 'new york', 'ny']
+    
+    // City abbreviations
+    const cityAbbreviations = {
+      'la': 'LOS ANGELES', 'sf': 'SAN FRANCISCO', 'sd': 'SAN DIEGO'
+    }
+    
+    // Simple pattern: "contractors in city" or "city contractors"
+    let detectedType = null
+    let detectedCity = null
+    let isStatewide = false
+    
+    // Find contractor type
+    for (const [keyword, code] of Object.entries(contractorTypes)) {
+      if (text.includes(keyword)) {
+        detectedType = code
+        break
+      }
+    }
+    
+    // Find location using multiple patterns
+    let locationMatch = text.match(/(?:in|near)\s+([a-z\s]+)/) || text.match(/([a-z\s]+)\s+(?:area|contractors?)/)
+    
+    // If no location found with prepositions, try simple "trade city" pattern
+    if (!locationMatch && detectedType) {
+      // Look for city names at the end after removing the trade keyword
+      const tradeKeyword = Object.keys(contractorTypes).find(keyword => text.includes(keyword))
+      if (tradeKeyword) {
+        const withoutTrade = text.replace(tradeKeyword, '').trim()
+        if (withoutTrade) {
+          // Simple city names (should be enhanced with known city list)
+          const knownCities = [
+            'los angeles', 'san francisco', 'san diego', 'sacramento', 'fresno', 'long beach',
+            'oakland', 'bakersfield', 'stockton', 'fremont', 'san jose', 'irvine', 'chula vista',
+            'riverside', 'santa ana', 'anaheim', 'modesto', 'huntington beach', 'glendale',
+            'oxnard', 'fontana', 'moreno valley', 'santa clarita', 'oceanside', 'garden grove'
+          ]
+          
+          for (const city of knownCities) {
+            if (withoutTrade.includes(city)) {
+              locationMatch = [null, city] // Match format: [fullMatch, cityGroup]
+              break
+            }
+          }
+        }
+      }
+    }
+    
+    if (locationMatch) {
+      const location = locationMatch[1].trim()
+      
+      // Check if it's a state name
+      if (stateNames.includes(location)) {
+        isStatewide = true
+        detectedCity = null // Don't filter by city for statewide searches
+      } else {
+        detectedCity = cityAbbreviations[location] || location.toUpperCase()
+      }
+    }
+    
+    // Business name fallback
+    if (!detectedType) {
+      return { type: 'business', term: input.trim(), state: 'california', city: detectedCity }
+    }
+    
+    return {
+      type: 'classification',
+      term: detectedType,
+      state: 'california',
+      city: detectedCity
+    }
+  }
+
+  const handleSearch = async (e) => {
     e.preventDefault()
-    const searchTerm = e.target.search.value.trim()
-    if (searchTerm) {
-      router.push(`/?search=${encodeURIComponent(searchTerm)}`)
+    if (!searchTerm.trim()) return
+    
+    const parsed = parseSmartSearch(searchTerm)
+    
+    // For license numbers and business names, allow search without location
+    if (parsed.state || parsed.type === 'license' || parsed.type === 'business') {
+      try {
+        const requestBody = {
+          searchTerm: searchTerm, // Use original search term for smart parsing
+          searchType: 'smart', // Use smart search type to enable proper parsing
+          city: parsed.city,
+          state: parsed.state || 'california', // Default to CA if no state specified
+          limit: 50 // Show 50 results per page
+        }
+        
+        // Call the search API directly with proper parameters
+        const response = await fetch('/api/search', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestBody)
+        })
+        
+        const data = await response.json()
+        
+        if (response.ok) {
+          // Store results and redirect to results page
+          localStorage.setItem('searchResults', JSON.stringify(data))
+          localStorage.setItem('searchQuery', searchTerm)
+          window.location.href = '/search-results'
+        } else {
+          alert(data.error || 'Search failed')
+        }
+      } catch (error) {
+        console.error('Search error:', error)
+        alert('Search failed. Please try again.')
+      }
+    } else {
+      // If no state detected and not a license/business search, show an alert
+      alert('Please specify a location (e.g., "plumbers in Los Angeles") or search by business name/license number')
     }
   }
 
@@ -82,7 +213,9 @@ export default function CSLBLookup() {
               }}>
                 <input
                   type="text"
-                  name="search"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleSearch(e)}
                   placeholder="Enter license number, business name, or contractor type..."
                   style={{ 
                     flex: 1,
@@ -98,15 +231,16 @@ export default function CSLBLookup() {
                 />
                 <button 
                   type="submit"
+                  disabled={!searchTerm.trim()}
                   style={{ 
-                    background: '#059669',
+                    background: searchTerm.trim() ? '#059669' : '#9ca3af',
                     color: 'white', 
                     padding: '1rem 2rem', 
                     border: 'none', 
                     borderRadius: '12px',
                     fontSize: '1.1rem',
                     fontWeight: 'bold',
-                    cursor: 'pointer',
+                    cursor: searchTerm.trim() ? 'pointer' : 'not-allowed',
                     minWidth: '140px'
                   }}
                 >
