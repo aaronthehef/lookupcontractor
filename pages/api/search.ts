@@ -94,14 +94,18 @@ function parseSmartSearch(searchTerm: string, startParamIndex: number): { condit
   let foundTrade = false
   for (const tradePattern of tradePatterns) {
     if (tradePattern.pattern.test(searchTermWithoutCity)) {
-      // If we found a trade pattern, search by classification/trade
+      // If we found a trade pattern, search by classification/trade using exact and pattern matching
       conditions.push(`(
-        primary_classification ILIKE $${paramIndex} OR 
-        trade ILIKE $${paramIndex + 1}
+        primary_classification = $${paramIndex} OR 
+        raw_classifications ~ $${paramIndex + 1} OR
+        classification_codes ~ $${paramIndex + 2} OR
+        trade ILIKE $${paramIndex + 3}
       )`)
-      params.push(`%${tradePattern.classification}%`)
+      params.push(tradePattern.classification)
+      params.push(`\\b${tradePattern.classification}\\b`)
+      params.push(`\\b${tradePattern.classification}\\b`)
       params.push(`%${tradePattern.trade}%`)
-      paramIndex += 2
+      paramIndex += 4
       foundTrade = true
       break
     }
