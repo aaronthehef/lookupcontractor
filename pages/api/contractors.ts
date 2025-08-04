@@ -43,9 +43,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       paramIndex++
     }
 
-    // Contractor type filter
+    // Contractor type filter - only match primary classification
     if (type) {
-      whereConditions.push(`(primary_classification = $${paramIndex} OR classification_codes LIKE '%' || $${paramIndex} || '%')`)
+      whereConditions.push(`primary_classification = $${paramIndex}`)
       queryParams.push(type)
       paramIndex++
     }
