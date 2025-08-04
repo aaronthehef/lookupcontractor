@@ -108,13 +108,13 @@ function parseSmartSearch(searchTerm: string, startParamIndex: number): { condit
       // If we found a trade pattern, search by classification/trade using exact and pattern matching
       conditions.push(`(
         primary_classification = $${paramIndex} OR 
-        raw_classifications ~ $${paramIndex + 1} OR
-        classification_codes ~ $${paramIndex + 2} OR
+        raw_classifications ILIKE $${paramIndex + 1} OR
+        classification_codes ILIKE $${paramIndex + 2} OR
         trade ILIKE $${paramIndex + 3}
       )`)
       params.push(tradePattern.classification)
-      params.push(`\\b${tradePattern.classification}\\b`)
-      params.push(`\\b${tradePattern.classification}\\b`)
+      params.push(`%${tradePattern.classification}%`)
+      params.push(`%${tradePattern.classification}%`)
       params.push(`%${tradePattern.trade}%`)
       paramIndex += 4
       foundTrade = true
@@ -221,15 +221,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       case 'classification':
         // Search for contractors with the classification as primary OR in their raw classifications
-        // Use exact matching and word boundaries to avoid partial matches
+        // Use exact matching and ILIKE for safety
         whereConditions.push(`(
           primary_classification = $${paramIndex} OR 
-          raw_classifications ~ $${paramIndex + 1} OR
-          classification_codes ~ $${paramIndex + 2}
+          raw_classifications ILIKE $${paramIndex + 1} OR
+          classification_codes ILIKE $${paramIndex + 2}
         )`)
         queryParams.push(searchTerm.toUpperCase())
-        queryParams.push(`\\b${searchTerm.toUpperCase()}\\b`)
-        queryParams.push(`\\b${searchTerm.toUpperCase()}\\b`)
+        queryParams.push(`%${searchTerm.toUpperCase()}%`)
+        queryParams.push(`%${searchTerm.toUpperCase()}%`)
         paramIndex += 3
         break
 
