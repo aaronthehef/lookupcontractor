@@ -42,23 +42,13 @@ export default function CityContractorTypePage() {
       const data = await response.json()
       
       if (response.ok && data.contractors) {
-        // Filter contractors to match the specific city (case insensitive and flexible)
+        // Filter contractors to match the specific city
+        // Cities are stored as "SAN DIEGO" in database, URL comes as "san-diego"
+        const targetCityUpper = cityName.toUpperCase().trim()
+        
         const filteredContractors = data.contractors.filter(c => {
-          const contractorCity = c.city?.toLowerCase().trim()
-          const targetCity = cityName.toLowerCase().trim()
-          
-          // Try exact match first
-          if (contractorCity === targetCity) return true
-          
-          // Try with different formats (san diego vs san-diego)
-          const targetCityNoSpaces = targetCity.replace(/\s+/g, '')
-          const contractorCityNoSpaces = contractorCity?.replace(/\s+/g, '')
-          if (contractorCityNoSpaces === targetCityNoSpaces) return true
-          
-          // Try with different formats (SAN DIEGO in DB vs san diego from URL)
-          if (contractorCity === targetCity.toUpperCase()) return true
-          
-          return false
+          const contractorCity = c.city?.trim()
+          return contractorCity === targetCityUpper
         })
         
         console.log(`Found ${data.contractors.length} total ${classification} contractors`)
