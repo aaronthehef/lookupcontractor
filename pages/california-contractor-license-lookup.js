@@ -1,109 +1,49 @@
 import Link from 'next/link'
 import Head from 'next/head'
 import { useState } from 'react'
+import { createContractorUrl } from '../utils/urlHelpers'
+import { getStatusInfo } from '../utils/statusHelper'
 
 export default function CaliforniaContractorLicenseLookup() {
   const [searchTerm, setSearchTerm] = useState('')
+  const [results, setResults] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const [searched, setSearched] = useState(false)
 
-  // Parse search terms to determine type and location
-  const parseSmartSearch = (input) => {
-    const text = input.toLowerCase().trim()
-    
-    // License number detection (digits only)
-    if (/^\d+$/.test(text)) {
-      return { type: 'license', term: text.toUpperCase(), state: 'california', city: null }
-    }
-    
-    // Contractor types mapping
-    const contractorTypes = {
-      'plumber': 'c-36', 'plumbers': 'c-36', 'plumbing': 'c-36',
-      'electrician': 'c-10', 'electricians': 'c-10', 'electrical': 'c-10', 'electric': 'c-10',
-      'roofer': 'c-39', 'roofers': 'c-39', 'roofing': 'c-39',
-      'hvac': 'c-20', 'heating': 'c-20', 'painter': 'c-33', 'painters': 'c-33', 'painting': 'c-33',
-      'landscaper': 'c-27', 'landscapers': 'c-27', 'landscaping': 'c-27',
-      'builder': 'b', 'builders': 'b', 'construction': 'b'
-    }
-    
-    // State names (should not be treated as cities)
-    const stateNames = ['california', 'ca', 'texas', 'tx', 'florida', 'fl', 'new york', 'ny']
-    
-    // City abbreviations
-    const cityAbbreviations = {
-      'la': 'LOS ANGELES', 'sf': 'SAN FRANCISCO', 'sd': 'SAN DIEGO'
-    }
-    
-    // Simple pattern: "contractors in city" or "city contractors"
-    let detectedType = null
-    let detectedCity = null
-    let isStatewide = false
-    
-    // Find contractor type
-    for (const [keyword, code] of Object.entries(contractorTypes)) {
-      if (text.includes(keyword)) {
-        detectedType = code
-        break
-      }
-    }
-    
-    // Find location using multiple patterns
-    let locationMatch = text.match(/(?:in|near)\s+([a-z\s]+)/) || text.match(/([a-z\s]+)\s+(?:area|contractors?)/)
-    
-    // If no location found with prepositions, try simple "trade city" pattern
-    if (!locationMatch && detectedType) {
-      // Look for city names at the end after removing the trade keyword
-      const tradeKeyword = Object.keys(contractorTypes).find(keyword => text.includes(keyword))
-      if (tradeKeyword) {
-        const withoutTrade = text.replace(tradeKeyword, '').trim()
-        if (withoutTrade) {
-          // Simple city names (should be enhanced with known city list)
-          const knownCities = [
-            'los angeles', 'san francisco', 'san diego', 'sacramento', 'fresno', 'long beach',
-            'oakland', 'bakersfield', 'stockton', 'fremont', 'san jose', 'irvine', 'chula vista',
-            'riverside', 'santa ana', 'anaheim', 'modesto', 'huntington beach', 'glendale',
-            'oxnard', 'fontana', 'moreno valley', 'santa clarita', 'oceanside', 'garden grove'
-          ]
-          
-          for (const city of knownCities) {
-            if (withoutTrade.includes(city)) {
-              locationMatch = [null, city] // Match format: [fullMatch, cityGroup]
-              break
-            }
-          }
-        }
-      }
-    }
-    
-    if (locationMatch) {
-      const location = locationMatch[1].trim()
-      
-      // Check if it's a state name
-      if (stateNames.includes(location)) {
-        isStatewide = true
-        detectedCity = null // Don't filter by city for statewide searches
-      } else {
-        detectedCity = cityAbbreviations[location] || location.toUpperCase()
-      }
-    }
-    
-    // Business name fallback
-    if (!detectedType) {
-      return { type: 'business', term: input.trim(), state: 'california', city: detectedCity }
-    }
-    
-    return {
-      type: 'classification',
-      term: detectedType,
-      state: 'california',
-      city: detectedCity
-    }
-  }
-
-  const handleSearch = (e) => {
+  const handleSearch = async (e) => {
     e.preventDefault()
-    const searchValue = e.target.searchInput.value.trim()
-    if (searchValue) {
-      // Simple redirect to homepage with search parameter
-      window.location.href = `/?search=${encodeURIComponent(searchValue)}`
+    
+    if (!searchTerm.trim()) return
+    
+    setLoading(true)
+    setSearched(true)
+    
+    try {
+      const response = await fetch('/api/search', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          searchTerm: searchTerm,
+          searchType: 'smart',
+          state: 'california',
+          limit: 20
+        })
+      })
+      
+      const data = await response.json()
+      
+      if (response.ok) {
+        setResults(data)
+      } else {
+        setResults({ contractors: [], pagination: { total: 0 } })
+      }
+    } catch (error) {
+      console.error('Search error:', error)
+      setResults({ contractors: [], pagination: { total: 0 } })
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -176,9 +116,10 @@ export default function CaliforniaContractorLicenseLookup() {
               }}>
                 <input
                   type="text"
-                  name="searchInput"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="License number, business name, city, or contractor type..."
-                  required
+                  disabled={loading}
                   style={{ 
                     flex: 1,
                     minWidth: '300px',
@@ -186,26 +127,28 @@ export default function CaliforniaContractorLicenseLookup() {
                     fontSize: '1.1rem',
                     border: '2px solid #e5e7eb',
                     borderRadius: '12px',
-                    outline: 'none'
+                    outline: 'none',
+                    opacity: loading ? 0.7 : 1
                   }}
                   onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
                   onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
                 />
                 <button 
                   type="submit"
+                  disabled={loading || !searchTerm.trim()}
                   style={{ 
-                    background: '#059669',
+                    background: (loading || !searchTerm.trim()) ? '#9ca3af' : '#059669',
                     color: 'white', 
                     padding: '1rem 2rem', 
                     border: 'none', 
                     borderRadius: '12px',
                     fontSize: '1.1rem',
                     fontWeight: 'bold',
-                    cursor: 'pointer',
+                    cursor: (loading || !searchTerm.trim()) ? 'not-allowed' : 'pointer',
                     minWidth: '140px'
                   }}
                 >
-                  🔍 Lookup License
+                  {loading ? '🔄 Searching...' : '🔍 Lookup License'}
                 </button>
               </div>
             </form>
@@ -217,164 +160,200 @@ export default function CaliforniaContractorLicenseLookup() {
             </div>
           </div>
 
-          {/* Stats */}
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
-            gap: '1.5rem',
-            marginBottom: '3rem'
-          }}>
-            {[
-              { number: '240,000+', label: 'Licensed Contractors', icon: '👷' },
-              { number: '58 Counties', label: 'Statewide Coverage', icon: '🏛️' },
-              { number: '50+ Types', label: 'Contractor Classifications', icon: '🔧' },
-              { number: '100%', label: 'CSLB Verified Data', icon: '✅' }
-            ].map((stat, index) => (
-              <div key={index} style={{ 
-                background: 'white', 
-                padding: '2rem', 
-                borderRadius: '12px',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                textAlign: 'center'
-              }}>
-                <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>{stat.icon}</div>
-                <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#3b82f6', marginBottom: '0.5rem' }}>{stat.number}</div>
-                <div style={{ color: '#666', fontSize: '0.9rem' }}>{stat.label}</div>
-              </div>
-            ))}
-          </div>
+          {/* Search Results */}
+          {searched && (
+            <div style={{ 
+              background: 'white', 
+              borderRadius: '12px', 
+              padding: '2rem',
+              marginBottom: '3rem',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+            }}>
+              <h2 style={{ fontSize: '2rem', marginBottom: '1.5rem', color: '#333', textAlign: 'center' }}>
+                🔍 Search Results
+              </h2>
+              
+              {loading ? (
+                <div style={{ textAlign: 'center', padding: '3rem', color: '#666' }}>
+                  <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>🔄</div>
+                  <div>Searching California contractor database...</div>
+                </div>
+              ) : results && results.contractors && results.contractors.length > 0 ? (
+                <>
+                  <p style={{ textAlign: 'center', marginBottom: '2rem', color: '#666' }}>
+                    Found <strong>{results.pagination.total.toLocaleString()}</strong> contractors for "{searchTerm}"
+                  </p>
+                  
+                  <div style={{ display: 'grid', gap: '1.5rem' }}>
+                    {results.contractors.map((contractor) => (
+                      <Link key={contractor.license_no} href={createContractorUrl(contractor)}>
+                        <div style={{
+                          border: '1px solid #e5e7eb',
+                          borderRadius: '12px',
+                          padding: '1.5rem',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s',
+                          textDecoration: 'none',
+                          color: 'inherit'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.borderColor = '#3b82f6'
+                          e.currentTarget.style.backgroundColor = '#f8fafc'
+                          e.currentTarget.style.transform = 'translateY(-2px)'
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.borderColor = '#e5e7eb'
+                          e.currentTarget.style.backgroundColor = 'white'
+                          e.currentTarget.style.transform = 'translateY(0)'
+                        }}>
+                          
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+                            <div>
+                              <h3 style={{ fontSize: '1.3rem', fontWeight: 'bold', margin: '0 0 0.5rem 0', color: '#059669' }}>
+                                {contractor.business_name}
+                              </h3>
+                              <div style={{ fontSize: '0.9rem', color: '#666' }}>
+                                License #{contractor.license_no} • {contractor.primary_classification} - {contractor.trade}
+                              </div>
+                            </div>
+                            
+                            {(() => {
+                              const statusInfo = getStatusInfo(contractor.primary_status)
+                              return (
+                                <div style={{
+                                  padding: '0.4rem 0.7rem',
+                                  borderRadius: '16px',
+                                  backgroundColor: statusInfo.bgColor,
+                                  border: `1px solid ${statusInfo.color}30`,
+                                  color: statusInfo.color,
+                                  fontSize: '0.8rem',
+                                  fontWeight: 'bold',
+                                  whiteSpace: 'nowrap'
+                                }}>
+                                  {statusInfo.label}
+                                </div>
+                              )
+                            })()}
+                          </div>
 
-          {/* Popular Cities */}
-          <div style={{ 
-            background: 'white', 
-            borderRadius: '12px', 
-            padding: '2rem',
-            marginBottom: '3rem',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-          }}>
-            <h2 style={{ fontSize: '2rem', marginBottom: '1.5rem', color: '#333', textAlign: 'center' }}>
-              🏙️ Popular California Cities
-            </h2>
-            
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-              {[
-                'Los Angeles', 'San Diego', 'San Francisco', 'Sacramento', 'San Jose', 'Fresno',
-                'Long Beach', 'Oakland', 'Bakersfield', 'Anaheim', 'Santa Ana', 'Riverside'
-              ].map((city) => (
-                <Link key={city} href={`/contractors/california/${city.toLowerCase().replace(/\s+/g, '-')}`}>
-                  <div style={{ 
-                    padding: '1rem', 
-                    border: '1px solid #e5e7eb', 
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                    textDecoration: 'none',
-                    color: 'inherit',
-                    textAlign: 'center'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = '#3b82f6'
-                    e.currentTarget.style.backgroundColor = '#f8fafc'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = '#e5e7eb'
-                    e.currentTarget.style.backgroundColor = 'white'
-                  }}
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+                            <div>
+                              <div style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: '0.2rem' }}>Location</div>
+                              <div style={{ fontWeight: '600', color: '#334155' }}>
+                                {contractor.city}, CA {contractor.zip_code}
+                              </div>
+                            </div>
+                            
+                            {contractor.business_phone && (
+                              <div>
+                                <div style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: '0.2rem' }}>Phone</div>
+                                <div style={{ fontWeight: '600', color: '#334155' }}>
+                                  {contractor.business_phone}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                  
+                  {results.pagination.total > 20 && (
+                    <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+                      <Link href={`/?search=${encodeURIComponent(searchTerm)}`} style={{
+                        background: '#3b82f6',
+                        color: 'white',
+                        padding: '1rem 2rem',
+                        borderRadius: '8px',
+                        textDecoration: 'none',
+                        fontSize: '1rem',
+                        fontWeight: 'bold'
+                      }}>
+                        View All {results.pagination.total.toLocaleString()} Results
+                      </Link>
+                    </div>
+                  )}
+                </>
+              ) : searched && (
+                <div style={{ textAlign: 'center', padding: '3rem' }}>
+                  <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🔍</div>
+                  <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem', color: '#333' }}>
+                    No contractors found for "{searchTerm}"
+                  </h3>
+                  <p style={{ color: '#666', marginBottom: '2rem' }}>
+                    Try searching by license number, business name, or contractor type.
+                  </p>
+                  <button 
+                    onClick={() => {
+                      setSearched(false)
+                      setResults(null)
+                      setSearchTerm('')
+                    }}
+                    style={{
+                      background: '#3b82f6',
+                      color: 'white',
+                      padding: '0.75rem 1.5rem',
+                      border: 'none',
+                      borderRadius: '8px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Try Another Search
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Popular Cities - Only show if no search has been made */}
+          {!searched && (
+            <div style={{ 
+              background: 'white', 
+              borderRadius: '12px', 
+              padding: '2rem',
+              marginBottom: '3rem',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+            }}>
+              <h2 style={{ fontSize: '2rem', marginBottom: '1.5rem', color: '#333', textAlign: 'center' }}>
+                🏙️ Popular California Cities
+              </h2>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+                {[
+                  'Los Angeles', 'San Diego', 'San Francisco', 'Sacramento', 'San Jose', 'Fresno',
+                  'Long Beach', 'Oakland', 'Bakersfield', 'Anaheim', 'Santa Ana', 'Riverside'
+                ].map((city) => (
+                  <button
+                    key={city}
+                    onClick={() => {
+                      setSearchTerm(`contractors in ${city}`)
+                      handleSearch({ preventDefault: () => {} })
+                    }}
+                    style={{ 
+                      padding: '1rem', 
+                      border: '1px solid #e5e7eb', 
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      background: 'white',
+                      textAlign: 'center'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = '#3b82f6'
+                      e.currentTarget.style.backgroundColor = '#f8fafc'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = '#e5e7eb'
+                      e.currentTarget.style.backgroundColor = 'white'
+                    }}
                   >
                     <div style={{ fontWeight: 'bold' }}>{city} Contractors</div>
                     <div style={{ fontSize: '0.9rem', color: '#666' }}>License Lookup</div>
-                  </div>
-                </Link>
-              ))}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
-
-          {/* How It Works */}
-          <div style={{ 
-            background: 'white', 
-            borderRadius: '12px', 
-            padding: '2rem',
-            marginBottom: '3rem',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-          }}>
-            <h2 style={{ fontSize: '2rem', marginBottom: '2rem', color: '#333', textAlign: 'center' }}>
-              📋 How California Contractor License Lookup Works
-            </h2>
-            
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '2rem' }}>
-              {[
-                {
-                  step: '1',
-                  title: 'Enter Search Terms',
-                  description: 'Input license number, business name, location, or contractor type'
-                },
-                {
-                  step: '2', 
-                  title: 'Search CSLB Database',
-                  description: 'Our tool searches the official California State License Board database'
-                },
-                {
-                  step: '3',
-                  title: 'View Results',
-                  description: 'Get complete contractor profiles with license status, contact info, and credentials'
-                },
-                {
-                  step: '4',
-                  title: 'Make Informed Decisions',
-                  description: 'Hire with confidence knowing you\'ve verified their legitimate licensing'
-                }
-              ].map((item) => (
-                <div key={item.step} style={{ textAlign: 'center' }}>
-                  <div style={{ 
-                    width: '60px', 
-                    height: '60px', 
-                    background: '#3b82f6', 
-                    color: 'white', 
-                    borderRadius: '50%', 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    justifyContent: 'center', 
-                    fontSize: '1.5rem', 
-                    fontWeight: 'bold',
-                    margin: '0 auto 1rem auto'
-                  }}>
-                    {item.step}
-                  </div>
-                  <h3 style={{ fontSize: '1.2rem', marginBottom: '1rem', color: '#333' }}>{item.title}</h3>
-                  <p style={{ color: '#666', lineHeight: 1.5 }}>{item.description}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* CTA */}
-          <div style={{ 
-            background: 'white', 
-            borderRadius: '12px', 
-            padding: '3rem',
-            textAlign: 'center',
-            marginBottom: '3rem',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-          }}>
-            <h2 style={{ fontSize: '2.5rem', marginBottom: '1rem', color: '#333' }}>
-              Start Your California Contractor License Lookup
-            </h2>
-            <p style={{ fontSize: '1.2rem', color: '#666', marginBottom: '2rem' }}>
-              Don't risk hiring an unlicensed contractor. Verify their credentials now!
-            </p>
-            <Link href="/" style={{
-              background: '#3b82f6',
-              color: 'white',
-              padding: '1.25rem 2.5rem',
-              borderRadius: '12px',
-              textDecoration: 'none',
-              fontSize: '1.2rem',
-              fontWeight: 'bold',
-              display: 'inline-block'
-            }}>
-              🚀 Begin License Search
-            </Link>
-          </div>
+          )}
         </div>
 
         {/* Footer */}
