@@ -205,13 +205,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         break
 
       case 'classification':
+        // Search for contractors with the classification as primary OR in their raw classifications
+        // Use exact matching and word boundaries to avoid partial matches
         whereConditions.push(`(
-          primary_classification ILIKE $${paramIndex} OR 
-          raw_classifications ILIKE $${paramIndex} OR
-          trade ILIKE $${paramIndex}
+          primary_classification = $${paramIndex} OR 
+          raw_classifications ~ $${paramIndex + 1} OR
+          classification_codes ~ $${paramIndex + 2}
         )`)
-        queryParams.push(`%${searchTerm}%`)
-        paramIndex++
+        queryParams.push(searchTerm.toUpperCase())
+        queryParams.push(`\\b${searchTerm.toUpperCase()}\\b`)
+        queryParams.push(`\\b${searchTerm.toUpperCase()}\\b`)
+        paramIndex += 3
         break
 
       case 'smart':

@@ -3,10 +3,21 @@ import Link from 'next/link'
 import Head from 'next/head'
 import Breadcrumbs from '../../components/Breadcrumbs'
 import { createSlug } from '../../utils/slugify'
+import { contractorTypeDetails } from '../../utils/contractorTypes'
+import { useRouter } from 'next/router'
 
 export default function CaliforniaContractors() {
   const [stats, setStats] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [contractorTypes, setContractorTypes] = useState([])
+  const router = useRouter()
+
+  const handleContractorTypeChange = (event) => {
+    const selectedType = event.target.value
+    if (selectedType) {
+      router.push(`/contractor-types#${selectedType}`)
+    }
+  }
 
   useEffect(() => {
     fetchStateStats()
@@ -17,6 +28,14 @@ export default function CaliforniaContractors() {
       const response = await fetch('/api/state-stats?state=california')
       const data = await response.json()
       setStats(data)
+      // Use contractor types from state stats
+      if (data.topTypes) {
+        console.log('Setting contractor types:', data.topTypes.length, 'types')
+        console.log('First few types:', data.topTypes.slice(0, 3))
+        setContractorTypes(data.topTypes)
+      } else {
+        console.log('No topTypes found in API response')
+      }
     } catch (error) {
       console.error('Error fetching state stats:', error)
     } finally {
@@ -161,6 +180,114 @@ export default function CaliforniaContractors() {
               <p style={{ marginTop: '1rem' }}>
                 Find verified contractors in your area, check license status, view contact information, and ensure 
                 you're hiring qualified professionals for your project.
+              </p>
+            </div>
+
+            {/* Navigation Options */}
+            <div style={{ 
+              display: 'flex', 
+              gap: '1rem', 
+              justifyContent: 'center', 
+              flexWrap: 'wrap',
+              marginTop: '2rem'
+            }}>
+              <Link href="/contractor-types" style={{
+                background: '#3b82f6',
+                color: 'white',
+                padding: '1rem 2rem',
+                borderRadius: '8px',
+                textDecoration: 'none',
+                fontWeight: 'bold',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                fontSize: '1.1rem'
+              }}>
+                🔧 Browse by Contractor Type
+              </Link>
+              
+              <Link href="/" style={{
+                background: '#059669',
+                color: 'white',
+                padding: '1rem 2rem',
+                borderRadius: '8px',
+                textDecoration: 'none',
+                fontWeight: 'bold',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                fontSize: '1.1rem'
+              }}>
+                🔍 Search All Contractors
+              </Link>
+            </div>
+          </div>
+
+          {/* Contractor Type Selector */}
+          <div style={{ 
+            background: 'white', 
+            borderRadius: '12px', 
+            padding: '2rem', 
+            marginBottom: '2rem',
+            boxShadow: '0 10px 25px rgba(0,0,0,0.1)'
+          }}>
+            <h2 style={{ fontSize: '1.8rem', marginBottom: '1rem', color: '#333', textAlign: 'center' }}>
+              🔍 Find Contractors by Specialty
+            </h2>
+            
+            <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+              <label htmlFor="contractor-type-select" style={{ 
+                display: 'block', 
+                marginBottom: '0.5rem', 
+                fontSize: '1.1rem', 
+                fontWeight: '600', 
+                color: '#374151' 
+              }}>
+                Select Contractor Type:
+              </label>
+              <select 
+                id="contractor-type-select"
+                onChange={handleContractorTypeChange}
+                style={{
+                  width: '100%',
+                  padding: '1rem',
+                  fontSize: '1rem',
+                  border: '2px solid #e5e7eb',
+                  borderRadius: '8px',
+                  backgroundColor: 'white',
+                  color: '#374151',
+                  cursor: 'pointer',
+                  outline: 'none',
+                  transition: 'border-color 0.2s'
+                }}
+                onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+                onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
+              >
+                <option value="">Choose a contractor specialty...</option>
+                {contractorTypes.map((type, index) => {
+                  // Get icon and friendly name from predefined list if available
+                  const typeInfo = contractorTypeDetails[type.primary_classification?.toLowerCase()]
+                  const displayName = typeInfo?.name || type.trade || type.primary_classification
+                  const icon = typeInfo?.icon || '🔧'
+                  const contractorCount = parseInt(type.contractor_count || 0)
+                  
+                  console.log(`Contractor type ${index}:`, type) // Debug log
+                  
+                  return (
+                    <option key={`${type.primary_classification}-${index}`} value={type.primary_classification?.toLowerCase()}>
+                      {icon} {displayName} ({type.primary_classification}) - {contractorCount.toLocaleString()} contractors
+                    </option>
+                  )
+                })}
+              </select>
+              
+              <p style={{ 
+                marginTop: '0.75rem', 
+                fontSize: '0.9rem', 
+                color: '#6b7280', 
+                textAlign: 'center' 
+              }}>
+                Select a contractor type to learn more and find licensed professionals in that specialty
               </p>
             </div>
           </div>

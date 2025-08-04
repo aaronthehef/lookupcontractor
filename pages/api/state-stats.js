@@ -6,7 +6,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
-  const { state = 'california' } = req.query
+  const { state = 'california', allTypes = 'false' } = req.query
   
   // Generate cache key
   const cacheKey = `state-stats-${state.toLowerCase()}`
@@ -44,14 +44,15 @@ export default async function handler(req, res) {
       LIMIT 20
     `)
 
-    // Get top contractor types
+    // Get contractor types (all or top 15 based on parameter)
+    const typesLimit = allTypes === 'true' ? '' : 'LIMIT 15'
     const typesResult = await pool.query(`
       SELECT primary_classification, trade, COUNT(*) as contractor_count
       FROM contractors 
       WHERE state = 'CA' AND primary_classification IS NOT NULL
       GROUP BY primary_classification, trade
       ORDER BY contractor_count DESC
-      LIMIT 15
+      ${typesLimit}
     `)
 
     // Get license status breakdown

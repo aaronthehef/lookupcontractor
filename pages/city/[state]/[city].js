@@ -12,25 +12,47 @@ export default function CityPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [totalCount, setTotalCount] = useState(0)
   const [selectedType, setSelectedType] = useState('')
+  const [contractorTypes, setContractorTypes] = useState([])
 
   const contractorsPerPage = 20
-
-  const contractorTypes = [
-    { code: 'B', name: 'General Building' },
-    { code: 'A', name: 'General Engineering' },
-    { code: 'C-10', name: 'Electrical' },
-    { code: 'C-36', name: 'Plumbing' },
-    { code: 'C-20', name: 'HVAC' },
-    { code: 'C-27', name: 'Landscaping' },
-    { code: 'C-33', name: 'Painting' },
-    { code: 'C-39', name: 'Roofing' }
-  ]
 
   useEffect(() => {
     if (state && city) {
       fetchContractors()
     }
   }, [state, city, currentPage, selectedType])
+
+  useEffect(() => {
+    fetchContractorTypes()
+  }, [])
+
+  const fetchContractorTypes = async () => {
+    try {
+      const response = await fetch('/api/state-stats?state=california&allTypes=true')
+      const data = await response.json()
+      if (data.topTypes) {
+        // Convert to the format expected by the dropdown
+        const types = data.topTypes.map(type => ({
+          code: type.primary_classification,
+          name: type.trade || type.primary_classification
+        }))
+        setContractorTypes(types)
+      }
+    } catch (error) {
+      console.error('Error fetching contractor types:', error)
+      // Fallback to hardcoded list if API fails
+      setContractorTypes([
+        { code: 'B', name: 'General Building' },
+        { code: 'A', name: 'General Engineering' },
+        { code: 'C-10', name: 'Electrical' },
+        { code: 'C-36', name: 'Plumbing' },
+        { code: 'C-20', name: 'HVAC' },
+        { code: 'C-27', name: 'Landscaping' },
+        { code: 'C-33', name: 'Painting' },
+        { code: 'C-39', name: 'Roofing' }
+      ])
+    }
+  }
 
   const fetchContractors = async () => {
     try {

@@ -13,12 +13,20 @@ export default function CityContractorTypePage() {
   const [contractors, setContractors] = useState([])
   const [stats, setStats] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [currentPage, setCurrentPage] = useState(1)
+  const contractorsPerPage = 24
 
   useEffect(() => {
     if (city && classification) {
       fetchCityContractorsByType()
     }
   }, [city, classification])
+
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage)
+    // Scroll to top of contractor list
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
   const fetchCityContractorsByType = async () => {
     try {
@@ -42,18 +50,26 @@ export default function CityContractorTypePage() {
       const data = await response.json()
       
       if (response.ok && data.contractors) {
-        // Filter contractors to match the specific city
+        // Debug: Check what classifications are in the results
+        const classificationsInResults = [...new Set(data.contractors.map(c => c.primary_classification))]
+        console.log(`Classifications in API results:`, classificationsInResults)
+        console.log(`Searching for classification: "${classification.toUpperCase()}"`)
+        
+        // Filter contractors to match both the specific city AND classification
         // Cities are stored as "SAN DIEGO" in database, URL comes as "san-diego"
         const targetCityUpper = cityName.toUpperCase().trim()
+        const targetClassification = classification.toUpperCase().trim()
         
         const filteredContractors = data.contractors.filter(c => {
           const contractorCity = c.city?.trim()
-          return contractorCity === targetCityUpper
+          const contractorClassification = c.primary_classification?.trim()
+          return contractorCity === targetCityUpper && contractorClassification === targetClassification
         })
         
-        console.log(`Found ${data.contractors.length} total ${classification} contractors`)
-        console.log(`Filtered to ${filteredContractors.length} contractors in ${cityName}`)
+        console.log(`Found ${data.contractors.length} total contractors from API`)
+        console.log(`Filtered to ${filteredContractors.length} contractors in ${cityName} with classification ${targetClassification}`)
         console.log(`Sample cities from results:`, data.contractors.slice(0, 10).map(c => c.city))
+        console.log(`Sample classifications from results:`, data.contractors.slice(0, 10).map(c => c.primary_classification))
         
         setContractors(filteredContractors)
         
@@ -196,12 +212,49 @@ export default function CityContractorTypePage() {
               </div>
             </div>
 
-            <p style={{ fontSize: '1.1rem', color: '#555', lineHeight: 1.6, textAlign: 'center', maxWidth: '800px', margin: '0 auto' }}>
+            <p style={{ fontSize: '1.1rem', color: '#555', lineHeight: 1.6, textAlign: 'center', maxWidth: '800px', margin: '0 auto 2rem auto' }}>
               {stats.total > 0 
                 ? `${cityDisplayName} has ${stats.total.toLocaleString()} licensed ${typeInfo.name.toLowerCase()}s. All contractor information is verified through the California State License Board (CSLB).`
                 : `No ${typeInfo.name.toLowerCase()}s currently found in ${cityDisplayName}. Try browsing contractors statewide or check nearby cities.`
               }
             </p>
+
+            {/* Navigation Options */}
+            <div style={{ 
+              display: 'flex', 
+              gap: '1rem', 
+              justifyContent: 'center', 
+              flexWrap: 'wrap',
+              marginTop: '1.5rem'
+            }}>
+              <Link href={`/contractors/california/${city}`} style={{
+                background: '#059669',
+                color: 'white',
+                padding: '0.75rem 1.5rem',
+                borderRadius: '8px',
+                textDecoration: 'none',
+                fontWeight: 'bold',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }}>
+                🏙️ All {cityDisplayName} Contractors
+              </Link>
+              
+              <Link href={`/contractor-types`} style={{
+                background: '#3b82f6',
+                color: 'white',
+                padding: '0.75rem 1.5rem',
+                borderRadius: '8px',
+                textDecoration: 'none',
+                fontWeight: 'bold',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }}>
+                🔧 All {typeInfo.name}s Statewide
+              </Link>
+            </div>
           </div>
 
           {/* Contractors List */}
@@ -222,7 +275,7 @@ export default function CityContractorTypePage() {
                 gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
                 gap: '1.5rem' 
               }}>
-                {contractors.slice(0, 12).map((contractor) => (
+                {contractors.slice((currentPage - 1) * contractorsPerPage, currentPage * contractorsPerPage).map((contractor) => (
                   <Link key={contractor.license_no} href={createContractorUrl(contractor)}>
                     <div style={{
                       border: '1px solid #e5e7eb',
@@ -323,10 +376,58 @@ export default function CityContractorTypePage() {
                 ))}
               </div>
 
-              {contractors.length > 12 && (
-                <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-                  <div style={{ fontSize: '1rem', color: '#666' }}>
-                    Showing first 12 of {contractors.length.toLocaleString()} {typeInfo.name.toLowerCase()}s in {cityDisplayName}
+              {/* Pagination */}
+              {contractors.length > contractorsPerPage && (
+                <div style={{ 
+                  display: 'flex', 
+                  justifyContent: 'center', 
+                  alignItems: 'center', 
+                  gap: '1rem', 
+                  marginTop: '2rem',
+                  flexWrap: 'wrap'
+                }}>
+                  <div style={{ fontSize: '1rem', color: '#666', marginBottom: '1rem' }}>
+                    Showing {((currentPage - 1) * contractorsPerPage) + 1}-{Math.min(currentPage * contractorsPerPage, contractors.length)} of {contractors.length.toLocaleString()} {typeInfo.name.toLowerCase()}s in {cityDisplayName}
+                  </div>
+                  
+                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                    {currentPage > 1 && (
+                      <button
+                        onClick={() => handlePageChange(currentPage - 1)}
+                        style={{
+                          background: '#3b82f6',
+                          color: 'white',
+                          border: 'none',
+                          padding: '0.5rem 1rem',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          fontSize: '0.9rem'
+                        }}
+                      >
+                        ← Previous
+                      </button>
+                    )}
+                    
+                    <span style={{ color: '#666', fontSize: '0.9rem' }}>
+                      Page {currentPage} of {Math.ceil(contractors.length / contractorsPerPage)}
+                    </span>
+                    
+                    {currentPage < Math.ceil(contractors.length / contractorsPerPage) && (
+                      <button
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        style={{
+                          background: '#3b82f6',
+                          color: 'white',
+                          border: 'none',
+                          padding: '0.5rem 1rem',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          fontSize: '0.9rem'
+                        }}
+                      >
+                        Next →
+                      </button>
+                    )}
                   </div>
                 </div>
               )}
