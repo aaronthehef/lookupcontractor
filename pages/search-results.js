@@ -21,7 +21,7 @@ export default function SearchResults() {
   const [selectedCity, setSelectedCity] = useState('')
   const [activeOnly, setActiveOnly] = useState(true)
   const [hasPhoneOnly, setHasPhoneOnly] = useState(false)
-  const [sortBy, setSortBy] = useState('business_name')
+  const [sortBy, setSortBy] = useState('relevance')
 
   useEffect(() => {
     console.log('=== SEARCH RESULTS USEEFFECT ===')
@@ -154,6 +154,16 @@ export default function SearchResults() {
     return '#6b7280'
   }
 
+  // Shuffle array function for randomization
+  const shuffleArray = (array) => {
+    const shuffled = [...array]
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+    }
+    return shuffled
+  }
+
   // For server-side pagination, we show all contractors from the API response
   // Filtering and sorting are done client-side for the current page
   const getDisplayContractors = () => {
@@ -173,23 +183,39 @@ export default function SearchResults() {
       return true
     })
     
-    // Apply sorting
-    filtered.sort((a, b) => {
-      switch (sortBy) {
-        case 'business_name':
-          return (a.business_name || '').localeCompare(b.business_name || '')
-        case 'city':
-          return (a.city || '').localeCompare(b.city || '')
-        case 'license_no':
-          return (a.license_no || '').localeCompare(b.license_no || '')
-        case 'expiration_date':
-          const dateA = a.expiration_date ? new Date(a.expiration_date) : new Date(0)
-          const dateB = b.expiration_date ? new Date(b.expiration_date) : new Date(0)
-          return dateB - dateA // Most recent expiration first
-        default:
-          return 0
-      }
-    })
+    // Apply sorting - if "relevance" (default), use status-prioritized randomization
+    if (sortBy === 'relevance' || sortBy === 'business_name') {
+      // Status-prioritized randomization: Active licenses first, then others
+      const activeContractors = filtered.filter(c => 
+        c.primary_status === 'CLEAR' || c.primary_status === 'ACTIVE' || c.primary_status === null
+      )
+      const otherContractors = filtered.filter(c => 
+        c.primary_status && !['CLEAR', 'ACTIVE'].includes(c.primary_status)
+      )
+      
+      // Randomize each group separately
+      const shuffledActive = shuffleArray(activeContractors)
+      const shuffledOthers = shuffleArray(otherContractors)
+      
+      // Combine: active contractors first, then others
+      filtered = [...shuffledActive, ...shuffledOthers]
+    } else {
+      // Apply traditional sorting for other options
+      filtered.sort((a, b) => {
+        switch (sortBy) {
+          case 'city':
+            return (a.city || '').localeCompare(b.city || '')
+          case 'license_no':
+            return (a.license_no || '').localeCompare(b.license_no || '')
+          case 'expiration_date':
+            const dateA = a.expiration_date ? new Date(a.expiration_date) : new Date(0)
+            const dateB = b.expiration_date ? new Date(b.expiration_date) : new Date(0)
+            return dateB - dateA // Most recent expiration first
+          default:
+            return 0
+        }
+      })
+    }
     
     return filtered
   }
@@ -408,6 +434,7 @@ export default function SearchResults() {
                   fontSize: '0.95rem'
                 }}
               >
+                <option value="relevance">Relevance (Active licenses first)</option>
                 <option value="business_name">Business Name A-Z</option>
                 <option value="city">City A-Z</option>
                 <option value="license_no">License Number</option>
