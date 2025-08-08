@@ -261,6 +261,29 @@ export default function ContractorUniversalProfile({ contractor: initialContract
         {/* Breadcrumbs */}
         <Breadcrumbs items={breadcrumbItems} />
         
+        {/* GSW Affiliate Marketing Banner */}
+        <div style={{ 
+          background: 'white', 
+          borderRadius: '12px', 
+          padding: '1.5rem',
+          marginBottom: '2rem',
+          boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+          textAlign: 'center'
+        }}>
+          <p style={{ fontSize: '1rem', color: '#555', marginBottom: '1rem', fontWeight: '500' }}>
+            Find out more about your contractor before hiring
+          </p>
+          <a href="https://apps.globalbackgroundscreening.com/234-0-1-5.html" target="_blank" rel="noopener noreferrer">
+            <img 
+              style={{ border: '0px', borderRadius: '8px', maxWidth: '100%', height: 'auto' }} 
+              src="https://apps.globalbackgroundscreening.com/media/banners/728x90Globalbackgroundscreening.gif" 
+              width="728" 
+              height="90" 
+              alt="Background Screening Services - Find out more about your contractor"
+            />
+          </a>
+        </div>
+        
         {/* Main Info Card */}
         <div style={{ 
           background: 'white', 
@@ -509,6 +532,7 @@ export default function ContractorUniversalProfile({ contractor: initialContract
 
           </div>
         </div>
+
 
         {/* Related Contractors */}
         <div style={{ 
