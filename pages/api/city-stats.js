@@ -1,5 +1,5 @@
-const { pool, executeQuery } = require('../../lib/database.js')
-const cache = require('../../lib/cache.js')
+import { pool, executeQuery } from '../../lib/database.js'
+import cache from '../../lib/cache.js'
 
 async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -148,4 +148,4 @@ async function handler(req, res) {
   }
 }
 
-module.exports = handler
+export default handler

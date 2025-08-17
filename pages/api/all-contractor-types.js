@@ -1,4 +1,4 @@
-const { executeQuery } = require('../../lib/database.js')
+import { executeQuery } from '../../lib/database.js'
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
