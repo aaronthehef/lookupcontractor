@@ -44,3 +44,4 @@ pids
 # Large data files
 processed_contractors.json
 import_progress.json
+data/contractors.db
