@@ -5,6 +5,7 @@ import Head from 'next/head'
 import Breadcrumbs from '../../../components/Breadcrumbs'
 import { createContractorUrl } from '../../../utils/urlHelpers'
 import { getStatusInfo } from '../../../utils/statusHelper'
+import { getContractorTypeInfo } from '../../../utils/contractorTypes'
 
 export default function CityContractors() {
   const router = useRouter()
@@ -427,7 +428,11 @@ export default function CityContractors() {
                           <div>
                             <div style={{ fontSize: '0.8rem', color: '#0369a1', marginBottom: '0.2rem' }}>Specialty</div>
                             <div style={{ fontWeight: '600', color: '#0c4a6e', fontSize: '0.9rem' }}>
-                              {contractor.primary_classification} - {contractor.trade}
+                              {(() => {
+                                const typeInfo = getContractorTypeInfo(contractor.primary_classification)
+                                const tradeName = contractor.trade || typeInfo.name
+                                return `${contractor.primary_classification} - ${tradeName}`
+                              })()}
                             </div>
                           </div>
                         </div>
