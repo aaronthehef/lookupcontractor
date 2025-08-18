@@ -24,6 +24,9 @@ export default function ContractorTypeCaliforniaPage() {
     try {
       console.log('Fetching contractors for classification:', classification)
       
+      // Normalize classification - remove dashes for database query (C-10 -> C10)
+      const normalizedClassification = classification.toUpperCase().replace(/-/g, '')
+      
       // Fetch contractors for display (limited to first 100 for performance)
       const contractorsResponse = await fetch('/api/search', {
         method: 'POST',
@@ -31,7 +34,7 @@ export default function ContractorTypeCaliforniaPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          searchTerm: classification.toUpperCase(),
+          searchTerm: normalizedClassification,
           searchType: 'classification',
           state: 'california',
           limit: 100
@@ -41,7 +44,7 @@ export default function ContractorTypeCaliforniaPage() {
       console.log('Search API response status:', contractorsResponse.status)
       
       // Fetch accurate stats (total counts)
-      const statsResponse = await fetch(`/api/classification-stats?classification=${classification.toUpperCase()}`)
+      const statsResponse = await fetch(`/api/classification-stats?classification=${normalizedClassification}`)
       
       console.log('Stats API response status:', statsResponse.status)
       

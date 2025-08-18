@@ -99,7 +99,9 @@ export default function SearchPage() {
         }
       }
       if (searchContractorType) {
-        params.append('type', searchContractorType)
+        // Normalize contractor type - remove dashes for database query (C-10 -> C10)
+        const normalizedType = searchContractorType.replace(/-/g, '')
+        params.append('type', normalizedType)
       }
       if (searchTermValue) {
         params.append('term', searchTermValue)
