@@ -6,7 +6,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "sitemap:generate": "node scripts/generate-static-sitemaps.js",
+    "sitemap:generate": "node scripts/generate-static-sitemaps.mjs",
     "sitemap:health": "node scripts/sitemap-utils.js",
     "sitemap:validate": "node scripts/validate-sitemaps.js",
     "sitemap:test": "npm run sitemap:health && npm run sitemap:validate",
@@ -16,7 +16,9 @@
     "@supabase/supabase-js": "^2.0.0",
     "@tailwindcss/postcss": "^4.1.11",
     "autoprefixer": "^10.4.21",
+    "bcryptjs": "^3.0.2",
     "csv-parse": "^6.1.0",
+    "jsonwebtoken": "^9.0.2",
     "leaflet": "^1.9.4",
     "next": "^14.0.0",
     "node-fetch": "^3.3.2",
@@ -25,7 +27,8 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-leaflet": "^4.2.1",
-    "tailwindcss": "^4.1.11"
+    "tailwindcss": "^4.1.11",
+    "twilio": "^5.8.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

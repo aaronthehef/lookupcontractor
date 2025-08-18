@@ -17,8 +17,20 @@ export default function ContractorMap({ contractor }) {
   const [error, setError] = useState(null)
 
   useEffect(() => {
+    console.log('🗺️ ContractorMap received contractor:', contractor)
     if (contractor) {
+      console.log('🗺️ Map data available:', {
+        hasCity: !!contractor.city,
+        hasState: !!contractor.state,
+        hasZip: !!contractor.zip_code,
+        hasAddress: !!contractor.mailing_address,
+        city: contractor.city,
+        state: contractor.state,
+        zip_code: contractor.zip_code
+      })
       geocodeAddress()
+    } else {
+      console.log('🗺️ No contractor data for map')
     }
   }, [contractor])
 
@@ -88,23 +100,27 @@ export default function ContractorMap({ contractor }) {
     
     console.log(`Trying geocode (${type}):`, searchAddress)
     
-    // Use Nominatim (OpenStreetMap) geocoding service (free)
-    const response = await fetch(
-      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchAddress)}&limit=1`
-    )
+    // Use our server-side geocoding API to avoid CORS issues
+    const response = await fetch('/api/geocode', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ address: searchAddress })
+    })
     
     const data = await response.json()
     
-    if (data && data.length > 0) {
-      console.log(`Geocode success (${type}):`, data[0])
+    if (data.success) {
+      console.log(`Geocode success (${type}):`, data)
       return {
-        lat: parseFloat(data[0].lat),
-        lng: parseFloat(data[0].lon),
+        lat: data.lat,
+        lng: data.lng,
         accuracy: type // Track what level of accuracy we got
       }
     }
     
-    console.log(`Geocode failed (${type})`)
+    console.log(`Geocode failed (${type}):`, data.error || 'Unknown error')
     return null
   }
 

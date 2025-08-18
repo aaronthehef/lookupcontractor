@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import Head from 'next/head'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import dynamic from 'next/dynamic'
 
 export default function Home() {
   const [searchTerm, setSearchTerm] = useState('')
@@ -9,6 +10,11 @@ export default function Home() {
   const [showAllStates, setShowAllStates] = useState(false)
   const [showAllContractorTypes, setShowAllContractorTypes] = useState(false)
   const [smartSearchTerm, setSmartSearchTerm] = useState('')
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const popularStates = [
     'California', 'Texas', 'Florida', 'New York', 'Illinois', 'Pennsylvania',
@@ -344,6 +350,10 @@ export default function Home() {
     }
   ]
 
+  if (!mounted) {
+    return null
+  }
+
   return (
     <>
       <Head>
@@ -368,8 +378,6 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
         
-        {/* Preload critical resources */}
-        <link rel="preload" as="fetch" href="/api/search" crossOrigin="anonymous" />
         {homePageSchema.map((schema, index) => (
           <script
             key={index}
@@ -379,8 +387,8 @@ export default function Home() {
         ))}
       </Head>
       <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
-      {/* Header */}
-      <header style={{ padding: '2rem 0', textAlign: 'center', color: 'white' }}>
+      {/* Hero Section */}
+      <div style={{ padding: '2rem 0', textAlign: 'center', color: 'white' }}>
         <h1 style={{ fontSize: '3.5rem', fontWeight: 'bold', marginBottom: '0.5rem', margin: 0 }}>
           L<span style={{ 
             display: 'inline-block',
@@ -394,7 +402,7 @@ export default function Home() {
         <p style={{ fontSize: '1.5rem', opacity: 0.9, margin: 0 }}>
           California Contractor License Verification - Before You Hire!
         </p>
-      </header>
+      </div>
 
       {/* Main Content */}
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 1rem' }}>
@@ -618,6 +626,11 @@ export default function Home() {
                 <div style={{ color: '#666', fontSize: '0.95rem' }}>
                   Licensed Contractors in Database
                 </div>
+                {process.env.USE_SQLITE === 'true' && (
+                  <div style={{ color: '#059669', fontSize: '0.8rem', marginTop: '4px' }}>
+                    🗄️ Powered by Oracle SQLite
+                  </div>
+                )}
               </div>
               
               <div>
@@ -1016,7 +1029,7 @@ export default function Home() {
             opacity: 0.8
           }}>
             <p style={{ margin: '0 0 1rem 0' }}>
-              © {new Date().getFullYear()} Lookup Contractor. All rights reserved.
+              © 2024 Lookup Contractor. All rights reserved.
             </p>
             <p style={{ margin: 0, fontSize: '0.8rem' }}>
               Contractor data sourced from official state licensing boards. Always verify information independently before hiring.

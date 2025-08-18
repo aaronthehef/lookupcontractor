@@ -1,4 +1,4 @@
-import { pool, executeQuery } from '../../lib/database.js'
+import { executeQuery } from '../../lib/database.js'
 import cache from '../../lib/cache.js'
 
 export default async function handler(req, res) {
@@ -28,14 +28,14 @@ export default async function handler(req, res) {
     `)
 
     // Get active contractor count
-    const activeResult = await pool.query(`
+    const activeResult = await executeQuery(`
       SELECT COUNT(*) as active_contractors
       FROM contractors 
       WHERE state = 'CA' AND primary_status = 'CLEAR'
     `)
 
     // Get top cities by contractor count
-    const citiesResult = await pool.query(`
+    const citiesResult = await executeQuery(`
       SELECT city, COUNT(*) as contractor_count
       FROM contractors 
       WHERE state = 'CA' AND city IS NOT NULL
@@ -46,7 +46,7 @@ export default async function handler(req, res) {
 
     // Get contractor types (all or top 15 based on parameter)
     const typesLimit = allTypes === 'true' ? '' : 'LIMIT 15'
-    const typesResult = await pool.query(`
+    const typesResult = await executeQuery(`
       SELECT primary_classification, trade, COUNT(*) as contractor_count
       FROM contractors 
       WHERE state = 'CA' AND primary_classification IS NOT NULL
@@ -56,7 +56,7 @@ export default async function handler(req, res) {
     `)
 
     // Get license status breakdown
-    const statusResult = await pool.query(`
+    const statusResult = await executeQuery(`
       SELECT primary_status, COUNT(*) as count
       FROM contractors 
       WHERE state = 'CA' AND primary_status IS NOT NULL

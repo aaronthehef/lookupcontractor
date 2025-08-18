@@ -1,7 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import { Client } from 'pg'
-
-const connectionString = 'postgresql://neondb_owner:npg_s3DtWl7xbHgZ@ep-weathered-night-ae14rq4j-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require'
+import { executeQuery } from '../../lib/database'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') {
@@ -19,48 +17,34 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const offset = (parseInt(page as string) - 1) * parseInt(limit as string)
 
-  const client = new Client({ connectionString })
-
   try {
-    await client.connect()
-
     // Build WHERE clause conditions
     let whereConditions = []
-    let queryParams = []
-    let paramIndex = 1
 
     // State filter (required)
     if (state) {
-      whereConditions.push(`state = $${paramIndex}`)
-      queryParams.push(state)
-      paramIndex++
+      whereConditions.push(`state = '${state}'`)
     }
 
     // City filter
     if (city) {
-      whereConditions.push(`LOWER(city) = LOWER($${paramIndex})`)
-      queryParams.push(city)
-      paramIndex++
+      whereConditions.push(`LOWER(city) = LOWER('${city.replace(/'/g, "''")}')`)
     }
 
     // Contractor type filter - only match primary classification
     if (type) {
-      whereConditions.push(`primary_classification = $${paramIndex}`)
-      queryParams.push(type)
-      paramIndex++
+      whereConditions.push(`primary_classification = '${type.replace(/'/g, "''")}'`)
     }
 
     // Search term filter
     if (term) {
-      const searchTerm = `%${term}%`
+      const searchTerm = term.replace(/'/g, "''")
       whereConditions.push(`(
-        LOWER(business_name) LIKE LOWER($${paramIndex}) OR 
-        LOWER(full_business_name) LIKE LOWER($${paramIndex}) OR 
-        license_no LIKE UPPER($${paramIndex}) OR
-        LOWER(classification_descriptions) LIKE LOWER($${paramIndex})
+        LOWER(business_name) LIKE LOWER('%${searchTerm}%') OR 
+        LOWER(full_business_name) LIKE LOWER('%${searchTerm}%') OR 
+        license_no LIKE UPPER('%${searchTerm}%') OR
+        LOWER(classification_descriptions) LIKE LOWER('%${searchTerm}%')
       )`)
-      queryParams.push(searchTerm)
-      paramIndex++
     }
 
     const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : ''
@@ -72,7 +56,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       ${whereClause}
     `
 
-    const { rows: countRows } = await client.query(countQuery, queryParams)
+    const { rows: countRows } = await executeQuery(countQuery)
     const total = parseInt(countRows[0].total)
 
     // Get contractors with pagination
@@ -86,12 +70,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       FROM contractors 
       ${whereClause}
       ORDER BY business_name ASC
-      LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
+      LIMIT ${parseInt(limit as string)} OFFSET ${offset}
     `
 
-    queryParams.push(limit, offset.toString())
-
-    const { rows: contractors } = await client.query(contractorsQuery, queryParams)
+    const { rows: contractors } = await executeQuery(contractorsQuery)
 
     res.status(200).json({
       contractors,
@@ -104,8 +86,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   } catch (error) {
     console.error('Database error:', error)
     res.status(500).json({ error: 'Database query failed' })
-  } finally {
-    await client.end()
   }
 }
 

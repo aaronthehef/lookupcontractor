@@ -1,7 +1,11 @@
-const fs = require('fs')
-const path = require('path')
-const { executeQuery } = require('../lib/database.js')
-const { createContractorUrl, createSlug } = require('../utils/urlHelpers')
+import fs from 'fs'
+import path from 'path'
+import { fileURLToPath } from 'url'
+import { executeQuery } from '../lib/database.mjs'
+import { createContractorUrl, createSlug } from '../utils/urlHelpers.js'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 /**
  * Generate Static Sitemap Files
@@ -227,7 +231,7 @@ async function generateSitemapIndex(publicDir, currentDate, contractorSitemaps) 
 }
 
 // Run if called directly
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   generateStaticSitemaps()
     .then(() => {
       console.log('🏁 Script completed successfully')
@@ -239,4 +243,4 @@ if (require.main === module) {
     })
 }
 
-module.exports = generateStaticSitemaps
+export default generateStaticSitemaps

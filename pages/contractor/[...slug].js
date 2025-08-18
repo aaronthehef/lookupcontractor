@@ -6,7 +6,9 @@ import dynamic from 'next/dynamic'
 import { getStatusInfo } from '../../utils/statusHelper'
 import { getContractorTypeInfo } from '../../utils/contractorTypes'
 import { parseContractorUrl } from '../../utils/urlHelpers'
+import { sanitizeContractor, formatDate, formatCurrency, formatPhone, safeString } from '../../utils/dataHelpers'
 import Breadcrumbs from '../../components/Breadcrumbs'
+import ErrorBoundary from '../../components/ErrorBoundary'
 
 // Dynamically import map component to avoid SSR issues
 const ContractorMap = dynamic(() => import('../../components/ContractorMap'), {
@@ -43,10 +45,8 @@ export default function ContractorUniversalProfile({ contractor: initialContract
       // Old format: /contractor/996518 - check if it's a pure license number
       const licenseCandidate = slug[0]
       console.log('Single slug, license candidate:', licenseCandidate)
-      // If it's all digits or starts with digits, treat as license
-      if (/^\d+/.test(licenseCandidate)) {
-        setUrlType('old')
-        setUrlParams({ license: licenseCandidate })
+      // If it looks like a license (letters, numbers, dashes, spaces), treat as license
+      if (/^[A-Z0-9\-\s]+$/i.test(licenseCandidate) && licenseCandidate.length >= 3) {
         fetchContractor(licenseCandidate)
       } else {
         setError('Invalid URL format')
@@ -55,13 +55,11 @@ export default function ContractorUniversalProfile({ contractor: initialContract
     } else if (slug.length === 3) {
       // New SEO format: /contractor/los-angeles/plumber/996518-johns-plumbing
       console.log('Three slugs detected:', slug)
-      setUrlType('seo')
       const [city, trade, licenseAndName] = slug
       console.log('Parsed parts:', { city, trade, licenseAndName })
       const parsedUrl = parseContractorUrl(city, trade, licenseAndName)
       console.log('Parsed URL result:', parsedUrl)
       if (parsedUrl && parsedUrl.license) {
-        setUrlParams({ city, trade, licenseAndName, ...parsedUrl })
         fetchContractor(parsedUrl.license)
       } else {
         console.error('Failed to parse URL')
@@ -75,7 +73,9 @@ export default function ContractorUniversalProfile({ contractor: initialContract
   }
 
   const fetchContractor = async (license) => {
+    console.log('🔥 fetchContractor called with license:', license)
     try {
+      console.log('🔥 Making API call to /api/contractor')
       const response = await fetch('/api/contractor', {
         method: 'POST',
         headers: {
@@ -84,33 +84,26 @@ export default function ContractorUniversalProfile({ contractor: initialContract
         body: JSON.stringify({ license }),
       })
 
+      console.log('🔥 API response status:', response.status)
       if (!response.ok) {
         throw new Error('Contractor not found')
       }
 
       const data = await response.json()
-      setContractor(data.contractor)
+      console.log('🔥 API response data:', data)
+      const sanitizedContractor = sanitizeContractor(data.contractor)
+      console.log('🔥 Sanitized contractor:', sanitizedContractor)
+      setContractor(sanitizedContractor)
+      setError('') // Clear any previous errors
     } catch (err) {
+      console.error('🔥 Error fetching contractor:', err)
       setError('Contractor not found')
-      console.error('Error fetching contractor:', err)
     } finally {
       setLoading(false)
     }
   }
 
-  const formatDate = (dateString) => {
-    if (!dateString) return 'N/A'
-    return new Date(dateString).toLocaleDateString()
-  }
 
-  const formatPhone = (phone) => {
-    if (!phone) return 'N/A'
-    const cleaned = phone.replace(/\D/g, '')
-    if (cleaned.length === 10) {
-      return `(${cleaned.slice(0,3)}) ${cleaned.slice(3,6)}-${cleaned.slice(6)}`
-    }
-    return phone
-  }
 
   const parseClassifications = (rawClassifications) => {
     if (!rawClassifications) return []
@@ -125,6 +118,8 @@ export default function ContractorUniversalProfile({ contractor: initialContract
     )
   }
 
+  console.log('🔥 Render check - error:', error, 'contractor:', !!contractor, 'loading:', loading)
+  
   if (error || !contractor) {
     return (
       <div style={{ minHeight: '100vh', padding: '2rem', textAlign: 'center' }}>
@@ -261,29 +256,6 @@ export default function ContractorUniversalProfile({ contractor: initialContract
         {/* Breadcrumbs */}
         <Breadcrumbs items={breadcrumbItems} />
         
-        {/* GSW Affiliate Marketing Banner */}
-        <div style={{ 
-          background: 'white', 
-          borderRadius: '12px', 
-          padding: '1.5rem',
-          marginBottom: '2rem',
-          boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-          textAlign: 'center'
-        }}>
-          <p style={{ fontSize: '1rem', color: '#555', marginBottom: '1rem', fontWeight: '500' }}>
-            Find out more about your contractor before hiring
-          </p>
-          <a href="https://apps.globalbackgroundscreening.com/234-0-1-5.html" target="_blank" rel="noopener noreferrer">
-            <img 
-              style={{ border: '0px', borderRadius: '8px', maxWidth: '100%', height: 'auto' }} 
-              src="https://apps.globalbackgroundscreening.com/media/banners/728x90Globalbackgroundscreening.gif" 
-              width="728" 
-              height="90" 
-              alt="Background Screening Services - Find out more about your contractor"
-            />
-          </a>
-        </div>
-        
         {/* Main Info Card */}
         <div style={{ 
           background: 'white', 
@@ -299,6 +271,26 @@ export default function ContractorUniversalProfile({ contractor: initialContract
               <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem', color: '#333', borderBottom: '2px solid #e5e7eb', paddingBottom: '0.5rem' }}>
                 Business Information
               </h2>
+              
+              {/* Verified Badge */}
+              {contractor.phone_verified && (
+                <div style={{ 
+                  marginBottom: '1rem',
+                  padding: '0.75rem',
+                  background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+                  color: 'white',
+                  borderRadius: '8px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  fontSize: '0.95rem',
+                  fontWeight: 'bold',
+                  boxShadow: '0 2px 4px rgba(5, 150, 105, 0.2)'
+                }}>
+                  <span style={{ fontSize: '1.1rem' }}>✅</span>
+                  Verified Business
+                </div>
+              )}
               
               <div style={{ lineHeight: 1.8, color: '#555' }}>
                 <div style={{ marginBottom: '0.75rem' }}>
@@ -320,7 +312,67 @@ export default function ContractorUniversalProfile({ contractor: initialContract
                 
                 <div style={{ marginBottom: '0.75rem' }}>
                   <strong>Phone:</strong><br />
-                  {formatPhone(contractor.business_phone)}
+                  <span suppressHydrationWarning>
+                    {formatPhone(contractor.business_phone)}
+                  </span>
+                </div>
+                
+                <div style={{ marginBottom: '0.75rem' }}>
+                  <strong>Website:</strong><br />
+                  {contractor.website ? (
+                    <a 
+                      href={contractor.website.startsWith('http') ? contractor.website : `https://${contractor.website}`}
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      style={{ color: '#3b82f6', textDecoration: 'none' }}
+                      onMouseOver={(e) => e.target.style.textDecoration = 'underline'}
+                      onMouseOut={(e) => e.target.style.textDecoration = 'none'}
+                    >
+                      {contractor.website}
+                    </a>
+                  ) : (
+                    <Link href="/contractor/register" style={{ 
+                      color: '#dc2626', 
+                      textDecoration: 'none',
+                      fontStyle: 'italic',
+                      fontSize: '0.95rem'
+                    }}>
+                      📢 Claim your business page to add your website
+                    </Link>
+                  )}
+                </div>
+                
+                <div style={{ marginBottom: '0.75rem' }}>
+                  <strong>Description:</strong><br />
+                  {contractor.description ? (
+                    <div style={{ 
+                      marginTop: '0.5rem', 
+                      padding: '1rem', 
+                      background: '#f8fafc', 
+                      borderRadius: '6px',
+                      border: '1px solid #e5e7eb',
+                      lineHeight: '1.6'
+                    }}>
+                      {contractor.description}
+                    </div>
+                  ) : (
+                    <div style={{ 
+                      marginTop: '0.5rem', 
+                      padding: '1rem', 
+                      background: '#fef2f2', 
+                      borderRadius: '6px',
+                      border: '1px solid #fecaca',
+                      lineHeight: '1.6'
+                    }}>
+                      <Link href="/contractor/register" style={{ 
+                        color: '#dc2626', 
+                        textDecoration: 'none',
+                        fontStyle: 'italic'
+                      }}>
+                        🚀 Claim this business page to add your description and stand out from competitors
+                      </Link>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -373,12 +425,16 @@ export default function ContractorUniversalProfile({ contractor: initialContract
                 
                 <div style={{ marginBottom: '0.75rem' }}>
                   <strong>Issue Date:</strong><br />
-                  {formatDate(contractor.issue_date)}
+                  <span suppressHydrationWarning>
+                    {formatDate(contractor.issue_date)}
+                  </span>
                 </div>
                 
                 <div style={{ marginBottom: '0.75rem' }}>
                   <strong>Expiration Date:</strong><br />
-                  {formatDate(contractor.expiration_date)}
+                  <span suppressHydrationWarning>
+                    {formatDate(contractor.expiration_date)}
+                  </span>
                 </div>
               </div>
             </div>
@@ -419,7 +475,9 @@ export default function ContractorUniversalProfile({ contractor: initialContract
                 <div style={{ marginBottom: '0.75rem' }}>
                   <strong>Phone:</strong><br />
                   <a href={`tel:${contractor.business_phone}`} style={{ color: '#3b82f6', textDecoration: 'none' }}>
-                    📞 {formatPhone(contractor.business_phone)}
+                    <span suppressHydrationWarning>
+                      📞 {formatPhone(contractor.business_phone)}
+                    </span>
                   </a>
                 </div>
               )}

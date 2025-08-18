@@ -15,24 +15,26 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     const result = await executeQuery(`
       SELECT 
-        id, license_no, business_name, bus_name_2, full_business_name,
-        mailing_address, city, county, state, zip_code, country,
-        business_phone, business_type, issue_date, reissue_date,
-        expiration_date, inactivation_date, reactivation_date,
-        pending_suspension, pending_class_removal, pending_class_replace,
-        primary_status, secondary_status, raw_classifications,
-        classification_codes, classification_descriptions,
-        primary_classification, trade, asbestos_reg,
-        workers_comp_coverage_type, wc_insurance_company, wc_policy_number,
-        wc_effective_date, wc_expiration_date, wc_cancellation_date,
-        cb_surety_company, cb_number, cb_effective_date, cb_cancellation_date,
-        cb_amount, wb_surety_company, wb_number, wb_effective_date,
-        wb_cancellation_date, wb_amount, db_surety_company, db_number,
-        db_effective_date, db_cancellation_date, db_amount,
-        date_required, discp_case_region, db_bond_reason, db_case_no,
-        created_at, updated_at
-      FROM contractors 
-      WHERE state = 'CA' AND license_no = $1
+        c.id, c.license_no, c.business_name, c.bus_name_2, c.full_business_name,
+        c.mailing_address, c.city, c.county, c.state, c.zip_code, c.country,
+        c.business_phone, c.business_type, c.issue_date, c.reissue_date,
+        c.expiration_date, c.inactivation_date, c.reactivation_date,
+        c.pending_suspension, c.pending_class_removal, c.pending_class_replace,
+        c.primary_status, c.secondary_status, c.raw_classifications,
+        c.classification_codes, c.classification_descriptions,
+        c.primary_classification, c.trade, c.asbestos_reg,
+        c.workers_comp_coverage_type, c.wc_insurance_company, c.wc_policy_number,
+        c.wc_effective_date, c.wc_expiration_date, c.wc_cancellation_date,
+        c.cb_surety_company, c.cb_number, c.cb_effective_date, c.cb_cancellation_date,
+        c.cb_amount, c.wb_surety_company, c.wb_number, c.wb_effective_date,
+        c.wb_cancellation_date, c.wb_amount, c.db_surety_company, c.db_number,
+        c.db_effective_date, c.db_cancellation_date, c.db_amount,
+        c.date_required, c.discp_case_region, c.db_bond_reason, c.db_case_no,
+        c.created_at, c.updated_at,
+        ca.website_url, ca.business_description, ca.tier, ca.phone_verified
+      FROM contractors c
+      LEFT JOIN contractor_accounts ca ON c.license_no = ca.license_no
+      WHERE c.state = 'CA' AND c.license_no = ?
       LIMIT 1
     `, [license])
 
@@ -40,8 +42,26 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(404).json({ error: 'Contractor not found' })
     }
 
+    const contractor = result.rows[0]
+    
+    // Map database fields to frontend expected names
+    contractor.website = contractor.website_url
+    contractor.description = contractor.business_description
+    
+    console.log('🗺️ Contractor data for map:', {
+      license_no: contractor.license_no,
+      business_name: contractor.business_name,
+      mailing_address: contractor.mailing_address,
+      city: contractor.city,
+      state: contractor.state,
+      zip_code: contractor.zip_code,
+      hasRequiredFields: !!(contractor.city && contractor.state),
+      website: contractor.website,
+      description: contractor.description
+    })
+
     res.status(200).json({
-      contractor: result.rows[0]
+      contractor: contractor
     })
 
   } catch (error) {

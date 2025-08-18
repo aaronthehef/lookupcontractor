@@ -84,8 +84,26 @@
       "Bash(do echo -n \"sitemap-contractors-$i.xml: \")",
       "Bash(echo:*)",
       "WebFetch(domain:lookupcontractor.com)",
-      "WebFetch(domain:localhost)"
+      "WebFetch(domain:localhost)",
+      "Bash(git checkout:*)",
+      "Bash(npx vercel:*)",
+      "WebFetch(domain:lookupcontractor-9k9p6mgwp-aaronthehefs-projects.vercel.app)",
+      "WebFetch(domain:lookupcontractor-dl8ldmsky-aaronthehefs-projects.vercel.app)",
+      "WebFetch(domain:lookupcontractor-9zczvunfq-aaronthehefs-projects.vercel.app)",
+      "WebFetch(domain:168.138.65.108)",
+      "WebFetch(domain:reactjs.org)",
+      "WebFetch(domain:legacy.reactjs.org)",
+      "WebFetch(domain:react.dev)",
+      "Bash(touch:*)",
+      "Bash(SET USE_SQLITE=false)",
+      "Bash(where psql)",
+      "Bash(winget install:*)",
+      "Bash(sqlite3:*)",
+      "Bash(set PORT=3001)"
     ],
-    "deny": []
+    "deny": [],
+    "additionalDirectories": [
+      "C:\\d C:\\Users\\aaron\\Projects"
+    ]
   }
 }

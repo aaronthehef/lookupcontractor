@@ -1,0 +1,82 @@
+-- Neon Database Backup - 2025-08-17T23:43:06.873Z
+
+-- Table Schema: contractors
+-- Columns:
+--   id: integer (nullable: NO)
+--   state: character varying (nullable: NO)
+--   license_no: character varying (nullable: NO)
+--   data_source: character varying (nullable: YES)
+--   last_update: date (nullable: YES)
+--   business_name: character varying (nullable: YES)
+--   bus_name_2: character varying (nullable: YES)
+--   full_business_name: text (nullable: YES)
+--   mailing_address: text (nullable: YES)
+--   city: character varying (nullable: YES)
+--   county: character varying (nullable: YES)
+--   zip_code: character varying (nullable: YES)
+--   country: character varying (nullable: YES)
+--   business_phone: character varying (nullable: YES)
+--   business_type: character varying (nullable: YES)
+--   issue_date: date (nullable: YES)
+--   reissue_date: date (nullable: YES)
+--   expiration_date: date (nullable: YES)
+--   inactivation_date: date (nullable: YES)
+--   reactivation_date: date (nullable: YES)
+--   pending_suspension: character varying (nullable: YES)
+--   pending_class_removal: character varying (nullable: YES)
+--   pending_class_replace: character varying (nullable: YES)
+--   primary_status: character varying (nullable: YES)
+--   secondary_status: character varying (nullable: YES)
+--   raw_classifications: text (nullable: YES)
+--   classification_codes: text (nullable: YES)
+--   classification_descriptions: text (nullable: YES)
+--   primary_classification: character varying (nullable: YES)
+--   trade: character varying (nullable: YES)
+--   asbestos_reg: character varying (nullable: YES)
+--   workers_comp_coverage_type: character varying (nullable: YES)
+--   wc_insurance_company: character varying (nullable: YES)
+--   wc_policy_number: character varying (nullable: YES)
+--   wc_effective_date: date (nullable: YES)
+--   wc_expiration_date: date (nullable: YES)
+--   wc_cancellation_date: date (nullable: YES)
+--   wc_suspend_date: date (nullable: YES)
+--   cb_surety_company: character varying (nullable: YES)
+--   cb_number: character varying (nullable: YES)
+--   cb_effective_date: date (nullable: YES)
+--   cb_cancellation_date: date (nullable: YES)
+--   cb_amount: integer (nullable: YES)
+--   wb_surety_company: character varying (nullable: YES)
+--   wb_number: character varying (nullable: YES)
+--   wb_effective_date: date (nullable: YES)
+--   wb_cancellation_date: date (nullable: YES)
+--   wb_amount: integer (nullable: YES)
+--   db_surety_company: character varying (nullable: YES)
+--   db_number: character varying (nullable: YES)
+--   db_effective_date: date (nullable: YES)
+--   db_cancellation_date: date (nullable: YES)
+--   db_amount: integer (nullable: YES)
+--   date_required: date (nullable: YES)
+--   discp_case_region: character varying (nullable: YES)
+--   db_bond_reason: character varying (nullable: YES)
+--   db_case_no: character varying (nullable: YES)
+--   name_tp_2: character varying (nullable: YES)
+--   created_at: timestamp without time zone (nullable: YES)
+--   updated_at: timestamp without time zone (nullable: YES)
+
+-- Database Statistics:
+-- Total Records: 241671
+
+-- Sample Data (first 10 records):
+-- Record 1: License 1078501 - ROGERS MECHANICAL CONTRACTORS LLC
+-- Record 2: License 1036027 - AMADOR GENERAL CONSTRUCTION
+-- Record 3: License 1057109 - TID SYSTEMS
+-- Record 4: License 1096869 - WING WINDOWS
+-- Record 5: License 1000005 - DE SANTIAGO CONSTRUCTION
+-- Record 6: License 1000010 - CANNON MICHAEL ALLAN
+-- Record 7: License 1000012 - INSTABUILT CONSTRUCTION INC
+-- Record 8: License 1000013 - DESERT ELITE ELECTRIC & CONSTRUCTION INC
+-- Record 9: License 1000014 - BLUE RIBBON POOL SERVICE INC
+-- Record 10: License 1000015 - NERELLI WELDING INC
+
+-- Connection String (for reference): postgresql://neondb_owner:npg_s3DtWl7xbHgZ@ep-weathered-night-ae14rq4j-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+-- Migration completed to Oracle SQLite on 2025-08-17T23:43:08.001Z

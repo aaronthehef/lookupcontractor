@@ -74,24 +74,21 @@ export default function StatePage() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
-      {/* Header */}
-      <header style={{ 
+      {/* Page Title Section */}
+      <div style={{ 
         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', 
         color: 'white', 
         padding: '2rem 0' 
       }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 2rem' }}>
-          <Link href="/" style={{ color: 'white', textDecoration: 'none', opacity: 0.8 }}>
-            ← Back to Home
-          </Link>
-          <h1 style={{ fontSize: '3rem', margin: '1rem 0 0.5rem 0' }}>
+          <h1 style={{ fontSize: '3rem', margin: '0 0 0.5rem 0' }}>
             {formatStateName(state)} Contractors
           </h1>
           <p style={{ fontSize: '1.2rem', opacity: 0.9, margin: 0 }}>
             241,671 licensed contractors across California
           </p>
         </div>
-      </header>
+      </div>
 
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem' }}>
         
