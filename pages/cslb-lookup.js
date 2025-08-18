@@ -3,6 +3,7 @@ import Head from 'next/head'
 import { useState } from 'react'
 import { createContractorUrl } from '../utils/urlHelpers'
 import { getStatusInfo } from '../utils/statusHelper'
+import { getContractorTypeInfo } from '../utils/contractorTypes'
 
 export default function CSLBLookup() {
   const [searchTerm, setSearchTerm] = useState('')
@@ -211,7 +212,11 @@ export default function CSLBLookup() {
                                 {contractor.business_name}
                               </h3>
                               <div style={{ fontSize: '0.9rem', color: '#666' }}>
-                                License #{contractor.license_no} • {contractor.primary_classification} - {contractor.trade}
+                                License #{contractor.license_no} • {(() => {
+                                  const typeInfo = getContractorTypeInfo(contractor.primary_classification)
+                                  const tradeName = contractor.trade || typeInfo.name
+                                  return `${contractor.primary_classification} - ${tradeName}`
+                                })()}
                               </div>
                             </div>
                             

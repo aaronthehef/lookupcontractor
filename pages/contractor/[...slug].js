@@ -518,7 +518,11 @@ export default function ContractorUniversalProfile({ contractor: initialContract
             }}>
               <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.2rem' }}>Primary Classification</h3>
               <div style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>
-                {contractor.primary_classification} - {contractor.trade || 'General Contractor'}
+                {(() => {
+                  const typeInfo = getContractorTypeInfo(contractor.primary_classification)
+                  const tradeName = contractor.trade || typeInfo.name
+                  return `${contractor.primary_classification} - ${tradeName}`
+                })()}
               </div>
             </div>
           </div>
