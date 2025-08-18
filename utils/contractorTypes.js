@@ -697,15 +697,25 @@ export const contractorTypeDetails = {
 }
 
 export function getContractorTypeInfo(classification) {
-  let key = classification.toLowerCase()
+  if (!classification) return null
   
-  // Handle both C35/D12 and C-35/D-12 formats by trying both
+  let key = classification.toLowerCase().trim()
+  
+  // Try exact match first
   let typeInfo = contractorTypeDetails[key]
   
-  // If not found and it's a letter+number classification without hyphen, try with hyphen
-  if (!typeInfo && key.match(/^[a-z]\d+$/)) {
-    const keyWithHyphen = key.replace(/^([a-z])(\d+)$/, '$1-$2')
-    typeInfo = contractorTypeDetails[keyWithHyphen]
+  // If not found, try different format variations
+  if (!typeInfo) {
+    // If it's a letter+number without hyphen (C10), try with hyphen (c-10)
+    if (key.match(/^[a-z]\d+$/)) {
+      const keyWithHyphen = key.replace(/^([a-z])(\d+)$/, '$1-$2')
+      typeInfo = contractorTypeDetails[keyWithHyphen]
+    }
+    // If it's a letter+hyphen+number (C-10), try without hyphen (c10)  
+    else if (key.match(/^[a-z]-\d+$/)) {
+      const keyWithoutHyphen = key.replace('-', '')
+      typeInfo = contractorTypeDetails[keyWithoutHyphen]
+    }
   }
   
   return typeInfo || {
