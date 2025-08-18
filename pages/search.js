@@ -55,9 +55,14 @@ export default function SearchPage() {
   }, [state, type, term, currentPage])
 
   const formatStateFromSlug = (stateSlug) => {
-    return stateSlug?.split('-').map(word => 
+    if (!stateSlug) return ''
+    // Handle 'california' slug specially to maintain consistency
+    if (stateSlug.toLowerCase() === 'california') {
+      return 'California'
+    }
+    return stateSlug.split('-').map(word => 
       word.charAt(0).toUpperCase() + word.slice(1)
-    ).join(' ') || ''
+    ).join(' ')
   }
 
   const formatStateToSlug = (stateName) => {
@@ -74,7 +79,10 @@ export default function SearchPage() {
       const searchContractorType = customParams.contractorType || selectedContractorType
       const searchTermValue = customParams.term || searchTerm
 
-      if (searchState && searchState !== 'California') {
+      // Normalize state name for comparison
+      const normalizedState = searchState?.toLowerCase().replace('-', ' ')
+      
+      if (normalizedState && normalizedState !== 'california') {
         // For non-California states, show coming soon message
         setContractors([])
         setTotalCount(0)
@@ -83,7 +91,12 @@ export default function SearchPage() {
       }
 
       if (searchState) {
-        params.append('state', searchState === 'California' ? 'CA' : searchState.toUpperCase())
+        // For California, use 'CA' regardless of input format
+        if (normalizedState === 'california') {
+          params.append('state', 'CA')
+        } else {
+          params.append('state', searchState.toUpperCase())
+        }
       }
       if (searchContractorType) {
         params.append('type', searchContractorType)

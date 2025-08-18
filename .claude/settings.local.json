@@ -99,7 +99,9 @@
       "Bash(where psql)",
       "Bash(winget install:*)",
       "Bash(sqlite3:*)",
-      "Bash(set PORT=3001)"
+      "Bash(set PORT=3001)",
+      "Bash(timeout 10 curl -s \"http://localhost:3000/search?state=california&type=B\")",
+      "Bash(timeout:*)"
     ],
     "deny": [],
     "additionalDirectories": [
