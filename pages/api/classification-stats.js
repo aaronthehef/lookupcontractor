@@ -1,5 +1,5 @@
-const { pool, executeQuery } = require('../../lib/database.js')
-const cache = require('../../lib/cache.js')
+import { executeQuery } from '../../lib/database'
+import cache from '../../lib/cache'
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
