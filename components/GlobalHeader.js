@@ -7,7 +7,6 @@ export default function GlobalHeader() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [contractorName, setContractorName] = useState('')
   const [loading, setLoading] = useState(true)
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
@@ -57,278 +56,94 @@ export default function GlobalHeader() {
     router.push('/')
   }
 
-  if (!mounted) {
-    return (
-      <header style={{
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        color: 'white',
-        padding: '1rem 0',
-        borderBottom: '1px solid rgba(255,255,255,0.1)'
-      }}>
-        <div style={{
-          maxWidth: '1200px',
-          margin: '0 auto',
-          padding: '0 1rem',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center'
-        }}>
-          <Link href="/" style={{ 
-            color: 'white', 
-            textDecoration: 'none',
-            fontSize: '1.5rem',
-            fontWeight: 'bold'
-          }}>
-            LookupContractor
-          </Link>
-          <div style={{ color: 'rgba(255,255,255,0.7)' }}>Loading...</div>
-        </div>
-      </header>
-    )
+  if (!mounted || loading) {
+    return null
   }
 
   return (
     <header style={{
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-      color: 'white',
-      padding: '1rem 0',
-      borderBottom: '1px solid rgba(255,255,255,0.1)'
+      backgroundColor: '#f8f9fa',
+      borderBottom: '1px solid #dee2e6',
+      padding: '1rem 0'
     }}>
       <div style={{
         maxWidth: '1200px',
         margin: '0 auto',
         padding: '0 1rem',
         display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center'
+        alignItems: 'center',
+        gap: '2rem'
       }}>
-        {/* Logo/Brand */}
         <Link href="/" style={{ 
-          color: 'white', 
+          color: '#333', 
           textDecoration: 'none',
-          fontSize: '1.5rem',
-          fontWeight: 'bold'
+          fontWeight: 'normal'
         }}>
-          LookupContractor
+          Search
+        </Link>
+        
+        <Link href="/contractor-types" style={{ 
+          color: '#333', 
+          textDecoration: 'none',
+          fontWeight: 'normal'
+        }}>
+          Browse
         </Link>
 
-        {/* Mobile Menu Button */}
-        <button
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          style={{
-            display: 'none',
-            background: 'rgba(255,255,255,0.2)',
-            border: 'none',
-            color: 'white',
-            padding: '0.5rem',
-            borderRadius: '6px',
-            cursor: 'pointer',
-            fontSize: '1.2rem'
-          }}
-          className="mobile-menu-btn"
-        >
-          ☰
-        </button>
-
-        {/* Desktop Navigation */}
-        <nav style={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          gap: '2rem' 
-        }} className="desktop-nav">
-          <Link href="/" style={{ 
-            color: 'white', 
+        {isLoggedIn && (
+          <Link href="/contractor/dashboard" style={{
+            color: '#333',
             textDecoration: 'none',
-            opacity: 0.9
+            fontWeight: 'normal'
           }}>
-            Search
+            📊 Dashboard
           </Link>
-          
-          <Link href="/contractor-types" style={{ 
-            color: 'white', 
-            textDecoration: 'none',
-            opacity: 0.9
-          }}>
-            Browse
-          </Link>
+        )}
 
-          {/* Auth Section */}
-          {loading ? (
-            <div style={{ color: 'rgba(255,255,255,0.7)' }}>...</div>
-          ) : isLoggedIn ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              <Link href="/contractor/dashboard" style={{
-                color: 'white',
-                textDecoration: 'none',
-                background: 'rgba(255,255,255,0.2)',
-                padding: '0.5rem 1rem',
-                borderRadius: '6px',
-                fontSize: '0.9rem'
-              }}>
-                📊 Dashboard
-              </Link>
-              <div style={{ 
-                fontSize: '0.9rem', 
-                opacity: 0.8,
-                maxWidth: '150px',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap'
+        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          {isLoggedIn ? (
+            <>
+              <span style={{ 
+                color: '#333',
+                fontWeight: 'normal'
               }}>
                 {contractorName}
-              </div>
+              </span>
               <button
                 onClick={handleLogout}
                 style={{
-                  background: 'rgba(255,255,255,0.2)',
-                  color: 'white',
+                  background: 'none',
+                  color: '#333',
                   border: 'none',
-                  padding: '0.5rem 1rem',
-                  borderRadius: '6px',
+                  padding: 0,
                   cursor: 'pointer',
-                  fontSize: '0.9rem'
+                  fontWeight: 'normal',
+                  textDecoration: 'underline'
                 }}
               >
                 Sign Out
               </button>
-            </div>
+            </>
           ) : (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <>
               <Link href="/contractor/login" style={{
-                color: 'white',
+                color: '#333',
                 textDecoration: 'none',
-                opacity: 0.9
+                fontWeight: 'normal'
               }}>
                 Sign In
               </Link>
               <Link href="/contractor/register" style={{
-                background: 'rgba(255,255,255,0.2)',
-                color: 'white',
+                color: '#333',
                 textDecoration: 'none',
-                padding: '0.5rem 1rem',
-                borderRadius: '6px',
-                fontSize: '0.9rem',
-                fontWeight: 'bold'
+                fontWeight: 'normal'
               }}>
                 Claim Your Page
               </Link>
-            </div>
+            </>
           )}
-        </nav>
-      </div>
-
-      {/* Mobile Navigation Menu */}
-      {mobileMenuOpen && (
-        <div style={{
-          display: 'none',
-          background: 'rgba(0,0,0,0.9)',
-          position: 'absolute',
-          top: '100%',
-          left: 0,
-          right: 0,
-          zIndex: 1000,
-          padding: '1rem'
-        }} className="mobile-nav">
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <Link href="/" style={{ 
-              color: 'white', 
-              textDecoration: 'none',
-              padding: '0.75rem',
-              borderRadius: '6px',
-              background: 'rgba(255,255,255,0.1)'
-            }} onClick={() => setMobileMenuOpen(false)}>
-              🔍 Search
-            </Link>
-            
-            <Link href="/contractor-types" style={{ 
-              color: 'white', 
-              textDecoration: 'none',
-              padding: '0.75rem',
-              borderRadius: '6px',
-              background: 'rgba(255,255,255,0.1)'
-            }} onClick={() => setMobileMenuOpen(false)}>
-              📋 Browse
-            </Link>
-
-            {loading ? (
-              <div style={{ color: 'rgba(255,255,255,0.7)', padding: '0.75rem' }}>Loading...</div>
-            ) : isLoggedIn ? (
-              <>
-                <Link href="/contractor/dashboard" style={{
-                  color: 'white',
-                  textDecoration: 'none',
-                  padding: '0.75rem',
-                  borderRadius: '6px',
-                  background: 'rgba(59, 130, 246, 0.8)'
-                }} onClick={() => setMobileMenuOpen(false)}>
-                  📊 Dashboard
-                </Link>
-                <div style={{ 
-                  color: 'rgba(255,255,255,0.8)',
-                  padding: '0.75rem',
-                  fontSize: '0.9rem'
-                }}>
-                  Logged in as: {contractorName}
-                </div>
-                <button
-                  onClick={() => {
-                    handleLogout()
-                    setMobileMenuOpen(false)
-                  }}
-                  style={{
-                    background: 'rgba(220, 38, 38, 0.8)',
-                    color: 'white',
-                    border: 'none',
-                    padding: '0.75rem',
-                    borderRadius: '6px',
-                    cursor: 'pointer',
-                    textAlign: 'left'
-                  }}
-                >
-                  🚪 Sign Out
-                </button>
-              </>
-            ) : (
-              <>
-                <Link href="/contractor/login" style={{
-                  color: 'white',
-                  textDecoration: 'none',
-                  padding: '0.75rem',
-                  borderRadius: '6px',
-                  background: 'rgba(255,255,255,0.1)'
-                }} onClick={() => setMobileMenuOpen(false)}>
-                  🔑 Sign In
-                </Link>
-                <Link href="/contractor/register" style={{
-                  background: 'rgba(59, 130, 246, 0.8)',
-                  color: 'white',
-                  textDecoration: 'none',
-                  padding: '0.75rem',
-                  borderRadius: '6px',
-                  fontWeight: 'bold'
-                }} onClick={() => setMobileMenuOpen(false)}>
-                  ⭐ Claim Your Page
-                </Link>
-              </>
-            )}
-          </div>
         </div>
-      )}
-
-      {/* CSS for responsive behavior */}
-      <style jsx>{`
-        @media (max-width: 768px) {
-          .mobile-menu-btn {
-            display: block !important;
-          }
-          .desktop-nav {
-            display: none !important;
-          }
-          .mobile-nav {
-            display: block !important;
-          }
-        }
-      `}</style>
+      </div>
     </header>
   )
 }

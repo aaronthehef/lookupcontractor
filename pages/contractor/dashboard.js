@@ -191,7 +191,7 @@ export default function ContractorDashboard() {
       case 'verified':
         return { name: 'Verified', badge: '✅', color: '#059669' }
       case 'featured':
-        return { name: 'Featured', badge: '🌟', color: '#dc2626' }
+        return { name: 'Featured', badge: '🌟', color: '#f59e0b' }
       default:
         return { name: 'Free', badge: '👤', color: '#6b7280' }
     }
@@ -219,11 +219,11 @@ export default function ContractorDashboard() {
       </Head>
       
       <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
-        {/* Header */}
-        <header style={{ 
+        {/* Business Info Header */}
+        <div style={{ 
           background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', 
           color: 'white', 
-          padding: '1.5rem 0' 
+          padding: '2rem 0' 
         }}>
           <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
@@ -259,23 +259,9 @@ export default function ContractorDashboard() {
               >
                 👁️ View Public Page
               </Link>
-              <button
-                onClick={handleLogout}
-                style={{
-                  background: 'rgba(255,255,255,0.2)',
-                  color: 'white',
-                  border: 'none',
-                  padding: '0.5rem 1rem',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  fontSize: '0.9rem'
-                }}
-              >
-                Sign Out
-              </button>
             </div>
           </div>
-        </header>
+        </div>
 
         <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem' }}>
           
@@ -394,36 +380,6 @@ export default function ContractorDashboard() {
             </div>
           )}
 
-          {/* Account Status & Upgrade */}
-          {contractor.tier === 'free' && contractor.phone_verified && (
-            <div style={{ 
-              background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)', 
-              color: 'white', 
-              borderRadius: '12px', 
-              padding: '2rem', 
-              marginBottom: '2rem',
-              textAlign: 'center'
-            }}>
-              <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>
-                🚀 Upgrade Your Account
-              </h2>
-              <p style={{ marginBottom: '1.5rem', opacity: 0.9 }}>
-                Get verified badge, higher search rankings, and more leads for just $4.99/month
-              </p>
-              <button style={{
-                background: 'white',
-                color: '#3b82f6',
-                border: 'none',
-                padding: '0.75rem 2rem',
-                borderRadius: '8px',
-                fontSize: '1.1rem',
-                fontWeight: 'bold',
-                cursor: 'pointer'
-              }}>
-                Upgrade to Verified - $4.99/month
-              </button>
-            </div>
-          )}
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '2rem' }}>
             
@@ -576,6 +532,7 @@ export default function ContractorDashboard() {
                   </div>
                 )}
 
+
                 <div style={{ marginBottom: '1.5rem' }}>
                   <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold', color: '#333' }}>
                     Contact Phone Number
@@ -651,23 +608,33 @@ export default function ContractorDashboard() {
                     <ul style={{ paddingLeft: '1.5rem', lineHeight: 1.8 }}>
                       <li>✅ Basic page claim</li>
                       <li>✅ Add website & description (150 chars)</li>
-                      <li>❌ Verified badge</li>
-                      <li>❌ Photo gallery</li>
-                      <li>❌ Priority search ranking</li>
+                      <li>❌ Verified badge ($4.99/month)</li>
+                      <li>❌ 500 character description ($4.99/month)</li>
+                      <li>❌ Higher search ranking ($4.99/month)</li>
+                      <li>❌ Featured badge & top placement ($19.99/month)</li>
                     </ul>
                   ) : contractor.tier === 'verified' ? (
                     <ul style={{ paddingLeft: '1.5rem', lineHeight: 1.8 }}>
                       <li>✅ All Free features</li>
                       <li>✅ Verified contractor badge</li>
-                      <li>✅ Extended description (500 chars)</li>
+                      <li>✅ 500 character description field</li>
                       <li>✅ Higher search ranking</li>
-                      <li>❌ Photo gallery (Featured only)</li>
+                      <li>❌ Featured badge ($19.99/month)</li>
+                      <li>❌ Top placement + photos ($19.99/month)</li>
                     </ul>
-                  ) : (
+                  ) : contractor.tier === 'featured' ? (
                     <ul style={{ paddingLeft: '1.5rem', lineHeight: 1.8 }}>
                       <li>✅ All Verified features</li>
                       <li>✅ Featured contractor badge</li>
-                      <li>✅ Photo gallery (5 photos)</li>
+                      <li>✅ Top placement in search results</li>
+                      <li>✅ Photo gallery</li>
+                      <li>✅ Maximum visibility</li>
+                    </ul>
+                  ) : (
+                    <ul style={{ paddingLeft: '1.5rem', lineHeight: 1.8 }}>
+                      <li>✅ All features included</li>
+                      <li>✅ Premium contractor status</li>
+                      <li>✅ Unlimited photos</li>
                       <li>✅ Top search placement</li>
                       <li>✅ Customer inquiry forms</li>
                     </ul>
@@ -675,29 +642,6 @@ export default function ContractorDashboard() {
                 </div>
               </div>
 
-              {contractor.tier !== 'featured' && (
-                <div style={{ 
-                  background: '#f3f4f6', 
-                  padding: '1rem', 
-                  borderRadius: '8px',
-                  textAlign: 'center'
-                }}>
-                  <p style={{ margin: '0 0 1rem 0', color: '#333' }}>
-                    Want to grow your business?
-                  </p>
-                  <button style={{
-                    background: '#3b82f6',
-                    color: 'white',
-                    border: 'none',
-                    padding: '0.5rem 1rem',
-                    borderRadius: '6px',
-                    cursor: 'pointer',
-                    fontWeight: 'bold'
-                  }}>
-                    {contractor.tier === 'free' ? 'Upgrade to Verified' : 'Upgrade to Featured'}
-                  </button>
-                </div>
-              )}
             </div>
           </div>
 
@@ -720,7 +664,7 @@ export default function ContractorDashboard() {
                 gap: '1rem',
                 marginBottom: '1rem'
               }}>
-                {[1,2,3,4,5].map(i => (
+                {Array.from({ length: 5 }, (_, i) => i + 1).map(i => (
                   <div 
                     key={i}
                     style={{ 
@@ -752,6 +696,233 @@ export default function ContractorDashboard() {
               <p style={{ color: '#666', fontSize: '0.9rem', marginTop: '0.5rem' }}>
                 Upload up to 5 photos to showcase your work (JPG, PNG, max 2MB each)
               </p>
+            </div>
+          )}
+
+          {/* Upgrade Sections - Positioned at Bottom for Better Visibility */}
+          {contractor.phone_verified && (
+            <div style={{ marginTop: '3rem' }}>
+              
+              {/* Verified Upgrade Section */}
+              {contractor.tier === 'free' && (
+                <div style={{
+                  backgroundColor: '#f0fdf4',
+                  border: '2px solid #22c55e',
+                  borderRadius: '12px',
+                  padding: '2rem',
+                  marginBottom: '2rem',
+                  textAlign: 'center',
+                  boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+                }}>
+                  <div style={{ 
+                    fontSize: '1.3rem', 
+                    color: '#15803d', 
+                    marginBottom: '1rem',
+                    fontWeight: 'bold'
+                  }}>
+                    ✅ Upgrade to Verified
+                  </div>
+                  <div style={{ 
+                    color: '#16a34a', 
+                    marginBottom: '1.5rem',
+                    lineHeight: '1.6',
+                    fontSize: '1.1rem'
+                  }}>
+                    Get verified badge and higher search ranking
+                  </div>
+                  <div style={{
+                    backgroundColor: 'white',
+                    border: '1px solid #d1fae5',
+                    borderRadius: '8px',
+                    padding: '1.5rem',
+                    marginBottom: '1.5rem',
+                    textAlign: 'left'
+                  }}>
+                    <div style={{ fontWeight: 'bold', color: '#15803d', marginBottom: '1rem', fontSize: '1.1rem' }}>
+                      Verified Benefits:
+                    </div>
+                    <ul style={{ paddingLeft: '1.5rem', lineHeight: 1.8, color: '#374151', margin: 0 }}>
+                      <li>✅ Verified badge on your profile</li>
+                      <li>✅ Higher search ranking</li>
+                      <li>✅ 500 character description field</li>
+                      <li>✅ Increased customer trust and credibility</li>
+                    </ul>
+                  </div>
+                  <div style={{ 
+                    fontSize: '1.4rem', 
+                    fontWeight: 'bold',
+                    color: '#15803d',
+                    marginBottom: '1rem'
+                  }}>
+                    $4.99/month
+                  </div>
+                  <button 
+                    style={{
+                      backgroundColor: '#22c55e',
+                      color: 'white',
+                      padding: '1rem 2rem',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontWeight: 'bold',
+                      fontSize: '1.1rem',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s'
+                    }}
+                    onMouseOver={(e) => e.target.style.backgroundColor = '#16a34a'}
+                    onMouseOut={(e) => e.target.style.backgroundColor = '#22c55e'}
+                  >
+                    Upgrade to Verified →
+                  </button>
+                </div>
+              )}
+
+              {/* Recommended Upgrade Section */}
+              {contractor.tier === 'verified' && (
+                <div style={{
+                  backgroundColor: '#fef3c7',
+                  border: '2px solid #f59e0b',
+                  borderRadius: '12px',
+                  padding: '2rem',
+                  marginBottom: '2rem',
+                  textAlign: 'center',
+                  boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+                }}>
+                  <div style={{ 
+                    fontSize: '1.3rem', 
+                    color: '#d97706', 
+                    marginBottom: '1rem',
+                    fontWeight: 'bold'
+                  }}>
+                    🌟 Upgrade to Featured
+                  </div>
+                  <div style={{ 
+                    color: '#92400e', 
+                    marginBottom: '1.5rem',
+                    lineHeight: '1.6',
+                    fontSize: '1.1rem'
+                  }}>
+                    Get featured badge, top placement, and photo gallery
+                  </div>
+                  <div style={{
+                    backgroundColor: 'white',
+                    border: '1px solid #fed7aa',
+                    borderRadius: '8px',
+                    padding: '1.5rem',
+                    marginBottom: '1.5rem',
+                    textAlign: 'left'
+                  }}>
+                    <div style={{ fontWeight: 'bold', color: '#d97706', marginBottom: '1rem', fontSize: '1.1rem' }}>
+                      Featured Benefits:
+                    </div>
+                    <ul style={{ paddingLeft: '1.5rem', lineHeight: 1.8, color: '#374151', margin: 0 }}>
+                      <li>🌟 Featured badge</li>
+                      <li>🔝 Top placement in search results</li>
+                      <li>📸 Photo gallery</li>
+                      <li>📈 Maximum visibility and lead generation</li>
+                      <li>✨ All Verified benefits included</li>
+                    </ul>
+                  </div>
+                  <div style={{ 
+                    fontSize: '1.4rem', 
+                    fontWeight: 'bold',
+                    color: '#d97706',
+                    marginBottom: '1rem'
+                  }}>
+                    $19.99/month
+                  </div>
+                  <button 
+                    style={{
+                      backgroundColor: '#f59e0b',
+                      color: 'white',
+                      padding: '1rem 2rem',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontWeight: 'bold',
+                      fontSize: '1.1rem',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s'
+                    }}
+                    onMouseOver={(e) => e.target.style.backgroundColor = '#d97706'}
+                    onMouseOut={(e) => e.target.style.backgroundColor = '#f59e0b'}
+                  >
+                    Upgrade to Featured →
+                  </button>
+                </div>
+              )}
+
+              {/* Show both options for free accounts */}
+              {contractor.tier === 'free' && (
+                <div style={{
+                  backgroundColor: '#fef3c7',
+                  border: '2px solid #f59e0b',
+                  borderRadius: '12px',
+                  padding: '2rem',
+                  marginBottom: '2rem',
+                  textAlign: 'center',
+                  boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+                }}>
+                  <div style={{ 
+                    fontSize: '1.3rem', 
+                    color: '#d97706', 
+                    marginBottom: '1rem',
+                    fontWeight: 'bold'
+                  }}>
+                    🌟 Or Go Premium with Featured
+                  </div>
+                  <div style={{ 
+                    color: '#92400e', 
+                    marginBottom: '1.5rem',
+                    lineHeight: '1.6',
+                    fontSize: '1.1rem'
+                  }}>
+                    Skip Verified and get top placement + photos
+                  </div>
+                  <div style={{
+                    backgroundColor: 'white',
+                    border: '1px solid #fed7aa',
+                    borderRadius: '8px',
+                    padding: '1.5rem',
+                    marginBottom: '1.5rem',
+                    textAlign: 'left'
+                  }}>
+                    <div style={{ fontWeight: 'bold', color: '#d97706', marginBottom: '1rem', fontSize: '1.1rem' }}>
+                      Featured Benefits:
+                    </div>
+                    <ul style={{ paddingLeft: '1.5rem', lineHeight: 1.8, color: '#374151', margin: 0 }}>
+                      <li>🌟 Featured badge</li>
+                      <li>🔝 Top placement in search results</li>
+                      <li>📸 Photo gallery</li>
+                      <li>📈 Maximum visibility and lead generation</li>
+                      <li>✨ All Verified benefits included</li>
+                    </ul>
+                  </div>
+                  <div style={{ 
+                    fontSize: '1.4rem', 
+                    fontWeight: 'bold',
+                    color: '#d97706',
+                    marginBottom: '1rem'
+                  }}>
+                    $19.99/month
+                  </div>
+                  <button 
+                    style={{
+                      backgroundColor: '#f59e0b',
+                      color: 'white',
+                      padding: '1rem 2rem',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontWeight: 'bold',
+                      fontSize: '1.1rem',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s'
+                    }}
+                    onMouseOver={(e) => e.target.style.backgroundColor = '#d97706'}
+                    onMouseOut={(e) => e.target.style.backgroundColor = '#f59e0b'}
+                  >
+                    Upgrade to Featured →
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
