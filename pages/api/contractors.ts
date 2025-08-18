@@ -28,17 +28,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // City filter
     if (city) {
-      whereConditions.push(`LOWER(city) = LOWER('${city.replace(/'/g, "''")}')`)
+      const cityString = Array.isArray(city) ? city[0] : city
+      whereConditions.push(`LOWER(city) = LOWER('${cityString.replace(/'/g, "''")}')`)
     }
 
     // Contractor type filter - only match primary classification
     if (type) {
-      whereConditions.push(`primary_classification = '${type.replace(/'/g, "''")}'`)
+      const typeString = Array.isArray(type) ? type[0] : type
+      whereConditions.push(`primary_classification = '${typeString.replace(/'/g, "''")}'`)
     }
 
     // Search term filter
     if (term) {
-      const searchTerm = term.replace(/'/g, "''")
+      const termString = Array.isArray(term) ? term[0] : term
+      const searchTerm = termString.replace(/'/g, "''")
       whereConditions.push(`(
         LOWER(business_name) LIKE LOWER('%${searchTerm}%') OR 
         LOWER(full_business_name) LIKE LOWER('%${searchTerm}%') OR 
