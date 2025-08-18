@@ -531,6 +531,50 @@ export default function ContractorDashboard() {
                   </small>
                 </div>
 
+                {/* Website Development CTA */}
+                {contractor.phone_verified && (!formData.website_url || formData.website_url.trim() === '') && (
+                  <div style={{
+                    backgroundColor: '#f0f9ff',
+                    border: '2px solid #0ea5e9',
+                    borderRadius: '8px',
+                    padding: '1.5rem',
+                    marginBottom: '2rem',
+                    textAlign: 'center'
+                  }}>
+                    <div style={{ 
+                      fontSize: '1.1rem', 
+                      color: '#0c4a6e', 
+                      marginBottom: '0.5rem',
+                      fontWeight: '600'
+                    }}>
+                      🚀 Don't have a website yet?
+                    </div>
+                    <div style={{ 
+                      color: '#0369a1', 
+                      marginBottom: '1rem',
+                      lineHeight: '1.5'
+                    }}>
+                      Get a free contractor site example designed to help you win more jobs
+                    </div>
+                    <Link 
+                      href="/free-site"
+                      style={{
+                        display: 'inline-block',
+                        backgroundColor: '#0ea5e9',
+                        color: 'white',
+                        padding: '0.75rem 1.5rem',
+                        textDecoration: 'none',
+                        borderRadius: '6px',
+                        fontWeight: 'bold',
+                        transition: 'all 0.2s'
+                      }}
+                      onMouseOver={(e) => e.target.style.backgroundColor = '#0284c7'}
+                      onMouseOut={(e) => e.target.style.backgroundColor = '#0ea5e9'}
+                    >
+                      Get Started →
+                    </Link>
+                  </div>
+                )}
 
                 <div style={{ marginBottom: '1.5rem' }}>
                   <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold', color: '#333' }}>
