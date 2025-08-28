@@ -47,8 +47,8 @@ export default async function handler(req, res) {
     const verificationCode = Math.floor(100000 + Math.random() * 900000).toString()
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000) // 5 minutes
 
-    // 4. Determine which phone number to use (prefer business phone from state records)
-    const verificationPhone = account.business_phone || account.phone_number
+    // 4. Determine which phone number to use (prefer user-entered phone number)
+    const verificationPhone = account.phone_number || account.business_phone
     
     if (!verificationPhone) {
       return res.status(400).json({ error: 'No phone number available for verification' })
@@ -64,6 +64,11 @@ export default async function handler(req, res) {
 
     // 6. Send SMS via Twilio
     try {
+      // Check if Twilio is properly configured
+      if (!process.env.TWILIO_ACCOUNT_SID || !process.env.TWILIO_AUTH_TOKEN) {
+        throw new Error('Twilio credentials not configured')
+      }
+
       // Ensure phone number is in E.164 format
       const formattedPhone = verificationPhone.startsWith('+') ? verificationPhone : `+1${verificationPhone}`
       
