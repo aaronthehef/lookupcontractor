@@ -87,22 +87,7 @@ export default function FreeSiteDiscovery() {
         <meta name="robots" content="noindex" />
       </Head>
 
-      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
-        {/* Header */}
-        <header style={{ 
-          background: 'rgba(255,255,255,0.1)', 
-          backdropFilter: 'blur(10px)',
-          borderBottom: '1px solid rgba(255,255,255,0.2)'
-        }}>
-          <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '1rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Link href="/" style={{ color: 'white', textDecoration: 'none', fontSize: '1.5rem', fontWeight: 'bold' }}>
-              LookupContractor
-            </Link>
-            <Link href="/free-site/thank-you" style={{ color: 'white', textDecoration: 'none', opacity: 0.9 }}>
-              Skip →
-            </Link>
-          </div>
-        </header>
+      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', paddingTop: '80px' }}>
 
         {/* Form Section */}
         <div style={{ 

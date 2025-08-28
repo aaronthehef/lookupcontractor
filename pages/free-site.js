@@ -14,22 +14,7 @@ export default function FreeSiteLanding() {
         <link rel="canonical" href="https://lookupcontractor.com/free-site" />
       </Head>
 
-      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
-        {/* Header */}
-        <header style={{ 
-          background: 'rgba(255,255,255,0.1)', 
-          backdropFilter: 'blur(10px)',
-          borderBottom: '1px solid rgba(255,255,255,0.2)'
-        }}>
-          <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '1rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Link href="/" style={{ color: 'white', textDecoration: 'none', fontSize: '1.5rem', fontWeight: 'bold' }}>
-              LookupContractor
-            </Link>
-            <Link href="/contractor/login" style={{ color: 'white', textDecoration: 'none', opacity: 0.9 }}>
-              Login
-            </Link>
-          </div>
-        </header>
+      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', paddingTop: '80px' }}>
 
         {/* Hero Section */}
         <div style={{ 
@@ -46,7 +31,7 @@ export default function FreeSiteLanding() {
             lineHeight: '1.2',
             textShadow: '0 2px 4px rgba(0,0,0,0.3)'
           }}>
-            We'll build you a free example website for your contracting business
+            Our development partners at <a href="https://logicpros.ca" target="_blank" style={{ color: '#fbbf24', textDecoration: 'underline' }}>LogicPros</a> will build you a free example website - no obligation, see it before spending a dollar
           </h1>
           
           <p style={{ 
@@ -56,7 +41,7 @@ export default function FreeSiteLanding() {
             lineHeight: '1.6',
             textShadow: '0 1px 2px rgba(0,0,0,0.3)'
           }}>
-            It's quick, free, and designed to help you win more jobs
+            Try it risk-free - if you don't love your custom website, you owe nothing
           </p>
 
           <Link 
@@ -105,7 +90,7 @@ export default function FreeSiteLanding() {
               marginBottom: '3rem',
               textShadow: '0 2px 4px rgba(0,0,0,0.3)'
             }}>
-              Why contractors choose our free websites
+              Why contractors choose LogicPros as their web development partner
             </h2>
             
             <div style={{ 
@@ -188,10 +173,10 @@ export default function FreeSiteLanding() {
                 marginBottom: '1rem',
                 lineHeight: '1.6'
               }}>
-                "After getting my free website example, I saw a 40% increase in leads within the first month. The design is clean and professional - exactly what my roofing business needed."
+                "They built me a clean, simple website that actually gets me calls. No fancy stuff I don't need, just the basics done right. My customers can find my info and contact me easily."
               </p>
               <p style={{ color: 'rgba(255,255,255,0.8)', fontWeight: 'bold' }}>
-                — Mike Rodriguez, C-39 Roofing Contractor, Los Angeles
+                — Dave M., General Contractor, Riverside
               </p>
             </div>
 

@@ -155,7 +155,7 @@ async function sendEmailNotifications(data) {
 
 async function sendBusinessOwnerEmail(data) {
   // Create transporter using Zoho Mail configuration
-  const transporter = nodemailer.createTransporter({
+  const transporter = nodemailer.createTransport({
     host: 'smtp.zohocloud.ca',  // Canadian datacenter
     port: 465,
     secure: true, // SSL for port 465
@@ -209,7 +209,7 @@ async function sendBusinessOwnerEmail(data) {
             </table>
           </div>
           
-          <p style="font-size: 16px; line-height: 1.6; margin: 30px 0 20px 0;"><strong>Questions?</strong> Just reply to this email or call us at <a href="tel:+15064782949" style="color: #3b82f6;">(506) 478-2949</a>.</p>
+          <p style="font-size: 16px; line-height: 1.6; margin: 30px 0 20px 0;"><strong>Questions?</strong> Just reply to this email or contact us at <a href="mailto:contact@lookupcontractor.com" style="color: #3b82f6;">contact@lookupcontractor.com</a>.</p>
           
           <p style="font-size: 16px; line-height: 1.6; margin-bottom: 10px;">Best regards,<br>
           <strong>The LookupContractor Team</strong><br>
@@ -235,7 +235,7 @@ async function sendBusinessOwnerEmail(data) {
 
 async function sendAdminNotificationEmail(data) {
   // Create transporter using Zoho Mail configuration
-  const transporter = nodemailer.createTransporter({
+  const transporter = nodemailer.createTransport({
     host: 'smtp.zohocloud.ca',
     port: 465,
     secure: true,

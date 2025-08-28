@@ -10,22 +10,7 @@ export default function DiscoveryComplete() {
         <meta name="robots" content="noindex" />
       </Head>
 
-      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}>
-        {/* Header */}
-        <header style={{ 
-          background: 'rgba(255,255,255,0.1)', 
-          backdropFilter: 'blur(10px)',
-          borderBottom: '1px solid rgba(255,255,255,0.2)'
-        }}>
-          <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '1rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Link href="/" style={{ color: 'white', textDecoration: 'none', fontSize: '1.5rem', fontWeight: 'bold' }}>
-              LookupContractor
-            </Link>
-            <Link href="/" style={{ color: 'white', textDecoration: 'none', opacity: 0.9 }}>
-              Home
-            </Link>
-          </div>
-        </header>
+      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', paddingTop: '80px' }}>
 
         {/* Success Section */}
         <div style={{ 
@@ -130,7 +115,7 @@ export default function DiscoveryComplete() {
             }}>
               <p style={{ margin: '0 0 1rem 0' }}>
                 <strong>Questions in the meantime?</strong><br/>
-                Email us at info@lookupcontractor.com or call (555) 123-4567
+                Email us at contact@lookupcontractor.com or call (555) 123-4567
               </p>
               <Link href="/" style={{ color: '#10b981', textDecoration: 'none', fontWeight: '500' }}>
                 ← Return to LookupContractor.com

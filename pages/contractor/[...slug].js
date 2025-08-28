@@ -331,14 +331,28 @@ export default function ContractorUniversalProfile({ contractor: initialContract
                       {contractor.website}
                     </a>
                   ) : (
-                    <Link href="/contractor/register" style={{ 
-                      color: '#dc2626', 
-                      textDecoration: 'none',
-                      fontStyle: 'italic',
-                      fontSize: '0.95rem'
-                    }}>
-                      📢 Claim your business page to add your website
-                    </Link>
+                    <div>
+                      <Link href="/contractor/register" style={{ 
+                        color: '#dc2626', 
+                        textDecoration: 'none',
+                        fontStyle: 'italic',
+                        fontSize: '0.95rem',
+                        display: 'block',
+                        marginBottom: '0.5rem'
+                      }}>
+                        📢 Claim your business page to add your website
+                      </Link>
+                      <Link href="/free-site" style={{ 
+                        color: '#3b82f6', 
+                        textDecoration: 'none',
+                        fontStyle: 'italic',
+                        fontSize: '0.95rem',
+                        fontWeight: 'bold',
+                        display: 'block'
+                      }}>
+                        🎯 No website? Get a free example from our partner LogicPros today
+                      </Link>
+                    </div>
                   )}
                 </div>
                 
